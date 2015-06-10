@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 
 public class TouchInputHandler : MonoBehaviour {
-
+	
 	// all of the prefabs that we can touch/drag
 	public GameObject[] conePieces;
 	public GameObject[] finPieces;
@@ -12,17 +12,17 @@ public class TouchInputHandler : MonoBehaviour {
 	public GameObject[] boosterPieces;
 	public GameObject[] outlinePieces;
 	public GameObject[] selectedOutlinePieces;
-
+	
 	public GameObject[] trashcans;
-
+	
 	public List<GameObject> rocketPieces = new List<GameObject> ();
-
+	
 	// flags to be able to use with either mouse or touch or both
 	public bool usingMouse = true;
 	public bool usingTouch = true;
-
+	
 	public int pixelsPerUnit = 10;
-
+	
 	// states of the build phase 
 	private int currentState;
 	private int nextState;
@@ -33,36 +33,36 @@ public class TouchInputHandler : MonoBehaviour {
 	private const int finSelected = 2;
 	private const int bodySelected = 3;
 	private const int boosterSelected = 4;
-
+	
 	// variables indicating whether a piece is a rocketPiece, pieceOutline, pieceSelectedOutline, or trashcan
 	private const int rocketPiece = 0;
 	private const int outlinePiece = 1;
 	private const int selectedOutlinePiece = 2;
 	private const int trashcan = 3;
-
+	
 	// camera settings
 	private float cameraHeight;
 	private float cameraWidth;
-
+	
 	// animator and related variables
 	private Animator leftPanelAnimator;
 	private Animator rightPanelAnimator;
 	private bool firstStateChangeOccured = false;
-
+	
 	// Use this for initialization
 	void Start () {
 		// set the state to nothingSelected
 		currentState = nothingSelected;
-
+		
 		// hide all of the pieces to start out
 		hidePieces (conePieces);
 		hidePieces (finPieces);
 		hidePieces (bodyPieces);
 		hidePieces (boosterPieces);
-
+		
 		// hide all of the selected outlines to start out
 		hidePieces (selectedOutlinePieces);
-
+		
 		// get the animators
 		GameObject leftPiecePanel = GameObject.Find ("LeftPiecePanel");
 		if (leftPiecePanel != null) {
@@ -72,16 +72,19 @@ public class TouchInputHandler : MonoBehaviour {
 		if (rightPiecePanel != null) {
 			rightPanelAnimator = rightPiecePanel.GetComponent<Animator>(); 
 		}
-
+		
 		// obtain the width and height of the camera
 		Camera cam = Camera.main;
 		cameraHeight = 2f * cam.orthographicSize;
 		cameraWidth = Mathf.Round (cameraHeight * cam.aspect);
+		
 
 	}
 	
 	// Update is called once per frame
 	void Update () {
+
+		GameObject selectedBodyPiece = null;
 
 		//count down the delay
 		if (switchDelay > 0) {
@@ -89,13 +92,12 @@ public class TouchInputHandler : MonoBehaviour {
 		} else {
 			switchDelay = 0;
 		}
-
+		
 		// for the mouse inputs
 		if (usingMouse) {
 			// if the left mouse button is clicking on our object
 			if(Input.GetMouseButton(0)) {
 
-				GameObject selectedBodyPiece ;
 				if (switching == false) {
 					selectedBodyPiece = MouseOverPiece(Input.mousePosition, rocketPiece);
 				} else {
@@ -103,10 +105,9 @@ public class TouchInputHandler : MonoBehaviour {
 				}
 				//find the closest new lock position, add it to the list of pieces snapped to the rocket
 				newLock(selectedBodyPiece);
-				if (selectedBodyPiece != null && selectedBodyPiece.GetComponent<ObjectInfo>().seeMe == true && selectedBodyPiece.GetComponent<ObjectInfo>().added == false) {
-					rocketPieces.Add(selectedBodyPiece);
-					selectedBodyPiece.GetComponent<ObjectInfo>().added = true;
-				}
+				//add it to the rocketPiece set possibly
+				addToRocketPieces(selectedBodyPiece);
+
 				//only select outline under certain conditions
 				GameObject selectedOutlinePiece;
 				if (selectedBodyPiece == null && switching == false && switchDelay == 0) {
@@ -114,20 +115,20 @@ public class TouchInputHandler : MonoBehaviour {
 				} else {
 					selectedOutlinePiece = null;
 				}
-
+				
 				if (selectedBodyPiece != null) {
 					Vector3 mousePos = Input.mousePosition;
-
+					
 					if (selectedBodyPiece.GetComponent<ObjectInfo>().firstTouch == false) {
 						selectedBodyPiece.GetComponent<ObjectInfo>().firstTouch = true;
 					}
-
+					
 					Vector3 piecePosition = new Vector3((mousePos.x * cameraWidth / Screen.width) - (cameraWidth / 2), 
-					                            (mousePos.y * cameraHeight / Screen.height) - (cameraHeight / 2), 
-					                            0);
-
+					                                    (mousePos.y * cameraHeight / Screen.height) - (cameraHeight / 2), 
+					                                    0);
+					
 					selectedBodyPiece.transform.position = piecePosition;
-
+					
 				} else if (selectedOutlinePiece != null) {
 					string pieceName = selectedOutlinePiece.name;
 					nextState = -1;
@@ -154,18 +155,18 @@ public class TouchInputHandler : MonoBehaviour {
 						}
 					}
 				}
-
+				
 			} else {
 				if (!switching) {
 					lockAll();
 				}
 			}
 		}
-
+		
 		//get the current state
 		AnimatorStateInfo currentRightPanelBaseState = rightPanelAnimator.GetCurrentAnimatorStateInfo (0);
 		AnimatorStateInfo currentLeftPanelBaseState = leftPanelAnimator.GetCurrentAnimatorStateInfo (0);
-
+		
 		if (switching && currentRightPanelBaseState.IsName ("Base Layer.RightPanelIn") && currentLeftPanelBaseState.IsName ("Base Layer.LeftPanelIn")) {
 			if (firstStateChangeOccured == true) {
 				// hide the old pieces + the old selected outline
@@ -181,7 +182,7 @@ public class TouchInputHandler : MonoBehaviour {
 			} else {
 				firstStateChangeOccured = true;
 			}
-
+			
 			// show the new pieces
 			if (nextState == coneSelected) {
 				showPieces (conePieces);
@@ -218,7 +219,7 @@ public class TouchInputHandler : MonoBehaviour {
 		controlScript.fuel.text = fuel.ToString();
 		controlScript.power.text = power.ToString();
 	}
-
+	
 	//hide the pieces, but not if they are locked into a rocket
 	void hidePieces (GameObject[] pieces) {
 		if (pieces != boosterPieces && pieces != conePieces && pieces != bodyPieces && pieces != finPieces) {
@@ -237,18 +238,18 @@ public class TouchInputHandler : MonoBehaviour {
 	void hidePiece (GameObject piece) {
 		piece.GetComponent<SpriteRenderer>().enabled = false; 
 	}
-
+	
 	void showPieces (GameObject[] pieces) {
 		foreach (GameObject piece in pieces) {
 			piece.GetComponent<SpriteRenderer>().enabled = true; 
-			 
+			
 		}
 	}
-
+	
 	void showPiece (GameObject piece) {
 		piece.GetComponent<SpriteRenderer>().enabled = true; 
 	}
-
+	
 	//should set all non outline objects back to their lock positions. call this before setting dragged object positions
 	void lockSet(GameObject[] pieces) {
 		foreach (GameObject piece in pieces) {
@@ -266,18 +267,19 @@ public class TouchInputHandler : MonoBehaviour {
 			piece.GetComponent<ObjectInfo> ().firstTouch = false;
 		}
 	}
-
+	
 	void firstTouchReset() {
 		firstTouch (boosterPieces);
 		firstTouch (finPieces);
 		firstTouch (bodyPieces);
 		firstTouch (conePieces);
 	}
-
+	
 	void newLock(GameObject piece) {
 		if (piece != null) {
 			float distance;
-			float minDistance = 100000;
+			float minDistance = Vector3.Distance(piece.transform.position, piece.GetComponent<ObjectInfo>().lockPosition);
+			float saveMinDistance = minDistance;
 			Vector3 newLock = piece.GetComponent<ObjectInfo> ().lockPosition;
 			foreach (GameObject outline in outlinePieces) {
 				distance = Vector3.Distance (outline.transform.position, piece.transform.position);
@@ -293,16 +295,30 @@ public class TouchInputHandler : MonoBehaviour {
 					newLock = trash.transform.position;
 				}
 			}
-			piece.GetComponent<ObjectInfo> ().newLock (newLock);
+			if (minDistance != saveMinDistance) {
+				piece.GetComponent<ObjectInfo> ().newLock (newLock);
+			}
 		}
 	}
 
+	void addToRocketPieces(GameObject selectedBodyPiece) {
+		//if the piece is locked into the body add it to the list of rocket pieces
+		if (selectedBodyPiece != null) {
+			var script = selectedBodyPiece.GetComponent<ObjectInfo> ();
 
+			if (script.seeMe == true && selectedBodyPiece.transform.position == script.lockPosition &&
+				script.lockPosition != script.initialLockPosition && script.added == false) {
+				rocketPieces.Add (selectedBodyPiece);
+				script.added = true;
+			}
+		}
+	}
+	
 	/* Returns the GameObject of the piece that the mouse is over or null if the mouse isn't over a piece */
 	GameObject MouseOverPiece(Vector3 mousePos, int pieceType) {
 		// initialize outputs
 		GameObject output = null;
-
+		
 		GameObject[] pieces = null;
 		if (pieceType == rocketPiece) {
 			if (currentState == coneSelected) {
@@ -323,7 +339,7 @@ public class TouchInputHandler : MonoBehaviour {
 		} else if (pieceType == trashcan) {
 			pieces = trashcans;
 		}
-
+		
 		// Detect whether the mouse position is within one of the pieces
 		foreach (GameObject piece in pieces) {
 			if (Contains (piece, mousePos)) {
@@ -333,14 +349,14 @@ public class TouchInputHandler : MonoBehaviour {
 		}
 		return output;
 	}
-
+	
 	/* Returns true if the touchItem location is within the container, which must have a SpriteRenderer */
 	bool Contains (GameObject container, Vector3 touchItem) {
 		// get the position, width, and height of the container GameObject
 		Vector3 containerPosition = container.transform.position;
 		float containerWidth = container.GetComponent<SpriteRenderer> ().bounds.size.x;
 		float containerHeight = container.GetComponent<SpriteRenderer> ().bounds.size.y;
-
+		
 		// the mouse (0,0) is at the bottom left corner of the screen, not the middle like the container
 		// so we need to have a scaled mouse position
 		float touchItemScaledx = (touchItem.x * cameraWidth / Screen.width) - (cameraWidth / 2);
@@ -353,7 +369,7 @@ public class TouchInputHandler : MonoBehaviour {
 			return false;
 		}
 	}
-
+	
 	//this checks for a collision at a point with all of the rocket objects
 	bool collisionLoop(Vector3 pos) {
 		foreach (GameObject obj in boosterPieces) {

@@ -3,6 +3,7 @@ using System.Collections;
 
 public class ObjectInfo : MonoBehaviour {
 	public Vector3 lockPosition;
+	public Vector3 initialLockPosition;
 	public bool firstTouch = false;
 	private float jumpSize;
 
@@ -19,7 +20,7 @@ public class ObjectInfo : MonoBehaviour {
 	// Use this for initialization
 	public void Start () {
 		Vector3 piecePosition = gameObject.transform.position;
-		lockPosition = piecePosition;
+		initialLockPosition = lockPosition = piecePosition;
 		GameObject objLeft = GameObject.Find ("LeftPanel");
 		jumpSize = objLeft.GetComponent<MeshRenderer> ().bounds.size.x;
 		if (piecePosition.x < 0) { 
