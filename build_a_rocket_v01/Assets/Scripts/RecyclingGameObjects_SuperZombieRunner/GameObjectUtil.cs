@@ -33,7 +33,6 @@ public class GameObjectUtil {
 		} else {
 			GameObject.Destroy (gameObject);
 		}
-
 	}
 
 	private static ObjectPool GetObjectPool(RecycleGameObject reference) {

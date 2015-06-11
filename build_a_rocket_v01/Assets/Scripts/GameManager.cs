@@ -3,6 +3,7 @@ using System.Collections;
 using UnityEngine.UI;
 using System;
 
+
 //this is a test comment
 //this is also a test comment
 
@@ -22,7 +23,6 @@ public class GameManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-
 	}
 	
 	// Update is called once per frame
@@ -34,6 +34,14 @@ public class GameManager : MonoBehaviour {
 		} else {
 			countdownTimer.text = "00:00";
 			// we can trigger the launch here
+			GameObject foreground = GameObject.Find("Foreground");
+			foreground.transform.Translate(Vector3.down);
+			GameObject bottomPanel = GameObject.Find ("BottomPanel");
+			bottomPanel.transform.Translate(Vector3.down);
+			Canvas canvasObject = (Canvas) FindObjectOfType(typeof(Canvas));
+			{
+				canvasObject.enabled = false;
+			}
 		}
 		// increment the time elapsed
 		timeElapsed += Time.deltaTime;

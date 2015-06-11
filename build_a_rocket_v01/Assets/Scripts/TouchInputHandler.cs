@@ -99,7 +99,6 @@ public class TouchInputHandler : MonoBehaviour {
 		} else {
 			switchDelay = 0;
 		}
-		
 		// for the mouse inputs
 		if (usingMouse) {
 			// if the left mouse button is clicking on our object
@@ -112,6 +111,7 @@ public class TouchInputHandler : MonoBehaviour {
 				}
 				//find the closest new lock position, add it to the list of pieces snapped to the rocket
 				newLock(selectedBodyPiece);
+
 				//save it globally so we can operate on it in the next step if we want
 				savedBodyPiece = selectedBodyPiece;
 				//only select outline under certain conditions
@@ -348,26 +348,26 @@ public class TouchInputHandler : MonoBehaviour {
 	void newLock(GameObject piece) {
 		if (piece != null) {
 			float distance;
-			float minDistance = Vector3.Distance(piece.transform.position, piece.GetComponent<ObjectInfo>().lockPosition)/3;
+			float minDistance = Vector3.Distance (piece.transform.position, piece.GetComponent<ObjectInfo> ().lockPosition) / 3;
 			float saveMinDistance = minDistance;
 			Vector3 newLock = piece.GetComponent<ObjectInfo> ().lockPosition;
 			foreach (GameObject outline in selectedOutlinePieces) {
 				if (outline.GetComponent<SpriteRenderer> ().enabled == true) {
 					distance = Vector3.Distance (outline.transform.position, piece.transform.position);
-					if (minDistance > distance  && !collisionLoop(outline.transform.position)) {
+					if (minDistance > distance && !collisionLoop (outline.transform.position)) {
 						minDistance = distance;
 						newLock = outline.transform.position;
 					}
 				}
 			}
 
-			foreach (GameObject trash in trashcans) {
+			/*foreach (GameObject trash in trashcans) {
 				distance = Vector3.Distance (trash.transform.position, piece.transform.position);
 				if (minDistance > distance) {
 					minDistance = distance;
 					newLock = trash.transform.position;
 				}
-			}
+			}*/
 			if (minDistance != saveMinDistance) {
 				piece.GetComponent<ObjectInfo> ().newLock (newLock);
 			}
@@ -383,6 +383,7 @@ public class TouchInputHandler : MonoBehaviour {
 				script.lockPosition != script.initialLockPosition && script.added == false) {
 				rocketPieces.Add (selectedBodyPiece);
 				script.added = true;
+				//GameObjectUtil.Instantiate(conePieces[0], script.initialLockPosition);
 			}
 		}
 	}
