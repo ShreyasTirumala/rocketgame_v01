@@ -41,6 +41,12 @@ public class TouchInputHandler : MonoBehaviour {
 	private const int outlinePiece = 1;
 	private const int selectedOutlinePiece = 2;
 	private const int trashcan = 3;
+
+	// variables indicating outline peiece identity
+	private const int coneOutlinePiece = 0;
+	private const int finOutlinePiece = 1;
+	private const int bodyOutlinePiece = 2;
+	private const int boosterOutlinePiece = 3;
 	
 	// camera settings
 	private float cameraHeight;
@@ -110,7 +116,7 @@ public class TouchInputHandler : MonoBehaviour {
 				savedBodyPiece = selectedBodyPiece;
 				//only select outline under certain conditions
 				GameObject selectedOutlinePiece;
-				if (selectedBodyPiece == null && switching == false && switchDelay == 0) {
+				if (selectedBodyPiece == null && switching == false /*&& switchDelay == 0*/) {
 					selectedOutlinePiece = MouseOverPiece(Input.mousePosition, outlinePiece);
 				} else {
 					selectedOutlinePiece = null;
@@ -136,7 +142,7 @@ public class TouchInputHandler : MonoBehaviour {
 						nextState = coneSelected;
 					} else if (pieceName.Contains("right") || pieceName.Contains("left")) {
 						nextState = finSelected;
-					} else if (pieceName.Contains("box")) {
+					} else if (pieceName.Contains("body")) {
 						nextState = bodySelected;
 					} else if (pieceName.Contains("engine")) {
 						nextState = boosterSelected;
@@ -173,12 +179,20 @@ public class TouchInputHandler : MonoBehaviour {
 			if (firstStateChangeOccured == true) {
 				// hide the old pieces + the old selected outline
 				if (currentState == coneSelected) {
+					hideOutlinePieces(coneOutlinePiece, true);
+					showOutlinePieces(coneOutlinePiece, false);
 					hidePieces (conePieces);
 				} else if (currentState == finSelected) {
+					hideOutlinePieces(finOutlinePiece, true);
+					showOutlinePieces(finOutlinePiece, false);
 					hidePieces (finPieces);
 				} else if (currentState == bodySelected) {
+					hideOutlinePieces(bodyOutlinePiece, true);
+					showOutlinePieces(bodyOutlinePiece, false);
 					hidePieces (bodyPieces);
 				} else if (currentState == boosterSelected) {
+					hideOutlinePieces(boosterOutlinePiece, true);
+					showOutlinePieces(boosterOutlinePiece, false);
 					hidePieces (boosterPieces);
 				}
 			} else {
@@ -187,12 +201,20 @@ public class TouchInputHandler : MonoBehaviour {
 			
 			// show the new pieces
 			if (nextState == coneSelected) {
+				hideOutlinePieces(coneOutlinePiece, false);
+				showOutlinePieces(coneOutlinePiece, true);
 				showPieces (conePieces);
 			} else if (nextState == finSelected) {
+				hideOutlinePieces(finOutlinePiece, false);
+				showOutlinePieces(finOutlinePiece, true);
 				showPieces (finPieces);
 			} else if (nextState == bodySelected) {
+				hideOutlinePieces(bodyOutlinePiece, false);
+				showOutlinePieces(bodyOutlinePiece, true);
 				showPieces (bodyPieces);
 			} else if (nextState == boosterSelected) {
+				hideOutlinePieces(boosterOutlinePiece, false);
+				showOutlinePieces(boosterOutlinePiece, true);
 				showPieces (boosterPieces);
 			}
 			
@@ -221,6 +243,29 @@ public class TouchInputHandler : MonoBehaviour {
 		controlScript.fuel.text = fuel.ToString();
 		controlScript.power.text = power.ToString();
 	}
+
+	void hideOutlinePieces (int pieceType, bool isHighlightedOutline) {
+		
+		GameObject[] pieces;
+		if (isHighlightedOutline) {
+			pieces = selectedOutlinePieces;
+		} else {
+			pieces = outlinePieces;
+		}
+		
+		foreach (GameObject piece in pieces) {
+			string pieceName = piece.name;
+			if (pieceName.Contains("top") && pieceType == coneOutlinePiece) {
+				piece.GetComponent<SpriteRenderer> ().enabled = false; 
+			} else if (pieceName.Contains("fin") && pieceType == finOutlinePiece) {
+				piece.GetComponent<SpriteRenderer> ().enabled = false; 
+			} else if (pieceName.Contains("body") && pieceType == bodyOutlinePiece) {
+				piece.GetComponent<SpriteRenderer> ().enabled = false; 
+			} else if (pieceName.Contains("engine") && pieceType == boosterOutlinePiece) {
+				piece.GetComponent<SpriteRenderer> ().enabled = false; 
+			}
+		}
+	}
 	
 	//hide the pieces, but not if they are locked into a rocket
 	void hidePieces (GameObject[] pieces) {
@@ -241,6 +286,29 @@ public class TouchInputHandler : MonoBehaviour {
 		piece.GetComponent<SpriteRenderer>().enabled = false; 
 	}
 	
+	void showOutlinePieces (int pieceType, bool isHighlightedOutline) {
+		
+		GameObject[] pieces;
+		if (isHighlightedOutline) {
+			pieces = selectedOutlinePieces;
+		} else {
+			pieces = outlinePieces;
+		}
+		
+		foreach (GameObject piece in pieces) {
+			string pieceName = piece.name;
+			if (pieceName.Contains("top") && pieceType == coneOutlinePiece) {
+				piece.GetComponent<SpriteRenderer> ().enabled = true; 
+			} else if ((pieceName.Contains("right") || pieceName.Contains("left")) && pieceType == finOutlinePiece) {
+				piece.GetComponent<SpriteRenderer> ().enabled = true; 
+			} else if (pieceName.Contains("body") && pieceType == bodyOutlinePiece) {
+				piece.GetComponent<SpriteRenderer> ().enabled = true; 
+			} else if (pieceName.Contains("engine") && pieceType == boosterOutlinePiece) {
+				piece.GetComponent<SpriteRenderer> ().enabled = true; 
+			}
+		}
+	}
+
 	void showPieces (GameObject[] pieces) {
 		foreach (GameObject piece in pieces) {
 			piece.GetComponent<SpriteRenderer>().enabled = true; 
