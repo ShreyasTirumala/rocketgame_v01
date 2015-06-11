@@ -348,16 +348,19 @@ public class TouchInputHandler : MonoBehaviour {
 	void newLock(GameObject piece) {
 		if (piece != null) {
 			float distance;
-			float minDistance = Vector3.Distance(piece.transform.position, piece.GetComponent<ObjectInfo>().lockPosition);
+			float minDistance = Vector3.Distance(piece.transform.position, piece.GetComponent<ObjectInfo>().lockPosition)/3;
 			float saveMinDistance = minDistance;
 			Vector3 newLock = piece.GetComponent<ObjectInfo> ().lockPosition;
-			foreach (GameObject outline in outlinePieces) {
-				distance = Vector3.Distance (outline.transform.position, piece.transform.position);
-				if (minDistance > distance  && !collisionLoop(outline.transform.position)) {
-					minDistance = distance;
-					newLock = outline.transform.position;
+			foreach (GameObject outline in selectedOutlinePieces) {
+				if (outline.GetComponent<SpriteRenderer> ().enabled == true) {
+					distance = Vector3.Distance (outline.transform.position, piece.transform.position);
+					if (minDistance > distance  && !collisionLoop(outline.transform.position)) {
+						minDistance = distance;
+						newLock = outline.transform.position;
+					}
 				}
 			}
+
 			foreach (GameObject trash in trashcans) {
 				distance = Vector3.Distance (trash.transform.position, piece.transform.position);
 				if (minDistance > distance) {
