@@ -16,6 +16,8 @@ public class TouchInputHandler : MonoBehaviour {
 	public GameObject[] trashcans;
 	
 	public List<GameObject> rocketPieces = new List<GameObject> ();
+
+	public GameObject savedBodyPiece = null;
 	
 	// flags to be able to use with either mouse or touch or both
 	public bool usingMouse = true;
@@ -85,7 +87,6 @@ public class TouchInputHandler : MonoBehaviour {
 	void Update () {
 
 		GameObject selectedBodyPiece = null;
-
 		//count down the delay
 		if (switchDelay > 0) {
 			switchDelay -= 1;
@@ -105,9 +106,8 @@ public class TouchInputHandler : MonoBehaviour {
 				}
 				//find the closest new lock position, add it to the list of pieces snapped to the rocket
 				newLock(selectedBodyPiece);
-				//add it to the rocketPiece set possibly
-				addToRocketPieces(selectedBodyPiece);
-
+				//save it globally so we can operate on it in the next step if we want
+				savedBodyPiece = selectedBodyPiece;
 				//only select outline under certain conditions
 				GameObject selectedOutlinePiece;
 				if (selectedBodyPiece == null && switching == false && switchDelay == 0) {
@@ -159,6 +159,8 @@ public class TouchInputHandler : MonoBehaviour {
 			} else {
 				if (!switching) {
 					lockAll();
+					//the step after we stop selecting a piece, add that piece to the rocketPieces list
+					addToRocketPieces(savedBodyPiece);
 				}
 			}
 		}
