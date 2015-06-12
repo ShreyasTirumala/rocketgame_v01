@@ -266,6 +266,8 @@ public class TouchInputHandler : MonoBehaviour {
 			}
 		}
 	}
+
+
 	
 	//hide the pieces, but not if they are locked into a rocket
 	void hidePieces (GameObject[] pieces) {
@@ -467,5 +469,22 @@ public class TouchInputHandler : MonoBehaviour {
 			}
 		}
 		return false;
+	}
+
+	//to be triggered by GameManager when the liftoff happens
+	public void endSequence() {
+		hideOutlinePieces (coneOutlinePiece, true);
+		hideOutlinePieces (bodyOutlinePiece, true);
+		hideOutlinePieces (boosterOutlinePiece, true);
+		hideOutlinePieces (finOutlinePiece, true);
+		showOutlinePieces (coneOutlinePiece, false);
+		showOutlinePieces (finOutlinePiece, false);
+		showOutlinePieces (bodyOutlinePiece, false);
+		showOutlinePieces (boosterOutlinePiece, false);
+		leftPanelAnimator.SetTrigger ("stateChangeTriggerLeft");
+		leftPanelAnimator.SetTrigger ("stateChangeTriggerTakeoff");
+		rightPanelAnimator.SetTrigger ("stateChangeTriggerRight");
+		rightPanelAnimator.SetTrigger ("stateChangeTriggerTakeoff");
+
 	}
 }

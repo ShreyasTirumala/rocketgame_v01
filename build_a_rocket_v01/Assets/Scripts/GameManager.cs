@@ -50,16 +50,29 @@ public class GameManager : MonoBehaviour {
 			foreground.transform.Translate (Vector3.down);
 			GameObject bottomPanel = GameObject.Find ("BottomPanel");
 			bottomPanel.transform.Translate (Vector3.down);
+			GameObject leftPanel = GameObject.Find ("LeftPiecePanel");
+			leftPanel.transform.Translate (Vector3.down);
+			GameObject rightPanel = GameObject.Find ("RightPiecePanel");
+			rightPanel.transform.Translate (Vector3.down);
+			var script = gameObject.GetComponent<TouchInputHandler>();
+			script.endSequence();
 
 			GameObject black = GameObject.Find ("black");
 
 			if (launched == false) {
 				launched = true;
 
-				Canvas canvasObject = (Canvas)FindObjectOfType (typeof(Canvas));
-				{
-					canvasObject.enabled = false;
-				}
+				GameObject timer = GameObject.Find("Canvas/Timer");
+				timer.transform.position = new Vector3(-1000, -1000, 0);
+				GameObject w = GameObject.Find("Canvas/Weight");
+				w.transform.position = new Vector3(-1000, -1000, 0);
+				GameObject ar = GameObject.Find("Canvas/Resistance");
+				ar.transform.position = new Vector3(-1000, -1000, 0);
+				GameObject f = GameObject.Find("Canvas/Fuel");
+				f.transform.position = new Vector3(-1000, -1000, 0);
+				GameObject p = GameObject.Find("Canvas/Power");
+				p.transform.position = new Vector3(-1000, -1000, 0);
+
 				GameObject jet = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
 				jet.GetComponent<ParticleSystem> ().enableEmission = true;
 				GameObject jet1 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 2/Jet 1");
@@ -79,7 +92,7 @@ public class GameManager : MonoBehaviour {
 			black.GetComponent<SpriteRenderer>().color = a;
 
 			if (launched == true) {
-				alphaSet += .001f;
+				alphaSet += .0005f;
 			}
 		}
 
