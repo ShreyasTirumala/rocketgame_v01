@@ -247,6 +247,7 @@ public class TouchInputHandler : MonoBehaviour {
 		controlScript.airResistance.text = resistance.ToString();
 		controlScript.fuel.text = fuel.ToString();
 		controlScript.power.text = power.ToString();
+
 	}
 
 	void hideOutlinePieces (int pieceType, bool isHighlightedOutline) {
@@ -368,13 +369,13 @@ public class TouchInputHandler : MonoBehaviour {
 				}
 			}
 
-			/*foreach (GameObject trash in trashcans) {
+			foreach (GameObject trash in trashcans) {
 				distance = Vector3.Distance (trash.transform.position, piece.transform.position);
 				if (minDistance > distance) {
 					minDistance = distance;
 					newLock = trash.transform.position;
 				}
-			}*/
+			}
 			if (minDistance != saveMinDistance) {
 				piece.GetComponent<ObjectInfo> ().newLock (newLock);
 			}
@@ -494,7 +495,7 @@ public class TouchInputHandler : MonoBehaviour {
 	}
 
 	public int calculateDistance() {
-		return weight + resistance + power + fuel;
+		return ((weight + resistance + power + fuel) * 10);
 	}
 
 }

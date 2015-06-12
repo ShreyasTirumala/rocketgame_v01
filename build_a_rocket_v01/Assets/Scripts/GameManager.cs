@@ -24,6 +24,9 @@ public class GameManager : MonoBehaviour {
 	private bool launched = false;
 	private float alphaSet = 0f;
 
+	private int distance = 0;
+	private int maxDistance;
+
 
 	void Awake () {
 		GameObject jet = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
@@ -34,6 +37,10 @@ public class GameManager : MonoBehaviour {
 		jet2.GetComponent<ParticleSystem>().enableEmission = false;
 		GameObject jet3 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
 		jet3.GetComponent<ParticleSystem>().enableEmission = false;
+
+		//GameObject d = GameObject.Find("Canvas/Distance");
+		//d.transform.position = new Vector3(-1000, -1000, 0);
+
 	}
 	
 	// Update is called once per frame
@@ -57,7 +64,6 @@ public class GameManager : MonoBehaviour {
 			var script = gameObject.GetComponent<TouchInputHandler>();
 
 			script.endSequence();
-			int distance = script.calculateDistance();
 
 			GameObject black = GameObject.Find ("black");
 
@@ -74,6 +80,7 @@ public class GameManager : MonoBehaviour {
 				f.transform.position = new Vector3(-1000, -1000, 0);
 				GameObject p = GameObject.Find("Canvas/Power");
 				p.transform.position = new Vector3(-1000, -1000, 0);
+
 
 				GameObject jet = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
 				jet.GetComponent<ParticleSystem> ().enableEmission = true;
@@ -95,7 +102,31 @@ public class GameManager : MonoBehaviour {
 
 			if (launched == true) {
 				alphaSet += .0005f;
+
 			}
+
+			
+			//important!! change the position of the distance object here
+			GameObject d = GameObject.Find("Canvas/Distance");
+			//d.transform.position = new Vector3(621, 334, 0);
+			d.GetComponent<Text>().text = distance.ToString();
+
+			maxDistance = script.calculateDistance();
+			if (distance < maxDistance) {
+				distance +=5;
+			}else {
+				distance = maxDistance;
+					GameObject jet4 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
+					jet4.GetComponent<ParticleSystem> ().enableEmission = false;
+					GameObject jet5 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 2/Jet 1");
+					jet5.GetComponent<ParticleSystem> ().enableEmission = false;
+					GameObject jet6 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 3/Jet 2");
+					jet6.GetComponent<ParticleSystem> ().enableEmission = false;
+					GameObject jet7 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
+					jet7.GetComponent<ParticleSystem> ().enableEmission = false;
+			}
+
+
 		}
 
 		// increment the time elapsed
