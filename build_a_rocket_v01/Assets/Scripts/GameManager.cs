@@ -21,8 +21,19 @@ public class GameManager : MonoBehaviour {
 	public Text power;
 	public Text fuel;
 
-	// Use this for initialization
-	void Start () {
+	private bool launched = false;
+	private float alphaSet = 0f;
+
+
+	void Awake () {
+		GameObject jet = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
+		jet.GetComponent<ParticleSystem>().enableEmission = false;
+		GameObject jet1 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 2/Jet 1");
+		jet1.GetComponent<ParticleSystem>().enableEmission = false;
+		GameObject jet2 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 3/Jet 2");
+		jet2.GetComponent<ParticleSystem>().enableEmission = false;
+		GameObject jet3 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
+		jet3.GetComponent<ParticleSystem>().enableEmission = false;
 	}
 	
 	// Update is called once per frame
@@ -30,19 +41,48 @@ public class GameManager : MonoBehaviour {
 		// update the timer
 		remainingTime = initialTimerValue - timeElapsed;
 		if (remainingTime > 0.0) {
-			countdownTimer.text = FormatTime(remainingTime);
+			countdownTimer.text = FormatTime (remainingTime);
 		} else {
 			countdownTimer.text = "00:00";
 			// we can trigger the launch here
-			GameObject foreground = GameObject.Find("Foreground");
-			foreground.transform.Translate(Vector3.down);
+
+			GameObject foreground = GameObject.Find ("Foreground");
+			foreground.transform.Translate (Vector3.down);
 			GameObject bottomPanel = GameObject.Find ("BottomPanel");
-			bottomPanel.transform.Translate(Vector3.down);
-			Canvas canvasObject = (Canvas) FindObjectOfType(typeof(Canvas));
-			{
-				canvasObject.enabled = false;
+			bottomPanel.transform.Translate (Vector3.down);
+
+			GameObject black = GameObject.Find ("black");
+
+			if (launched == false) {
+				launched = true;
+
+				Canvas canvasObject = (Canvas)FindObjectOfType (typeof(Canvas));
+				{
+					canvasObject.enabled = false;
+				}
+				GameObject jet = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
+				jet.GetComponent<ParticleSystem> ().enableEmission = true;
+				GameObject jet1 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 2/Jet 1");
+				jet1.GetComponent<ParticleSystem> ().enableEmission = true;
+				GameObject jet2 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 3/Jet 2");
+				jet2.GetComponent<ParticleSystem> ().enableEmission = true;
+				GameObject jet3 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
+				jet3.GetComponent<ParticleSystem> ().enableEmission = true;
+
+				var pos = black.transform.position;
+				pos = new Vector3(0, 0, 0);
+				black.transform.position = pos;
+
+			}
+			var a =	black.GetComponent<SpriteRenderer>().color;
+			a = new Color(1f, 1f, 1f, alphaSet);
+			black.GetComponent<SpriteRenderer>().color = a;
+
+			if (launched == true) {
+				alphaSet += .001f;
 			}
 		}
+
 		// increment the time elapsed
 		timeElapsed += Time.deltaTime;
 
