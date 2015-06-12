@@ -18,6 +18,11 @@ public class TouchInputHandler : MonoBehaviour {
 	public List<GameObject> rocketPieces = new List<GameObject> ();
 
 	public GameObject savedBodyPiece = null;
+
+	public int resistance = 0;
+	public int power = 0;
+	public int fuel = 0;
+	public int weight = 0;
 	
 	// flags to be able to use with either mouse or touch or both
 	public bool usingMouse = true;
@@ -225,10 +230,10 @@ public class TouchInputHandler : MonoBehaviour {
 			switchDelay = 60;
 			firstTouchReset();
 		}
-		int resistance = 0;
-		int power = 0;
-		int fuel = 0;
-		int weight = 0;
+		resistance = 0;
+		power = 0;
+		fuel = 0;
+		weight = 0;
 		//update all of the values of the rocket
 		foreach (GameObject piece in rocketPieces) {
 			weight += piece.GetComponent<ObjectInfo> ().weight;
@@ -487,4 +492,9 @@ public class TouchInputHandler : MonoBehaviour {
 		rightPanelAnimator.SetTrigger ("stateChangeTriggerTakeoff");
 
 	}
+
+	public int calculateDistance() {
+		return weight + resistance + power + fuel;
+	}
+
 }

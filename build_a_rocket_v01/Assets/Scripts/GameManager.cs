@@ -55,7 +55,9 @@ public class GameManager : MonoBehaviour {
 			GameObject rightPanel = GameObject.Find ("RightPiecePanel");
 			rightPanel.transform.Translate (Vector3.down);
 			var script = gameObject.GetComponent<TouchInputHandler>();
+
 			script.endSequence();
+			int distance = script.calculateDistance();
 
 			GameObject black = GameObject.Find ("black");
 
