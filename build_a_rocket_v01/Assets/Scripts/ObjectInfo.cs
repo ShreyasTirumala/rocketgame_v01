@@ -13,6 +13,8 @@ public class ObjectInfo : MonoBehaviour {
 	public int power = 10;
 	public int weight = 10;
 
+	public bool jump = true;
+
 	//use this for keeping objects visible
 	public bool seeMe = false;
 
@@ -23,10 +25,12 @@ public class ObjectInfo : MonoBehaviour {
 		initialLockPosition = lockPosition = piecePosition;
 		GameObject objLeft = GameObject.Find ("LeftPanel");
 		jumpSize = objLeft.GetComponent<MeshRenderer> ().bounds.size.x;
-		if (piecePosition.x < 0) { 
-			lockPosition.x = piecePosition.x + jumpSize ; 
-		} else {
-			lockPosition.x = piecePosition.x - jumpSize ;
+		if (jump) {
+			if (piecePosition.x < 0) { 
+				lockPosition.x = piecePosition.x + jumpSize; 
+			} else {
+				lockPosition.x = piecePosition.x - jumpSize;
+			}
 		}
 	}
 
