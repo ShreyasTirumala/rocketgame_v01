@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 
 public class TouchInputHandler : MonoBehaviour {
-	
+
 	// all of the prefabs that we can touch/drag
 	public GameObject[] conePieces;
 	public GameObject[] finPieces;
@@ -66,6 +66,8 @@ public class TouchInputHandler : MonoBehaviour {
 	private Animator leftPanelAnimator;
 	private Animator rightPanelAnimator;
 	private bool firstStateChangeOccured = false;
+
+	private bool ending = false;
 	
 	// Use this for initialization
 	void Start () {
@@ -126,12 +128,23 @@ public class TouchInputHandler : MonoBehaviour {
 		if (usingMouse) {
 			// if the left mouse button is clicking on our object
 			if(Input.GetMouseButton(0)) {
+				//if you click on the results object, reload the level
+				if (ending) { 
+					//if ( Mathf.Abs(Input.mousePosition.x) < GameObject.Find ("Results").GetComponent<MeshRenderer>().bounds.size.x/2) {
+					//	if ( Mathf.Abs(Input.mousePosition.y) < GameObject.Find ("Results").GetComponent<MeshRenderer>().bounds.size.y/2) {
+					Debug.Log ("reload");       
+					Application.LoadLevel(Application.loadedLevel);
+							
+					//	}
+				//	}
+				}
 
 				if (switching == false) {
 					selectedBodyPiece = MouseOverPiece(Input.mousePosition, rocketPiece);
 				} else {
 					selectedBodyPiece = null;
 				}
+
 				//find the closest new lock position, add it to the list of pieces snapped to the rocket
 				newLock(selectedBodyPiece);
 
@@ -634,6 +647,7 @@ public class TouchInputHandler : MonoBehaviour {
 		leftPanelAnimator.SetTrigger ("stateChangeTriggerTakeoff");
 		rightPanelAnimator.SetTrigger ("stateChangeTriggerRight");
 		rightPanelAnimator.SetTrigger ("stateChangeTriggerTakeoff");
+		ending = true;
 
 	}
 

@@ -41,6 +41,8 @@ public class GameManager : MonoBehaviour {
 		//GameObject d = GameObject.Find("Canvas/Distance");
 		//d.transform.position = new Vector3(-1000, -1000, 0);
 
+		//GameObject.Find ("Results").SetActive (false);
+
 	}
 	
 	// Update is called once per frame
@@ -99,12 +101,6 @@ public class GameManager : MonoBehaviour {
 			var a =	black.GetComponent<SpriteRenderer>().color;
 			a = new Color(1f, 1f, 1f, alphaSet);
 			black.GetComponent<SpriteRenderer>().color = a;
-
-			if (launched == true) {
-				alphaSet += .0005f;
-
-			}
-
 			
 			//important!! change the position of the distance object here
 			GameObject d = GameObject.Find("Canvas/Distance");
@@ -114,8 +110,16 @@ public class GameManager : MonoBehaviour {
 			maxDistance = script.calculateDistance();
 			if (distance < maxDistance) {
 				distance +=5;
+				if (launched == true) {
+					alphaSet += .0005f;
+					
+				}
 			}else {
 				distance = maxDistance;
+
+				var results = GameObject.Find ("Results");
+				results.GetComponent<Animator>().SetTrigger ("go");
+
 					GameObject jet4 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
 					jet4.GetComponent<ParticleSystem> ().enableEmission = false;
 					GameObject jet5 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 2/Jet 1");
@@ -124,6 +128,7 @@ public class GameManager : MonoBehaviour {
 					jet6.GetComponent<ParticleSystem> ().enableEmission = false;
 					GameObject jet7 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
 					jet7.GetComponent<ParticleSystem> ().enableEmission = false;
+
 			}
 
 
