@@ -36,6 +36,10 @@ public class ObjectInfo : MonoBehaviour {
 
 	public int newLock (Vector3 newLock) {
 		lockPosition = newLock;
+		if (lockPosition.x == initialLockPosition.x) {
+			initialLockPosition = lockPosition;
+		} //fixes jumbling error
+
 		seeMe = true;
 		gameObject.transform.parent = null;
 		return 0;

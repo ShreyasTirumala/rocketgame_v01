@@ -139,13 +139,19 @@ public class TouchInputHandler : MonoBehaviour {
 				//	}
 				}
 
-				if (switching == false) {
+				if (switching == false ) {
 					selectedBodyPiece = MouseOverPiece(Input.mousePosition, rocketPiece);
+					//lockListException(conePieceList, selectedBodyPiece);
+					//lockListException(finPieceList, selectedBodyPiece);
+					//lockListException(boosterPieceList, selectedBodyPiece);
+					//lockListException(bodyPieceList, selectedBodyPiece);
 				} else {
 					selectedBodyPiece = null;
 				}
-
-				//find the closest new lock position, add it to the list of pieces snapped to the rocket
+				if (selectedBodyPiece != savedBodyPiece && savedBodyPiece != null) {
+					selectedBodyPiece = null;
+				}
+				//find the closest new lock position
 				newLock(selectedBodyPiece);
 
 				//save it globally so we can operate on it in the next step if we want
@@ -380,6 +386,13 @@ public class TouchInputHandler : MonoBehaviour {
 			piece.GetComponent<ObjectInfo> ().reLock (); 
 		}
 	}
+	void lockListException (List<GameObject> pieces, GameObject exception) {
+		foreach (GameObject piece in pieces) {
+			if (piece != exception) {
+				piece.GetComponent<ObjectInfo> ().reLock ();
+			}
+		}
+	}
 	void lockAll() {
 		lockSet (boosterPieceList);
 		lockSet (conePieceList);
@@ -458,7 +471,7 @@ public class TouchInputHandler : MonoBehaviour {
 				}
 
 				Vector3 lockP = script.initialLockPosition;
-				if (lockP.x < 0) {
+				if (lockP.x <= 0) {
 					//lockP.x +=20;
 					lockP.x = -86;
 					}else {
@@ -468,19 +481,19 @@ public class TouchInputHandler : MonoBehaviour {
 
 				GameObject newObject = null;
 				if (currentState == coneSelected) {
-				 newObject = GameObjectUtil.Instantiate(conePieces[0], lockP);
+				 newObject = GameObjectUtil.Instantiate(conePieces[10], lockP);
 					conePieceList.Add (newObject);
 				} else
 				if (currentState == finSelected) {
-					 newObject = GameObjectUtil.Instantiate(finPieces[0], lockP);
+					 newObject = GameObjectUtil.Instantiate(finPieces[10], lockP);
 					finPieceList.Add (newObject);
 				} else 
 				if (currentState == bodySelected) {
-					 newObject = GameObjectUtil.Instantiate(bodyPieces[0], lockP);
+					 newObject = GameObjectUtil.Instantiate(bodyPieces[10], lockP);
 					bodyPieceList.Add (newObject);
 				} else
 				if (currentState == boosterSelected) {
-					newObject = GameObjectUtil.Instantiate(boosterPieces[0], lockP);
+					newObject = GameObjectUtil.Instantiate(boosterPieces[10], lockP);
 					boosterPieceList.Add (newObject);
 				} 
 				if (newObject != null) {
@@ -492,7 +505,7 @@ public class TouchInputHandler : MonoBehaviour {
 				}
 				var newscript = newObject.GetComponent<ObjectInfo>();
 				newscript.seeMe = false;
-				//newscript.lockPosition = newscript.initialLockPosition = lockP;
+				newscript.initialLockPosition = newObject.transform.position = lockP; //also questionable line of code
 				newscript.jump = false;
 				lockAll ();
 			}
@@ -504,7 +517,7 @@ public class TouchInputHandler : MonoBehaviour {
 				if (Vector3.Distance (selectedBodyPiece.transform.position, trashcan.transform.position) < 10) {
 					removeFromRocketPieces (selectedBodyPiece);
 				
-					GameObjectUtil.Destroy (selectedBodyPiece);
+					GameObject.Destroy (selectedBodyPiece);
 				}
 			}
 		}
@@ -531,7 +544,16 @@ public class TouchInputHandler : MonoBehaviour {
 	GameObject MouseOverPiece(Vector3 mousePos, int pieceType) {
 		// initialize outputs
 		GameObject output = null;
-		
+
+		// check if the last selected piece is pieceType
+		// if it is then see if my mouse is over that piece
+		// if so return it
+		if (savedBodyPiece != null) {
+			if (Contains (savedBodyPiece, mousePos)) {
+				output = savedBodyPiece;
+				return output;
+			}
+		}
 		GameObject[] pieces = null;
 		if (pieceType == rocketPiece) {
 			if (currentState == coneSelected) {

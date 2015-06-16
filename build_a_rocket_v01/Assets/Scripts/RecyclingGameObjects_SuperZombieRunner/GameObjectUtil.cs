@@ -10,13 +10,14 @@ public class GameObjectUtil {
 		GameObject instance = null;
 
 		// want to make sure that the prefab that we pass in is actually a recycled game object
-		var recycledScript = prefab.GetComponent<RecycleGameObject> ();
+		/*var recycledScript = prefab.GetComponent<RecycleGameObject> ();
 		if (recycledScript != null) {
 			var pool = GetObjectPool (recycledScript);
 			instance = pool.NextObject (pos).gameObject;
+			instance.GetComponent<RecycleGameObject>().Restart();
 		} 
 		// if it doesn't 
-		else {
+		else */{
 			instance = GameObject.Instantiate (prefab);
 			instance.transform.position = pos;
 		}
