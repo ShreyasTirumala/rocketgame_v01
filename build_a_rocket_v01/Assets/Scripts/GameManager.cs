@@ -55,6 +55,7 @@ public class GameManager : MonoBehaviour {
 			countdownTimer.text = "00:00";
 			// we can trigger the launch here
 
+
 			GameObject foreground = GameObject.Find ("Foreground");
 			foreground.transform.Translate (Vector3.down);
 			GameObject bottomPanel = GameObject.Find ("BottomPanel");
