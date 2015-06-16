@@ -123,7 +123,7 @@ public class TouchInputHandler : MonoBehaviour {
 			switchDelay -= 1;
 		} else {
 			switchDelay = 0;
-		}
+		} 
 		// for the mouse inputs
 		if (usingMouse) {
 			// if the left mouse button is clicking on our object
@@ -269,6 +269,8 @@ public class TouchInputHandler : MonoBehaviour {
 			switchDelay = 60;
 			firstTouchReset();
 		}
+
+		//calculation of values
 		resistance = 0;
 		power = 0;
 		fuel = 0;
@@ -603,6 +605,12 @@ public class TouchInputHandler : MonoBehaviour {
 					break;
 				}
 			}
+			/*foreach (GameObject piece in rocketPieces) {
+				if (Contains (piece, mousePos)) {
+					output = piece;
+					break;
+				}
+			}*/ //add in if we want to be able to move pieces that arent selected
 		}
 
 		return output;
@@ -674,7 +682,11 @@ public class TouchInputHandler : MonoBehaviour {
 	}
 
 	public int calculateDistance() {
-		return ((weight + resistance + power + fuel) * 10);
+		if ((power - resistance) > 0) {
+			return (fuel * (power - resistance) / 5) - weight;
+		} else {
+			return 0;
+		}
 	}
 
 }
