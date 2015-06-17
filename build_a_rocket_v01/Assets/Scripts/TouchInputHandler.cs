@@ -68,6 +68,8 @@ public class TouchInputHandler : MonoBehaviour {
 	private bool firstStateChangeOccured = false;
 
 	private bool ending = false;
+
+	public GameObject[] savedPiece = new GameObject[10];
 	
 	// Use this for initialization
 	void Start () {
@@ -229,50 +231,69 @@ public class TouchInputHandler : MonoBehaviour {
 					//	}
 					//	}
 				}
+				//get our touch positions
+				Vector3[] touchPosition;
+				touchPosition = new Vector3[Input.touchCount];
 
-				Vector3 touchPosition = new Vector3(0,0,0);
+				int i = 0;
 				foreach (Touch touch in Input.touches) {
-					touchPosition = touch.position;
+					touchPosition[i] = new Vector3 (0,0,0);
+					touchPosition[i] = touch.position;
+					i++;
 				}
-				
+
+				GameObject[] selectedPiece;
+				selectedPiece = new GameObject[Input.touchCount];
+
 				if (switching == false ) {
-					selectedBodyPiece = MouseOverPiece(touchPosition, rocketPiece);
-					//lockListException(conePieceList, selectedBodyPiece);
-					//lockListException(finPieceList, selectedBodyPiece);
-					//lockListException(boosterPieceList, selectedBodyPiece);
-					//lockListException(bodyPieceList, selectedBodyPiece);
+					i = 0;
+					foreach (Vector3 touch in touchPosition) {
+						selectedPiece[i] = MouseOverPiece(touch, rocketPiece);
+						//find the closest new lock position
+						newLock(selectedPiece[i]);
+						
+						//save it globally so we can operate on it in the next step if we want
+						savedPiece[i] = selectedPiece[i];
+						i++;
+					}
 				} else {
-					selectedBodyPiece = null;
+					i = 0;
+					foreach (GameObject piece in selectedPiece) {
+						selectedPiece[i] = null;
+						i++;
+					}
 				}
+				/* FIX THIS LATER
 				if (selectedBodyPiece != savedBodyPiece && savedBodyPiece != null) {
 					selectedBodyPiece = null;
-				}
-				//find the closest new lock position
-				newLock(selectedBodyPiece);
-				
-				//save it globally so we can operate on it in the next step if we want
-				savedBodyPiece = selectedBodyPiece;
+				} */
+
 				//only select outline under certain conditions
 				GameObject selectedOutlinePiece;
-				if (selectedBodyPiece == null && switching == false /*&& switchDelay == 0*/) {
-					selectedOutlinePiece = MouseOverPiece(touchPosition, outlinePiece);
+				if (selectedPiece[0] == null && switching == false /*&& switchDelay == 0*/) {
+					selectedOutlinePiece = MouseOverPiece(touchPosition[0], outlinePiece); //FIX THIS, IT ONLY RECORDS THE FIRST TOUCH
 				} else {
 					selectedOutlinePiece = null;
 				}
-				
-				if (selectedBodyPiece != null) {
-					Vector3 mousePos = touchPosition;
+
+
+				if (selectedPiece[0] != null) {
+					i = 0;
+					foreach (GameObject selected in selectedPiece) {
+						Vector3 mousePos = touchPosition[i];
 					
-					if (selectedBodyPiece.GetComponent<ObjectInfo>().firstTouch == false) {
-						selectedBodyPiece.GetComponent<ObjectInfo>().firstTouch = true;
+						if (selected.GetComponent<ObjectInfo>().firstTouch == false) {
+							selected.GetComponent<ObjectInfo>().firstTouch = true;
+						}
+					
+						Vector3 piecePosition = new Vector3((mousePos.x * cameraWidth / Screen.width) - (cameraWidth / 2), 
+					    	                                (mousePos.y * cameraHeight / Screen.height) - (cameraHeight / 2), 
+					        	                            0);
+					
+						selected.transform.position = piecePosition;
+						i++;
 					}
-					
-					Vector3 piecePosition = new Vector3((mousePos.x * cameraWidth / Screen.width) - (cameraWidth / 2), 
-					                                    (mousePos.y * cameraHeight / Screen.height) - (cameraHeight / 2), 
-					                                    0);
-					
-					selectedBodyPiece.transform.position = piecePosition;
-					
+
 				} else if (selectedOutlinePiece != null) {
 					string pieceName = selectedOutlinePiece.name;
 					nextState = -1;
@@ -304,9 +325,13 @@ public class TouchInputHandler : MonoBehaviour {
 				if (!switching) {
 					lockAll();
 					//the step after we stop selecting a piece, add that piece to the rocketPieces list
-					addToRocketPieces(savedBodyPiece);
-					checkTrash(savedBodyPiece);
-					savedBodyPiece = null;
+					int i = 0;
+					foreach (GameObject saved in savedPiece) {
+						addToRocketPieces(saved);
+						checkTrash(saved);
+						savedPiece[i] = null;
+						i++;
+					}
 				}
 			}
 		}
