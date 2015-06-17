@@ -214,6 +214,102 @@ public class TouchInputHandler : MonoBehaviour {
 				}
 			}
 		}
+
+		// for use of touch input only
+		if (usingTouch) {
+			// if the left mouse button is clicking on our object
+			if(Input.touchCount > 0) {
+				//if you click on the results object, reload the level
+				if (ending) { 
+					//if ( Mathf.Abs(Input.mousePosition.x) < GameObject.Find ("Results").GetComponent<MeshRenderer>().bounds.size.x/2) {
+					//	if ( Mathf.Abs(Input.mousePosition.y) < GameObject.Find ("Results").GetComponent<MeshRenderer>().bounds.size.y/2) {
+					Debug.Log ("reload");       
+					Application.LoadLevel(Application.loadedLevel);
+					
+					//	}
+					//	}
+				}
+
+				Vector3 touchPosition = new Vector3(0,0,0);
+				foreach (Touch touch in Input.touches) {
+					touchPosition = touch.position;
+				}
+				
+				if (switching == false ) {
+					selectedBodyPiece = MouseOverPiece(touchPosition, rocketPiece);
+					//lockListException(conePieceList, selectedBodyPiece);
+					//lockListException(finPieceList, selectedBodyPiece);
+					//lockListException(boosterPieceList, selectedBodyPiece);
+					//lockListException(bodyPieceList, selectedBodyPiece);
+				} else {
+					selectedBodyPiece = null;
+				}
+				if (selectedBodyPiece != savedBodyPiece && savedBodyPiece != null) {
+					selectedBodyPiece = null;
+				}
+				//find the closest new lock position
+				newLock(selectedBodyPiece);
+				
+				//save it globally so we can operate on it in the next step if we want
+				savedBodyPiece = selectedBodyPiece;
+				//only select outline under certain conditions
+				GameObject selectedOutlinePiece;
+				if (selectedBodyPiece == null && switching == false /*&& switchDelay == 0*/) {
+					selectedOutlinePiece = MouseOverPiece(touchPosition, outlinePiece);
+				} else {
+					selectedOutlinePiece = null;
+				}
+				
+				if (selectedBodyPiece != null) {
+					Vector3 mousePos = touchPosition;
+					
+					if (selectedBodyPiece.GetComponent<ObjectInfo>().firstTouch == false) {
+						selectedBodyPiece.GetComponent<ObjectInfo>().firstTouch = true;
+					}
+					
+					Vector3 piecePosition = new Vector3((mousePos.x * cameraWidth / Screen.width) - (cameraWidth / 2), 
+					                                    (mousePos.y * cameraHeight / Screen.height) - (cameraHeight / 2), 
+					                                    0);
+					
+					selectedBodyPiece.transform.position = piecePosition;
+					
+				} else if (selectedOutlinePiece != null) {
+					string pieceName = selectedOutlinePiece.name;
+					nextState = -1;
+					if (pieceName.Contains("top")) {
+						nextState = coneSelected;
+					} else if (pieceName.Contains("right") || pieceName.Contains("left")) {
+						nextState = finSelected;
+					} else if (pieceName.Contains("body")) {
+						nextState = bodySelected;
+					} else if (pieceName.Contains("engine")) {
+						nextState = boosterSelected;
+					}
+					lockAll ();
+					// set the next state if not the current state
+					if (nextState >= 0 && nextState != currentState) {
+						switching = true;
+						if (firstStateChangeOccured == true) {
+							// play the animations to hide the sidebars
+							leftPanelAnimator.SetTrigger ("stateChangeTriggerLeft");
+							rightPanelAnimator.SetTrigger ("stateChangeTriggerRight");
+						} else {
+							leftPanelAnimator.SetBool ("firstStateSelectedLeft", true);
+							rightPanelAnimator.SetBool ("firstStateSelectedRight", true);
+						}
+					}
+				}
+				
+			} else {
+				if (!switching) {
+					lockAll();
+					//the step after we stop selecting a piece, add that piece to the rocketPieces list
+					addToRocketPieces(savedBodyPiece);
+					checkTrash(savedBodyPiece);
+					savedBodyPiece = null;
+				}
+			}
+		}
 		
 		//get the current state
 		AnimatorStateInfo currentRightPanelBaseState = rightPanelAnimator.GetCurrentAnimatorStateInfo (0);
