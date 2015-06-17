@@ -216,7 +216,7 @@ public class TouchInputHandler : MonoBehaviour {
 		}
 
 		// for use of touch input only
-		if (usingTouch) {
+		else if (usingTouch) {
 			// if the left mouse button is clicking on our object
 			if(Input.touchCount > 0) {
 				//if you click on the results object, reload the level
