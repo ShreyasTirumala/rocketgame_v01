@@ -254,6 +254,10 @@ public class TouchInputHandler : MonoBehaviour {
 						
 						//save it globally so we can operate on it in the next step if we want
 						savedPiece[i] = selectedPiece[i];
+
+						if (selectedPiece[i] != savedPiece[i] && savedPiece[i] != null) {
+							selectedPiece[i] = null;
+						} 
 						i++;
 					}
 				} else {
@@ -263,10 +267,8 @@ public class TouchInputHandler : MonoBehaviour {
 						i++;
 					}
 				}
-				/* FIX THIS LATER
-				if (selectedBodyPiece != savedBodyPiece && savedBodyPiece != null) {
-					selectedBodyPiece = null;
-				} */
+			
+
 
 				//only select outline under certain conditions
 				GameObject selectedOutlinePiece;
@@ -276,10 +278,16 @@ public class TouchInputHandler : MonoBehaviour {
 					selectedOutlinePiece = null;
 				}
 
-
-				if (selectedPiece[0] != null) {
+				bool allnull = true;
+				foreach (GameObject selected in selectedPiece) {
+					if (selected != null) {
+						allnull = false;
+					}
+				}
+				if (!allnull) {
 					i = 0;
 					foreach (GameObject selected in selectedPiece) {
+						if (selected != null) {
 						Vector3 mousePos = touchPosition[i];
 					
 						if (selected.GetComponent<ObjectInfo>().firstTouch == false) {
@@ -291,6 +299,7 @@ public class TouchInputHandler : MonoBehaviour {
 					        	                            0);
 					
 						selected.transform.position = piecePosition;
+						}
 						i++;
 					}
 
@@ -320,17 +329,52 @@ public class TouchInputHandler : MonoBehaviour {
 						}
 					}
 				}
+				int k = 0;
+				for (k = 0; k<10; k++) {
+					bool isselected = false;
+					foreach (GameObject selected in selectedPiece) {
+						if (selected == savedPiece[k]) {
+							isselected = true;
+						}
+					}
+					if (!isselected) {
+					checkTrash(savedPiece[k]);
+				}
+				}
+				if (!switching) {
+
+					int q;
+					for (q = 0; q<10; q++) {
+						bool savednotselected = true;
+						foreach(GameObject selected in selectedPiece) {
+							if (savedPiece[q] == selected) {
+								savednotselected = false;
+							}
+						}
+						if (savednotselected) {
+							addToRocketPieces(savedPiece[q]);
+
+						}
+					}
+
+					lockListExceptionArray(selectedPiece, conePieceList);
+					lockListExceptionArray(selectedPiece, boosterPieceList);
+					lockListExceptionArray(selectedPiece, bodyPieceList);
+					lockListExceptionArray(selectedPiece, finPieceList);
+
+
+				}
+
 				
 			} else {
 				if (!switching) {
 					lockAll();
 					//the step after we stop selecting a piece, add that piece to the rocketPieces list
 					int i = 0;
-					foreach (GameObject saved in savedPiece) {
-						addToRocketPieces(saved);
-						checkTrash(saved);
+					for (i = 0; i<10; i++) {
+						addToRocketPieces(savedPiece[i]);
+						checkTrash(savedPiece[i]);
 						savedPiece[i] = null;
-						i++;
 					}
 				}
 			}
@@ -516,6 +560,21 @@ public class TouchInputHandler : MonoBehaviour {
 			}
 		}
 	}
+	void lockListExceptionArray(GameObject[] array, List<GameObject> list) {
+		foreach (GameObject piece in list) {
+			bool notequal = true;
+			foreach (GameObject except in array) {
+				if (piece == except) {
+					notequal = false;
+				}
+			}
+			if (notequal)
+				piece.GetComponent<ObjectInfo> ().reLock ();
+		}
+	}
+
+
+
 	void lockAll() {
 		lockSet (boosterPieceList);
 		lockSet (conePieceList);
@@ -634,13 +693,15 @@ public class TouchInputHandler : MonoBehaviour {
 			}
 		}
 	}
-	void checkTrash(GameObject selectedBodyPiece) {
-		if (selectedBodyPiece != null) {
-			foreach (GameObject trashcan in trashcans) {
-				if (Vector3.Distance (selectedBodyPiece.transform.position, trashcan.transform.position) < 10) {
-					removeFromRocketPieces (selectedBodyPiece);
+	void checkTrash(GameObject selected) {
+		foreach (GameObject selectedBodyPiece in rocketPieces) {
+			if (selectedBodyPiece != null) {
+				foreach (GameObject trashcan in trashcans) {
+					if (Vector3.Distance (selectedBodyPiece.transform.position, trashcan.transform.position) < 10) {
+						removeFromRocketPieces (selectedBodyPiece);
 				
-					GameObject.Destroy (selectedBodyPiece);
+						GameObject.Destroy (selectedBodyPiece);
+					}
 				}
 			}
 		}
@@ -671,12 +732,24 @@ public class TouchInputHandler : MonoBehaviour {
 		// check if the last selected piece is pieceType
 		// if it is then see if my mouse is over that piece
 		// if so return it
-		if (savedBodyPiece != null) {
-			if (Contains (savedBodyPiece, mousePos)) {
-				output = savedBodyPiece;
-				return output;
+		if (usingMouse) {
+			if (savedBodyPiece != null) {
+				if (Contains (savedBodyPiece, mousePos)) {
+					output = savedBodyPiece;
+					return output;
+				}
+			}
+		} else if (usingTouch) {
+			foreach (GameObject saved in savedPiece) {
+				if (saved != null) {
+					if (Contains (saved, mousePos)) {
+						output = saved;
+						return output;
+					}
+				}
 			}
 		}
+
 		GameObject[] pieces = null;
 		if (pieceType == rocketPiece) {
 			if (currentState == coneSelected) {
