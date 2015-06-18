@@ -34,6 +34,12 @@ public class ObjectInfo : MonoBehaviour {
 		}
 	}
 
+	public void Update() {
+		if (gameObject.transform.position == lockPosition && lockPosition != initialLockPosition) {
+			GameObject.Find ("GameManager").GetComponent<TouchInputHandler> ().addToRocketPieces (gameObject);
+		}
+	}
+
 	public int newLock (Vector3 newLock) {
 		lockPosition = newLock;
 		if (lockPosition.x == initialLockPosition.x) {

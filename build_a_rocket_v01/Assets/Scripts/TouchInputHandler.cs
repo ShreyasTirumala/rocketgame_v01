@@ -252,12 +252,11 @@ public class TouchInputHandler : MonoBehaviour {
 						//find the closest new lock position
 						newLock(selectedPiece[i]);
 						
-						//save it globally so we can operate on it in the next step if we want
-						savedPiece[i] = selectedPiece[i];
+
 						
-						if (selectedPiece[i] != savedPiece[i] && savedPiece[i] != null) {
+						/*if (selectedPiece[i] != savedPiece[i] && savedPiece[i] != null) {
 							selectedPiece[i] = null;
-						} 
+						} */
 						i++;
 					}
 				} else {
@@ -355,14 +354,23 @@ public class TouchInputHandler : MonoBehaviour {
 							addToRocketPieces(savedPiece[q]);
 							
 						}
-					}
+						//savedPiece[q] = null;
 					
+					int m = 0;
+					foreach (GameObject piece in selectedPiece) {
+						//save it globally so we can operate on it in the next step if we want
+						if (savedPiece[m] != selectedPiece[m]) {
+							//addToRocketPieces(savedPiece[m]);
+						}
+						savedPiece[m] = selectedPiece[m];
+						m++;
+					}
 					lockListExceptionArray(selectedPiece, conePieceList);
 					lockListExceptionArray(selectedPiece, boosterPieceList);
 					lockListExceptionArray(selectedPiece, bodyPieceList);
 					lockListExceptionArray(selectedPiece, finPieceList);
 					
-					
+					}
 				}
 				
 				
@@ -378,7 +386,9 @@ public class TouchInputHandler : MonoBehaviour {
 					}
 				}
 			}
+
 		}
+		searchToAdd ();
 		
 		//get the current state
 		AnimatorStateInfo currentRightPanelBaseState = rightPanelAnimator.GetCurrentAnimatorStateInfo (0);
@@ -631,7 +641,7 @@ public class TouchInputHandler : MonoBehaviour {
 		}
 	}
 
-	void addToRocketPieces(GameObject selectedBodyPiece) {
+	public void addToRocketPieces(GameObject selectedBodyPiece) {
 		//if the piece is locked into the body add it to the list of rocket pieces
 		if (selectedBodyPiece != null) {
 			var script = selectedBodyPiece.GetComponent<ObjectInfo> ();
@@ -640,12 +650,12 @@ public class TouchInputHandler : MonoBehaviour {
 				script.lockPosition != script.initialLockPosition && script.added == false) {
 				int count = 0;
 				//first check if the piece is on a trashcan
-				foreach (GameObject trashcan in trashcans) {
+				/*foreach (GameObject trashcan in trashcans) {
 					if (Vector3.Distance(selectedBodyPiece.transform.position, trashcan.transform.position) < 10) {
 						//it will be destroyed, dont add it, but do create a new object in its old spot
 						count++;
 					}
-				}
+				}*/
 
 				if (count == 0) {
 					rocketPieces.Add (selectedBodyPiece);
@@ -689,10 +699,26 @@ public class TouchInputHandler : MonoBehaviour {
 				newscript.seeMe = false;
 				newscript.initialLockPosition = newObject.transform.position = lockP; //also questionable line of code
 				newscript.jump = false;
-				lockAll ();
+				//lockAll ();
 			}
 		}
 	}
+
+	void searchToAdd() {
+		search (conePieceList);
+		search (boosterPieceList);
+		search (bodyPieceList);
+		search (finPieceList);
+	}
+	void search (List<GameObject> list) {
+		foreach (GameObject piece in list) {
+			if (piece.GetComponent<ObjectInfo> ().lockPosition == piece.transform.position &&
+			    piece.GetComponent<ObjectInfo>().lockPosition == piece.GetComponent<ObjectInfo>().initialLockPosition) {
+				addToRocketPieces (piece);
+			}
+		}
+	}
+
 	void checkTrash(GameObject selected) {
 		foreach (GameObject selectedBodyPiece in rocketPieces) {
 			if (selectedBodyPiece != null) {
@@ -829,6 +855,8 @@ public class TouchInputHandler : MonoBehaviour {
 			return false;
 		}
 	}
+
+
 	
 	//this checks for a collision at a point with all of the rocket objects
 	bool collisionLoop(Vector3 pos) {
