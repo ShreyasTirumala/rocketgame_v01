@@ -251,7 +251,37 @@ public class TouchInputHandler : MonoBehaviour {
 						selectedPiece[i] = MouseOverPiece(touch, rocketPiece);
 						//find the closest new lock position
 						newLock(selectedPiece[i]);
-						
+					}
+					int k = 0;
+					for (k = 0; k<10; k++) {
+						bool isselected = false;
+						foreach (GameObject selected in selectedPiece) {
+							if (selected == savedPiece[k]) {
+								isselected = true;
+							}							
+						}
+						if (!isselected) {
+							checkTrash(savedPiece[k]);
+						}
+					}
+							
+					int q;
+					for (q = 0; q<10; q++) {
+						bool savednotselected = true;
+						foreach(GameObject selected in selectedPiece) {
+							if (savedPiece[q] == selected) {		
+								savednotselected = false;									}
+							}
+							if (savednotselected) {
+								addToRocketPieces(savedPiece[q]);
+							}	
+					}
+					lockListExceptionArray(selectedPiece, conePieceList);
+					lockListExceptionArray(selectedPiece, boosterPieceList);
+					lockListExceptionArray(selectedPiece, bodyPieceList);
+					lockListExceptionArray(selectedPiece, finPieceList);
+					i= 0 ;
+					foreach (GameObject piece in selectedPiece)	 {
 						//save it globally so we can operate on it in the next step if we want
 						savedPiece[i] = selectedPiece[i];
 
@@ -270,13 +300,7 @@ public class TouchInputHandler : MonoBehaviour {
 			
 
 
-				//only select outline under certain conditions
-				GameObject selectedOutlinePiece;
-				if (selectedPiece[0] == null && switching == false /*&& switchDelay == 0*/) {
-					selectedOutlinePiece = MouseOverPiece(touchPosition[0], outlinePiece); //FIX THIS, IT ONLY RECORDS THE FIRST TOUCH
-				} else {
-					selectedOutlinePiece = null;
-				}
+
 
 				bool allnull = true;
 				foreach (GameObject selected in selectedPiece) {
@@ -285,6 +309,7 @@ public class TouchInputHandler : MonoBehaviour {
 					}
 				}
 				if (!allnull) {
+
 					i = 0;
 					foreach (GameObject selected in selectedPiece) {
 						if (selected != null) {
@@ -303,68 +328,42 @@ public class TouchInputHandler : MonoBehaviour {
 						i++;
 					}
 
-				} else if (selectedOutlinePiece != null) {
-					string pieceName = selectedOutlinePiece.name;
-					nextState = -1;
-					if (pieceName.Contains("top")) {
-						nextState = coneSelected;
-					} else if (pieceName.Contains("right") || pieceName.Contains("left")) {
-						nextState = finSelected;
-					} else if (pieceName.Contains("body")) {
-						nextState = bodySelected;
-					} else if (pieceName.Contains("engine")) {
-						nextState = boosterSelected;
+				} else {
+					//only select outline under certain conditions
+					GameObject selectedOutlinePiece;
+					if (selectedPiece[0] == null && switching == false /*&& switchDelay == 0*/) {
+						selectedOutlinePiece = MouseOverPiece(touchPosition[0], outlinePiece); //FIX THIS, IT ONLY RECORDS THE FIRST TOUCH
+					} else {
+						selectedOutlinePiece = null;
 					}
-					lockAll ();
-					// set the next state if not the current state
-					if (nextState >= 0 && nextState != currentState) {
-						switching = true;
-						if (firstStateChangeOccured == true) {
-							// play the animations to hide the sidebars
-							leftPanelAnimator.SetTrigger ("stateChangeTriggerLeft");
-							rightPanelAnimator.SetTrigger ("stateChangeTriggerRight");
-						} else {
-							leftPanelAnimator.SetBool ("firstStateSelectedLeft", true);
-							rightPanelAnimator.SetBool ("firstStateSelectedRight", true);
+				
+					if (selectedOutlinePiece != null) {
+						string pieceName = selectedOutlinePiece.name;
+						nextState = -1;
+						if (pieceName.Contains("top")) {
+							nextState = coneSelected;
+						} else if (pieceName.Contains("right") || pieceName.Contains("left")) {
+							nextState = finSelected;
+						} else if (pieceName.Contains("body")) {
+							nextState = bodySelected;
+						} else if (pieceName.Contains("engine")) {
+							nextState = boosterSelected;
 						}
-					}
-				}
-				int k = 0;
-				for (k = 0; k<10; k++) {
-					bool isselected = false;
-					foreach (GameObject selected in selectedPiece) {
-						if (selected == savedPiece[k]) {
-							isselected = true;
-						}
-					}
-					if (!isselected) {
-					checkTrash(savedPiece[k]);
-				}
-				}
-				if (!switching) {
-
-					int q;
-					for (q = 0; q<10; q++) {
-						bool savednotselected = true;
-						foreach(GameObject selected in selectedPiece) {
-							if (savedPiece[q] == selected) {
-								savednotselected = false;
+						lockAll ();
+						// set the next state if not the current state
+						if (nextState >= 0 && nextState != currentState) {
+							switching = true;
+							if (firstStateChangeOccured == true) {
+								// play the animations to hide the sidebars
+								leftPanelAnimator.SetTrigger ("stateChangeTriggerLeft");
+								rightPanelAnimator.SetTrigger ("stateChangeTriggerRight");
+							} else {
+								leftPanelAnimator.SetBool ("firstStateSelectedLeft", true);
+								rightPanelAnimator.SetBool ("firstStateSelectedRight", true);
 							}
 						}
-						if (savednotselected) {
-							addToRocketPieces(savedPiece[q]);
-
-						}
 					}
-
-					lockListExceptionArray(selectedPiece, conePieceList);
-					lockListExceptionArray(selectedPiece, boosterPieceList);
-					lockListExceptionArray(selectedPiece, bodyPieceList);
-					lockListExceptionArray(selectedPiece, finPieceList);
-
-
 				}
-
 				
 			} else {
 				if (!switching) {
