@@ -234,57 +234,27 @@ public class TouchInputHandler : MonoBehaviour {
 				//get our touch positions
 				Vector3[] touchPosition;
 				touchPosition = new Vector3[Input.touchCount];
-
+				
 				int i = 0;
 				foreach (Touch touch in Input.touches) {
 					touchPosition[i] = new Vector3 (0,0,0);
 					touchPosition[i] = touch.position;
 					i++;
 				}
-
+				
 				GameObject[] selectedPiece;
 				selectedPiece = new GameObject[Input.touchCount];
-
+				
 				if (switching == false ) {
 					i = 0;
 					foreach (Vector3 touch in touchPosition) {
 						selectedPiece[i] = MouseOverPiece(touch, rocketPiece);
 						//find the closest new lock position
 						newLock(selectedPiece[i]);
-					}
-					int k = 0;
-					for (k = 0; k<10; k++) {
-						bool isselected = false;
-						foreach (GameObject selected in selectedPiece) {
-							if (selected == savedPiece[k]) {
-								isselected = true;
-							}							
-						}
-						if (!isselected) {
-							checkTrash(savedPiece[k]);
-						}
-					}
-							
-					int q;
-					for (q = 0; q<10; q++) {
-						bool savednotselected = true;
-						foreach(GameObject selected in selectedPiece) {
-							if (savedPiece[q] == selected) {		
-								savednotselected = false;									}
-							}
-							if (savednotselected) {
-								addToRocketPieces(savedPiece[q]);
-							}	
-					}
-					lockListExceptionArray(selectedPiece, conePieceList);
-					lockListExceptionArray(selectedPiece, boosterPieceList);
-					lockListExceptionArray(selectedPiece, bodyPieceList);
-					lockListExceptionArray(selectedPiece, finPieceList);
-					i= 0 ;
-					foreach (GameObject piece in selectedPiece)	 {
+						
 						//save it globally so we can operate on it in the next step if we want
 						savedPiece[i] = selectedPiece[i];
-
+						
 						if (selectedPiece[i] != savedPiece[i] && savedPiece[i] != null) {
 							selectedPiece[i] = null;
 						} 
@@ -297,11 +267,17 @@ public class TouchInputHandler : MonoBehaviour {
 						i++;
 					}
 				}
-			
-
-
-
-
+				
+				
+				
+				//only select outline under certain conditions
+				GameObject selectedOutlinePiece;
+				if (selectedPiece[0] == null && switching == false /*&& switchDelay == 0*/) {
+					selectedOutlinePiece = MouseOverPiece(touchPosition[0], outlinePiece); //FIX THIS, IT ONLY RECORDS THE FIRST TOUCH
+				} else {
+					selectedOutlinePiece = null;
+				}
+				
 				bool allnull = true;
 				foreach (GameObject selected in selectedPiece) {
 					if (selected != null) {
@@ -309,61 +285,86 @@ public class TouchInputHandler : MonoBehaviour {
 					}
 				}
 				if (!allnull) {
-
 					i = 0;
 					foreach (GameObject selected in selectedPiece) {
 						if (selected != null) {
-						Vector3 mousePos = touchPosition[i];
-					
-						if (selected.GetComponent<ObjectInfo>().firstTouch == false) {
-							selected.GetComponent<ObjectInfo>().firstTouch = true;
-						}
-					
-						Vector3 piecePosition = new Vector3((mousePos.x * cameraWidth / Screen.width) - (cameraWidth / 2), 
-					    	                                (mousePos.y * cameraHeight / Screen.height) - (cameraHeight / 2), 
-					        	                            0);
-					
-						selected.transform.position = piecePosition;
+							Vector3 mousePos = touchPosition[i];
+							
+							if (selected.GetComponent<ObjectInfo>().firstTouch == false) {
+								selected.GetComponent<ObjectInfo>().firstTouch = true;
+							}
+							
+							Vector3 piecePosition = new Vector3((mousePos.x * cameraWidth / Screen.width) - (cameraWidth / 2), 
+							                                    (mousePos.y * cameraHeight / Screen.height) - (cameraHeight / 2), 
+							                                    0);
+							
+							selected.transform.position = piecePosition;
 						}
 						i++;
 					}
-
-				} else {
-					//only select outline under certain conditions
-					GameObject selectedOutlinePiece;
-					if (selectedPiece[0] == null && switching == false /*&& switchDelay == 0*/) {
-						selectedOutlinePiece = MouseOverPiece(touchPosition[0], outlinePiece); //FIX THIS, IT ONLY RECORDS THE FIRST TOUCH
-					} else {
-						selectedOutlinePiece = null;
+					
+				} else if (selectedOutlinePiece != null) {
+					string pieceName = selectedOutlinePiece.name;
+					nextState = -1;
+					if (pieceName.Contains("top")) {
+						nextState = coneSelected;
+					} else if (pieceName.Contains("right") || pieceName.Contains("left")) {
+						nextState = finSelected;
+					} else if (pieceName.Contains("body")) {
+						nextState = bodySelected;
+					} else if (pieceName.Contains("engine")) {
+						nextState = boosterSelected;
 					}
-				
-					if (selectedOutlinePiece != null) {
-						string pieceName = selectedOutlinePiece.name;
-						nextState = -1;
-						if (pieceName.Contains("top")) {
-							nextState = coneSelected;
-						} else if (pieceName.Contains("right") || pieceName.Contains("left")) {
-							nextState = finSelected;
-						} else if (pieceName.Contains("body")) {
-							nextState = bodySelected;
-						} else if (pieceName.Contains("engine")) {
-							nextState = boosterSelected;
-						}
-						lockAll ();
-						// set the next state if not the current state
-						if (nextState >= 0 && nextState != currentState) {
-							switching = true;
-							if (firstStateChangeOccured == true) {
-								// play the animations to hide the sidebars
-								leftPanelAnimator.SetTrigger ("stateChangeTriggerLeft");
-								rightPanelAnimator.SetTrigger ("stateChangeTriggerRight");
-							} else {
-								leftPanelAnimator.SetBool ("firstStateSelectedLeft", true);
-								rightPanelAnimator.SetBool ("firstStateSelectedRight", true);
-							}
+					lockAll ();
+					// set the next state if not the current state
+					if (nextState >= 0 && nextState != currentState) {
+						switching = true;
+						if (firstStateChangeOccured == true) {
+							// play the animations to hide the sidebars
+							leftPanelAnimator.SetTrigger ("stateChangeTriggerLeft");
+							rightPanelAnimator.SetTrigger ("stateChangeTriggerRight");
+						} else {
+							leftPanelAnimator.SetBool ("firstStateSelectedLeft", true);
+							rightPanelAnimator.SetBool ("firstStateSelectedRight", true);
 						}
 					}
 				}
+				int k = 0;
+				for (k = 0; k<10; k++) {
+					bool isselected = false;
+					foreach (GameObject selected in selectedPiece) {
+						if (selected == savedPiece[k]) {
+							isselected = true;
+						}
+					}
+					if (!isselected) {
+						checkTrash(savedPiece[k]);
+					}
+				}
+				if (!switching) {
+					
+					int q;
+					for (q = 0; q<10; q++) {
+						bool savednotselected = true;
+						foreach(GameObject selected in selectedPiece) {
+							if (savedPiece[q] == selected) {
+								savednotselected = false;
+							}
+						}
+						if (savednotselected) {
+							addToRocketPieces(savedPiece[q]);
+							
+						}
+					}
+					
+					lockListExceptionArray(selectedPiece, conePieceList);
+					lockListExceptionArray(selectedPiece, boosterPieceList);
+					lockListExceptionArray(selectedPiece, bodyPieceList);
+					lockListExceptionArray(selectedPiece, finPieceList);
+					
+					
+				}
+				
 				
 			} else {
 				if (!switching) {
