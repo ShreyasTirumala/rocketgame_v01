@@ -38,9 +38,19 @@ public class ObjectInfo : MonoBehaviour {
 		if (gameObject.transform.position == lockPosition && lockPosition != initialLockPosition) {
 			GameObject.Find ("GameManager").GetComponent<TouchInputHandler> ().addToRocketPieces (gameObject);
 		}
+		foreach (GameObject outline in GameObject.Find("GameManager").GetComponent<TouchInputHandler>().selectedOutlinePieces) {
+			if (outline.transform.position == lockPosition) {
+				outline.GetComponent<OutlineInfo> ().objectLocked = true;
+			} 
+		}
 	}
 
 	public int newLock (Vector3 newLock) {
+		foreach (GameObject outline in GameObject.Find("GameManager").GetComponent<TouchInputHandler>().selectedOutlinePieces) {
+			if (outline.transform.position == lockPosition) {
+				outline.GetComponent<OutlineInfo> ().objectLocked = false;
+			} 
+		}
 		lockPosition = newLock;
 		if (lockPosition.x == initialLockPosition.x) {
 			initialLockPosition = lockPosition;
@@ -48,6 +58,8 @@ public class ObjectInfo : MonoBehaviour {
 
 		seeMe = true;
 		gameObject.transform.parent = null;
+
+
 		return 0;
 	}
 

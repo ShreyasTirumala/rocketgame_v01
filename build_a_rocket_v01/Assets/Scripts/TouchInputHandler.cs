@@ -388,7 +388,7 @@ public class TouchInputHandler : MonoBehaviour {
 			}
 
 		}
-		searchToAdd ();
+		//searchToAdd ();
 		
 		//get the current state
 		AnimatorStateInfo currentRightPanelBaseState = rightPanelAnimator.GetCurrentAnimatorStateInfo (0);
@@ -610,19 +610,26 @@ public class TouchInputHandler : MonoBehaviour {
 			float minDistance = Vector3.Distance (piece.transform.position, piece.GetComponent<ObjectInfo> ().lockPosition) / 3;
 			float saveMinDistance = minDistance;
 			Vector3 newLock = piece.GetComponent<ObjectInfo> ().lockPosition;
+			Vector3 oldLock = newLock;
 			bool trashpossible = false;
 			if (rocketPieces.Contains(piece)) {
 				trashpossible = true;
 			}
-
-
+		
 			foreach (GameObject outline in selectedOutlinePieces) {
-				if (outline.GetComponent<SpriteRenderer> ().enabled == true) {
+				if (outline.GetComponent<SpriteRenderer> ().enabled == true   ) {
+					Debug.Log (outline.GetComponent<OutlineInfo>().objectLocked);
+					if (outline.GetComponent<OutlineInfo>().objectLocked == false) 
+				{
 					distance = Vector3.Distance (outline.transform.position, piece.transform.position);
 					if (minDistance > distance && !collisionLoop (outline.transform.position)) {
 						minDistance = distance;
 						newLock = outline.transform.position;
 					}
+					
+				}
+				
+				
 				}
 			}
 			if (trashpossible) {
@@ -638,6 +645,8 @@ public class TouchInputHandler : MonoBehaviour {
 			if (minDistance != saveMinDistance) {
 				piece.GetComponent<ObjectInfo> ().newLock (newLock);
 			}
+
+
 		}
 	}
 
