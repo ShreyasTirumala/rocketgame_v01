@@ -635,7 +635,7 @@ public class TouchInputHandler : MonoBehaviour {
 			if (trashpossible) {
 				foreach (GameObject trash in trashcans) {
 					distance = Vector3.Distance (trash.transform.position, piece.transform.position);
-					if (minDistance > distance) {
+					if (4*minDistance > distance) {
 						minDistance = distance;
 						newLock = trash.transform.position;
 					}
@@ -732,7 +732,9 @@ public class TouchInputHandler : MonoBehaviour {
 		foreach (GameObject selectedBodyPiece in rocketPieces) {
 			if (selectedBodyPiece != null) {
 				foreach (GameObject trashcan in trashcans) {
-					if (Vector3.Distance (selectedBodyPiece.transform.position, trashcan.transform.position) < 10) {
+					if (Vector3.Distance (selectedBodyPiece.transform.position, trashcan.transform.position) < 10 ||
+					    (Mathf.Abs(selectedBodyPiece.transform.position.x) > 70 && selectedBodyPiece.GetComponent<ObjectInfo>().lockPosition !=
+					 selectedBodyPiece.GetComponent<ObjectInfo>().initialLockPosition) ) {
 						removeFromRocketPieces (selectedBodyPiece);
 				
 						GameObject.Destroy (selectedBodyPiece);

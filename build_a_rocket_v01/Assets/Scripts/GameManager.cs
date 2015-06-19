@@ -12,14 +12,19 @@ public class GameManager : MonoBehaviour {
 	public Text countdownTimer;
 	public float initialTimerValue = 120f; // time in seconds
 
-	private float timeElapsed = 0f;
-	private float remainingTime = 0f;
-	private TimeSpan t_timer_start;
-
 	public Text weight;
 	public Text airResistance;
 	public Text power;
 	public Text fuel;
+	public Text t1;
+	public Text t2;
+	public Text t3;
+	public Text t4;
+	public Text t5;
+
+	private float timeElapsed = 0f;
+	private float remainingTime = 0f;
+	private TimeSpan t_timer_start;
 
 	private bool launched = false;
 	private float alphaSet = 0f;
@@ -27,8 +32,27 @@ public class GameManager : MonoBehaviour {
 	private int distance = 0;
 	private int maxDistance;
 
+	private float fov;
+
+
+
+	private int d1;
+	private int d2;
+	private int d3;
+	private int d4;
+			private int d5;
+
+	private bool doOnce;
+
 
 	void Awake () {
+		var saved = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
+		d1 = saved.d1;
+		d2 = saved.d2;
+		d3 = saved.d3;
+		d4 = saved.d4;
+		d5 = saved.d5;
+
 		GameObject jet = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
 		jet.GetComponent<ParticleSystem>().enableEmission = false;
 		GameObject jet1 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 2/Jet 1");
@@ -42,6 +66,9 @@ public class GameManager : MonoBehaviour {
 		//d.transform.position = new Vector3(-1000, -1000, 0);
 
 		//GameObject.Find ("Results").SetActive (false);
+
+		fov =  Camera.main.orthographicSize;
+		doOnce = false;
 
 	}
 	
@@ -117,6 +144,20 @@ public class GameManager : MonoBehaviour {
 				}
 			}else {
 				distance = maxDistance;
+				if (doOnce == false) {
+				if (d1 == -1) {
+					d1 = maxDistance;
+				}else if (d2 == -1) {
+					d2 = maxDistance;
+				}else if (d3 == -1) {
+					d3 = maxDistance;
+				}else if (d4 == -1) {
+					d4 = maxDistance;
+				}else {
+					d5 = maxDistance;
+				}
+					doOnce = true;
+				}
 
 				var results = GameObject.Find ("Results");
 				results.GetComponent<Animator>().SetTrigger ("go");
@@ -129,9 +170,34 @@ public class GameManager : MonoBehaviour {
 					jet6.GetComponent<ParticleSystem> ().enableEmission = false;
 					GameObject jet7 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
 					jet7.GetComponent<ParticleSystem> ().enableEmission = false;
+				if (d1 != -1) 
+					GameObject.Find("Canvas/Trial1").transform.position = results.transform.position - new Vector3 (15, -16, 0);
+				if (d2 != -1) 
+					GameObject.Find("Canvas/Trial2").transform.position = results.transform.position - new Vector3 (15, -7, 0);
+				if (d3 != -1) 
+					GameObject.Find("Canvas/Trial3").transform.position = results.transform.position - new Vector3 (15, 2, 0);
+				if (d4 != -1) 
+					GameObject.Find("Canvas/Trial4").transform.position = results.transform.position - new Vector3 (15, 11, 0);
+				if (d5 != -1) 
+					GameObject.Find("Canvas/Trial5").transform.position = results.transform.position - new Vector3 (15, 20, 0);
+
+				t1.text = "Trial 1: " + d1.ToString();
+				t2.text = "Trial 2: "+ d2.ToString();
+				t3.text = "Trial 3: "+d3.ToString();
+				t4.text = "Trial 4: "+d4.ToString();
+				t5.text = "Trial 5: "+d5.ToString();
+
 
 			}
 
+
+			Camera.main.orthographicSize = fov;
+			//fov += .05f;
+			GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d1 = d1;
+			GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d2 = d2;
+			GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d3 = d3;
+			GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d4 = d4;
+			GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d5 = d5;
 
 		}
 
