@@ -11,6 +11,7 @@ public class GameManager : MonoBehaviour {
 
 	public Text countdownTimer;
 	public float initialTimerValue = 120f; // time in seconds
+	public float secondInitialValue = 30f;
 
 	public Text weight;
 	public Text airResistance;
@@ -23,7 +24,9 @@ public class GameManager : MonoBehaviour {
 	public Text t5;
 
 	private float timeElapsed = 0f;
+	private float timeElapsed2 = 0f;
 	private float remainingTime = 0f;
+	private float remainingTime2 = 0f;
 	private TimeSpan t_timer_start;
 
 	private bool launched = false;
@@ -34,7 +37,7 @@ public class GameManager : MonoBehaviour {
 
 	private float fov;
 
-
+	public bool canRestart = false;
 
 	private int d1;
 	private int d2;
@@ -44,7 +47,7 @@ public class GameManager : MonoBehaviour {
 
 	private bool doOnce;
 
-
+	private Vector3 timerSavePosition;
 	void Awake () {
 		var saved = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
 		d1 = saved.d1;
@@ -101,6 +104,7 @@ public class GameManager : MonoBehaviour {
 				launched = true;
 
 				GameObject timer = GameObject.Find("Canvas/Timer");
+				timerSavePosition = timer.transform.position;
 				timer.transform.position = new Vector3(-1000, -1000, 0);
 				GameObject w = GameObject.Find("Canvas/Weight");
 				w.transform.position = new Vector3(-1000, -1000, 0);
@@ -171,15 +175,15 @@ public class GameManager : MonoBehaviour {
 					GameObject jet7 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
 					jet7.GetComponent<ParticleSystem> ().enableEmission = false;
 				if (d1 != -1) 
-					GameObject.Find("Canvas/Trial1").transform.position = results.transform.position - new Vector3 (15, -16, 0);
+					GameObject.Find("Canvas/Trial1").transform.position = results.transform.position - new Vector3 (-37, -16, 0);
 				if (d2 != -1) 
-					GameObject.Find("Canvas/Trial2").transform.position = results.transform.position - new Vector3 (15, -7, 0);
+					GameObject.Find("Canvas/Trial2").transform.position = results.transform.position - new Vector3 (-37, -7, 0);
 				if (d3 != -1) 
-					GameObject.Find("Canvas/Trial3").transform.position = results.transform.position - new Vector3 (15, 2, 0);
+					GameObject.Find("Canvas/Trial3").transform.position = results.transform.position - new Vector3 (-37, 2, 0);
 				if (d4 != -1) 
-					GameObject.Find("Canvas/Trial4").transform.position = results.transform.position - new Vector3 (15, 11, 0);
+					GameObject.Find("Canvas/Trial4").transform.position = results.transform.position - new Vector3 (-37, 11, 0);
 				if (d5 != -1) 
-					GameObject.Find("Canvas/Trial5").transform.position = results.transform.position - new Vector3 (15, 20, 0);
+					GameObject.Find("Canvas/Trial5").transform.position = results.transform.position - new Vector3 (-37, 20, 0);
 
 				t1.text = "Trial 1: " + d1.ToString();
 				t2.text = "Trial 2: "+ d2.ToString();
@@ -187,6 +191,17 @@ public class GameManager : MonoBehaviour {
 				t4.text = "Trial 4: "+d4.ToString();
 				t5.text = "Trial 5: "+d5.ToString();
 
+				GameObject timer = GameObject.Find("Canvas/Timer");
+				timer.transform.position = timerSavePosition;
+				remainingTime2 = secondInitialValue - timeElapsed2;
+				if (remainingTime2 > 0.0) {
+					countdownTimer.text = FormatTime (remainingTime2);
+				} else {
+					countdownTimer.text = "00:00";
+					canRestart = true;
+					GameObject.Find("Canvas/RestartMessage").transform.position = new Vector3 (0, -45, 0);
+				}
+				timeElapsed2+=Time.deltaTime;
 
 			}
 

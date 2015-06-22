@@ -131,15 +131,12 @@ public class TouchInputHandler : MonoBehaviour {
 			// if the left mouse button is clicking on our object
 			if(Input.GetMouseButton(0)) {
 				//if you click on the results object, reload the level
-				if (ending) { 
-					//if ( Mathf.Abs(Input.mousePosition.x) < GameObject.Find ("Results").GetComponent<MeshRenderer>().bounds.size.x/2) {
-					//	if ( Mathf.Abs(Input.mousePosition.y) < GameObject.Find ("Results").GetComponent<MeshRenderer>().bounds.size.y/2) {
-					Debug.Log ("reload");       
-					Application.LoadLevel(Application.loadedLevel);
-							
-					//	}
-				//	}
+				if (ending) {  
+					if (GameObject.Find ("GameManager").GetComponent<GameManager>().canRestart) {
+						Application.LoadLevel(Application.loadedLevel);
 				}
+				}
+
 
 				if (switching == false ) {
 					selectedBodyPiece = MouseOverPiece(Input.mousePosition, rocketPiece);
@@ -160,7 +157,7 @@ public class TouchInputHandler : MonoBehaviour {
 				savedBodyPiece = selectedBodyPiece;
 				//only select outline under certain conditions
 				GameObject selectedOutlinePiece;
-				if (selectedBodyPiece == null && switching == false /*&& switchDelay == 0*/) {
+				if (selectedBodyPiece == null && switching == false && switchDelay == 0) {
 					selectedOutlinePiece = MouseOverPiece(Input.mousePosition, outlinePiece);
 				} else {
 					selectedOutlinePiece = null;
@@ -223,13 +220,10 @@ public class TouchInputHandler : MonoBehaviour {
 			if(Input.touchCount > 0) {
 				//if you click on the results object, reload the level
 				if (ending) { 
-					//if ( Mathf.Abs(Input.mousePosition.x) < GameObject.Find ("Results").GetComponent<MeshRenderer>().bounds.size.x/2) {
-					//	if ( Mathf.Abs(Input.mousePosition.y) < GameObject.Find ("Results").GetComponent<MeshRenderer>().bounds.size.y/2) {
-					Debug.Log ("reload");       
+					if (GameObject.Find ("GameManager").GetComponent<GameManager>().canRestart) {
 					Application.LoadLevel(Application.loadedLevel);
-					
-					//	}
-					//	}
+					}
+				
 				}
 				//get our touch positions
 				Vector3[] touchPosition;
@@ -260,10 +254,9 @@ public class TouchInputHandler : MonoBehaviour {
 						i++;
 					}
 				} else {
-					i = 0;
-					foreach (GameObject piece in selectedPiece) {
+					for (i = 0; i<Input.touchCount; i++) {
 						selectedPiece[i] = null;
-						i++;
+
 					}
 				}
 				
@@ -271,7 +264,7 @@ public class TouchInputHandler : MonoBehaviour {
 				
 				//only select outline under certain conditions
 				GameObject selectedOutlinePiece;
-				if (selectedPiece[0] == null && switching == false /*&& switchDelay == 0*/) {
+				if (selectedPiece[0] == null && switching == false && switchDelay == 0) {
 					selectedOutlinePiece = MouseOverPiece(touchPosition[0], outlinePiece); //FIX THIS, IT ONLY RECORDS THE FIRST TOUCH
 				} else {
 					selectedOutlinePiece = null;
@@ -356,14 +349,13 @@ public class TouchInputHandler : MonoBehaviour {
 						}
 						//savedPiece[q] = null;
 					
-					int m = 0;
-					foreach (GameObject piece in selectedPiece) {
+						int m;
+						for (m = 0; m<Input.touchCount; m++) {
 						//save it globally so we can operate on it in the next step if we want
 						if (savedPiece[m] != selectedPiece[m]) {
 							//addToRocketPieces(savedPiece[m]);
 						}
 						savedPiece[m] = selectedPiece[m];
-						m++;
 					}
 					lockListExceptionArray(selectedPiece, conePieceList);
 					lockListExceptionArray(selectedPiece, boosterPieceList);
@@ -441,7 +433,7 @@ public class TouchInputHandler : MonoBehaviour {
 			currentState = nextState;
 			switching = false;
 			//I fixed a bunch of bugs with this... its hacky but it works
-			switchDelay = 60;
+			switchDelay = 60; //should be 62
 			firstTouchReset();
 		}
 
@@ -610,7 +602,6 @@ public class TouchInputHandler : MonoBehaviour {
 			float minDistance = Vector3.Distance (piece.transform.position, piece.GetComponent<ObjectInfo> ().lockPosition) / 3;
 			float saveMinDistance = minDistance;
 			Vector3 newLock = piece.GetComponent<ObjectInfo> ().lockPosition;
-			Vector3 oldLock = newLock;
 			bool trashpossible = false;
 			if (rocketPieces.Contains(piece)) {
 				trashpossible = true;
