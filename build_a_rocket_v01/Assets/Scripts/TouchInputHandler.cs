@@ -609,7 +609,7 @@ public class TouchInputHandler : MonoBehaviour {
 		
 			foreach (GameObject outline in selectedOutlinePieces) {
 				if (outline.GetComponent<SpriteRenderer> ().enabled == true   ) {
-					Debug.Log (outline.GetComponent<OutlineInfo>().objectLocked);
+					// Debug.Log (outline.GetComponent<OutlineInfo>().objectLocked);
 					if (outline.GetComponent<OutlineInfo>().objectLocked == false) 
 				{
 					distance = Vector3.Distance (outline.transform.position, piece.transform.position);
@@ -671,22 +671,36 @@ public class TouchInputHandler : MonoBehaviour {
 					lockP.x= 86;
 				}
 
+				GameObject prefabToInstantiate = null;
 				GameObject newObject = null;
+
 				if (currentState == coneSelected) {
-				 newObject = GameObjectUtil.Instantiate(conePieces[10], lockP);
-					conePieceList.Add (newObject);
+					prefabToInstantiate = findPrefabFromName(conePieces, selectedBodyPiece.name);
+					if (prefabToInstantiate != null) {
+						newObject = GameObjectUtil.Instantiate(prefabToInstantiate, lockP);
+						conePieceList.Add (newObject);
+					}
 				} else
 				if (currentState == finSelected) {
-					 newObject = GameObjectUtil.Instantiate(finPieces[10], lockP);
-					finPieceList.Add (newObject);
+					prefabToInstantiate = findPrefabFromName(finPieces, selectedBodyPiece.name);
+					if (prefabToInstantiate != null) {
+						newObject = GameObjectUtil.Instantiate(prefabToInstantiate, lockP);
+						finPieceList.Add (newObject);
+					}
 				} else 
 				if (currentState == bodySelected) {
-					 newObject = GameObjectUtil.Instantiate(bodyPieces[10], lockP);
-					bodyPieceList.Add (newObject);
+					prefabToInstantiate = findPrefabFromName(bodyPieces, selectedBodyPiece.name);
+					if (prefabToInstantiate != null) {
+						newObject = GameObjectUtil.Instantiate(prefabToInstantiate, lockP);
+						bodyPieceList.Add (newObject);
+					}
 				} else
 				if (currentState == boosterSelected) {
-					newObject = GameObjectUtil.Instantiate(boosterPieces[10], lockP);
-					boosterPieceList.Add (newObject);
+					prefabToInstantiate = findPrefabFromName(boosterPieces, selectedBodyPiece.name);
+					if (prefabToInstantiate != null) {
+						newObject = GameObjectUtil.Instantiate(prefabToInstantiate, lockP);
+						boosterPieceList.Add (newObject);
+					}
 				} 
 				if (newObject != null) {
 					if (lockP.x <0) {
@@ -702,6 +716,19 @@ public class TouchInputHandler : MonoBehaviour {
 				//lockAll ();
 			}
 		}
+	}
+
+	GameObject findPrefabFromName(GameObject[] prefabs, string name)
+	{
+		GameObject returnGameObject = new GameObject ();
+		foreach (GameObject prefab in prefabs) {
+			if (prefab.name == name)
+			{
+				returnGameObject = prefab;
+				break;
+			}
+		}
+		return returnGameObject;
 	}
 
 	void searchToAdd() {
