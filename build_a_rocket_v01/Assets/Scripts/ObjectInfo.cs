@@ -8,10 +8,10 @@ public class ObjectInfo : MonoBehaviour {
 	private float jumpSize;
 
 	//characteristic values
-	public int airResistance = 10;
+	public int weight = 10;
 	public int fuel = 10;
 	public int power = 10;
-	public int weight = 10;
+	public int airResistance = 10;
 
 	public bool jump = true;
 
