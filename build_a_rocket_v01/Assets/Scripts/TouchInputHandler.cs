@@ -35,6 +35,8 @@ public class TouchInputHandler : MonoBehaviour {
 	
 	public int pixelsPerUnit = 10;
 	
+	public GameObject[] savedPiece = new GameObject[10];
+	
 	// states of the build phase 
 	private int currentState;
 	private int nextState;
@@ -69,7 +71,8 @@ public class TouchInputHandler : MonoBehaviour {
 
 	private bool ending = false;
 
-	public GameObject[] savedPiece = new GameObject[10];
+	// the object used to send all the messages to Unity
+	private ThalamusUnity thalamusUnity;
 	
 	// Use this for initialization
 	void Start () {
@@ -113,6 +116,9 @@ public class TouchInputHandler : MonoBehaviour {
 		
 		// hide all of the selected outlines to start out
 		hidePieces (selectedOutlinePieces);
+
+		// initialize the thalamusUnity object
+		thalamusUnity = new ThalamusUnity();
 
 	}
 	
@@ -680,6 +686,8 @@ public class TouchInputHandler : MonoBehaviour {
 						newObject = GameObjectUtil.Instantiate(prefabToInstantiate, lockP);
 						conePieceList.Add (newObject);
 					}
+//					newObject = GameObjectUtil.Instantiate(conePieces[10], lockP);
+//					finPieceList.Add (newObject);
 				} else
 				if (currentState == finSelected) {
 					prefabToInstantiate = findPrefabFromName(finPieces, selectedBodyPiece.name);
@@ -687,6 +695,8 @@ public class TouchInputHandler : MonoBehaviour {
 						newObject = GameObjectUtil.Instantiate(prefabToInstantiate, lockP);
 						finPieceList.Add (newObject);
 					}
+//					newObject = GameObjectUtil.Instantiate(finPieces[10], lockP);
+//					finPieceList.Add (newObject);
 				} else 
 				if (currentState == bodySelected) {
 					prefabToInstantiate = findPrefabFromName(bodyPieces, selectedBodyPiece.name);
@@ -694,6 +704,8 @@ public class TouchInputHandler : MonoBehaviour {
 						newObject = GameObjectUtil.Instantiate(prefabToInstantiate, lockP);
 						bodyPieceList.Add (newObject);
 					}
+//					newObject = GameObjectUtil.Instantiate(bodyPieces[10], lockP);
+//					finPieceList.Add (newObject);
 				} else
 				if (currentState == boosterSelected) {
 					prefabToInstantiate = findPrefabFromName(boosterPieces, selectedBodyPiece.name);
@@ -701,13 +713,15 @@ public class TouchInputHandler : MonoBehaviour {
 						newObject = GameObjectUtil.Instantiate(prefabToInstantiate, lockP);
 						boosterPieceList.Add (newObject);
 					}
+//					newObject = GameObjectUtil.Instantiate(boosterPieces[10], lockP);
+//					finPieceList.Add (newObject);
 				} 
 				if (newObject != null) {
-					if (lockP.x <0) {
+					/*if (lockP.x <0) {
 						newObject.transform.parent = GameObject.Find("LeftPiecePanel").transform;
 					} else {
 						newObject.transform.parent = GameObject.Find("RightPiecePanel").transform;
-					}
+					}*/
 				}
 				var newscript = newObject.GetComponent<ObjectInfo>();
 				newscript.seeMe = false;
@@ -722,6 +736,7 @@ public class TouchInputHandler : MonoBehaviour {
 	{
 		GameObject returnGameObject = new GameObject ();
 		foreach (GameObject prefab in prefabs) {
+			//Debug.Log("Comparing: " + prefab.name + " and " + name);
 			if (prefab.name == name)
 			{
 				returnGameObject = prefab;
