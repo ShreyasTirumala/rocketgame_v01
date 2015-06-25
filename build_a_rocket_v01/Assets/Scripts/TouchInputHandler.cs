@@ -782,6 +782,13 @@ public class TouchInputHandler : MonoBehaviour {
 				newscript.initialLockPosition = newObject.transform.position = lockP; //also questionable line of code
 				newscript.jump = false;
 				//lockAll ();
+
+				if (newObject.transform.position.x <0) {
+					newObject.transform.parent = GameObject.Find("LeftPiecePanel").transform;
+				} else {
+					newObject.transform.parent = GameObject.Find("RightPiecePanel").transform;
+				}
+
 			}
 		}
 	}
