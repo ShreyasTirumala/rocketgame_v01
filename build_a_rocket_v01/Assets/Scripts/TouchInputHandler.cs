@@ -168,6 +168,18 @@ public class TouchInputHandler : MonoBehaviour {
 				//find the closest new lock position
 				newLock (selectedBodyPiece);
 
+
+				// check if the selectedBodyPiece != savedBodyPiece, if so, send message to Thalamus
+				// about the new selected piece
+				if (selectedBodyPiece != savedBodyPiece && selectedBodyPiece != null)
+				{			
+					// ETHAN
+					// send the timer value to Thalamus
+					// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
+
+					// Debug.Log("pieceSelected*" + selectedBodyPiece.name);
+				}
+
 				//save it globally so we can operate on it in the next step if we want
 				savedBodyPiece = selectedBodyPiece;
 				//only select outline under certain conditions
@@ -480,7 +492,7 @@ public class TouchInputHandler : MonoBehaviour {
 			// send the timer value to Thalamus
 			// thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString + "*" + power.ToString);
 			
-			Debug.Log ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
+			// Debug.Log ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
 		}
 
 	}
