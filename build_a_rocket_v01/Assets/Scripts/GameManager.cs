@@ -45,11 +45,20 @@ public class GameManager : MonoBehaviour {
 	private int d2;
 	private int d3;
 	private int d4;
-			private int d5;
+	private int d5;
+
+	private int d1_old = -1;
+	private int d2_old = -1;
+	private int d3_old = -1;
+	private int d4_old = -1;
+	private int d5_old = -1;
 
 	private bool doOnce;
 
 	private Vector3 timerSavePosition;
+
+	// value to indicate whether the updated results have been shown
+	private bool shownResults = true;
 
 	// the object used to send all the messages to Thalamus
 	private ThalamusUnity thalamusUnity;
@@ -168,17 +177,17 @@ public class GameManager : MonoBehaviour {
 			} else {
 				distance = maxDistance;
 				if (doOnce == false) {
-				if (d1 == -1) {
-					d1 = maxDistance;
-				}else if (d2 == -1) {
-					d2 = maxDistance;
-				}else if (d3 == -1) {
-					d3 = maxDistance;
-				}else if (d4 == -1) {
-					d4 = maxDistance;
-				}else {
-					d5 = maxDistance;
-				}
+					if (d1 == -1) {
+						d1 = maxDistance;
+					} else if (d2 == -1) {
+						d2 = maxDistance;
+					} else if (d3 == -1) {
+						d3 = maxDistance;
+					} else if (d4 == -1) {
+						d4 = maxDistance;
+					} else {
+						d5 = maxDistance;
+					}
 					doOnce = true;
 				}
 
@@ -193,6 +202,7 @@ public class GameManager : MonoBehaviour {
 					jet6.GetComponent<ParticleSystem> ().enableEmission = false;
 					GameObject jet7 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
 					jet7.GetComponent<ParticleSystem> ().enableEmission = false;
+
 				if (d1 != -1) 
 					GameObject.Find("Canvas/Trial1").transform.position = results.transform.position - new Vector3 (-37, -16, 0);
 				if (d2 != -1) 
@@ -204,11 +214,47 @@ public class GameManager : MonoBehaviour {
 				if (d5 != -1) 
 					GameObject.Find("Canvas/Trial5").transform.position = results.transform.position - new Vector3 (-37, 20, 0);
 
-				t1.text = "Trial 1: " + d1.ToString();
-				t2.text = "Trial 2: "+ d2.ToString();
-				t3.text = "Trial 3: "+d3.ToString();
-				t4.text = "Trial 4: "+d4.ToString();
-				t5.text = "Trial 5: "+d5.ToString();
+				// Only update the text displays and saved variables (and send a Thalamus message) when the results values change
+				if (d1 != d1_old || d2 != d2_old || d3 != d3_old || d4 != d4_old || d5 != d5_old)
+				{
+					if (d1 != d1_old)
+					{
+						t1.text = "Trial 1: " + d1.ToString();
+						GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d1 = d1;
+						d1_old = d1;
+					}
+					if (d2 != d2_old)
+					{
+						t2.text = "Trial 2: " + d2.ToString();
+						GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d2 = d2;
+						d2_old = d2;
+					}
+					if (d3 != d3_old)
+					{
+						t3.text = "Trial 3: " + d3.ToString();
+						GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d3 = d3;
+						d3_old = d3;
+					}
+					if (d4 != d4_old)
+					{
+						t4.text = "Trial 4: " + d4.ToString();
+						GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d4 = d4;
+						d4_old = d4;
+					}
+					if (d5 != d5_old)
+					{
+						t5.text = "Trial 5: " + d5.ToString();
+						GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d5 = d5;
+						d5_old = d5;
+					}
+
+					// ETHAN
+					// send the timer value to Thalamus
+					// thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString + "*" + power.ToString);
+
+					Debug.Log("results*" + d1.ToString() + "*" + d2.ToString() + "*" + d3.ToString() + "*" + d4.ToString() + "*" + d5.ToString());
+				}
+
 
 				GameObject timer = GameObject.Find("Canvas/Timer");
 				timer.transform.position = timerSavePosition;
@@ -235,11 +281,6 @@ public class GameManager : MonoBehaviour {
 
 			Camera.main.orthographicSize = fov;
 			//fov += .05f;
-			GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d1 = d1;
-			GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d2 = d2;
-			GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d3 = d3;
-			GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d4 = d4;
-			GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d5 = d5;
 
 		}
 
