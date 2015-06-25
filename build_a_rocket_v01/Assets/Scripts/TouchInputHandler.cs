@@ -5,6 +5,7 @@ using System.Collections.Generic;
 
 public class TouchInputHandler : MonoBehaviour {
 
+	public bool paused = false;
 	// all of the prefabs that we can touch/drag
 	public GameObject[] conePieces;
 	public GameObject[] finPieces;
@@ -133,370 +134,370 @@ public class TouchInputHandler : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+		if (!paused) {
 
-		GameObject selectedBodyPiece = null;
-		//count down the delay
-		if (switchDelay > 0) {
-			switchDelay -= 1;
-		} else {
-			switchDelay = 0;
-		} 
-		// for the mouse inputs
-		if (usingMouse) {
-			// if the left mouse button is clicking on our object
-			if (Input.GetMouseButton (0)) {
-				//if you click on the results object, reload the level
-				if (ending) {  
-					if (GameObject.Find ("GameManager").GetComponent<GameManager> ().canRestart) {
-						Application.LoadLevel (Application.loadedLevel);
+			GameObject selectedBodyPiece = null;
+			//count down the delay
+			if (switchDelay > 0) {
+				switchDelay -= 1;
+			} else {
+				switchDelay = 0;
+			} 
+			// for the mouse inputs
+			if (usingMouse) {
+				// if the left mouse button is clicking on our object
+				if (Input.GetMouseButton (0)) {
+					//if you click on the results object, reload the level
+					if (ending) {  
+						if (GameObject.Find ("GameManager").GetComponent<GameManager> ().canRestart) {
+							Application.LoadLevel (Application.loadedLevel);
+						}
 					}
-				}
 
 
-				if (switching == false) {
-					selectedBodyPiece = MouseOverPiece (Input.mousePosition, rocketPiece);
-					//lockListException(conePieceList, selectedBodyPiece);
-					//lockListException(finPieceList, selectedBodyPiece);
-					//lockListException(boosterPieceList, selectedBodyPiece);
-					//lockListException(bodyPieceList, selectedBodyPiece);
-				} else {
-					selectedBodyPiece = null;
-				}
-				if (selectedBodyPiece != savedBodyPiece && savedBodyPiece != null) {
-					selectedBodyPiece = null;
-				}
-				//find the closest new lock position
-				newLock (selectedBodyPiece);
+					if (switching == false) {
+						selectedBodyPiece = MouseOverPiece (Input.mousePosition, rocketPiece);
+						//lockListException(conePieceList, selectedBodyPiece);
+						//lockListException(finPieceList, selectedBodyPiece);
+						//lockListException(boosterPieceList, selectedBodyPiece);
+						//lockListException(bodyPieceList, selectedBodyPiece);
+					} else {
+						selectedBodyPiece = null;
+					}
+					if (selectedBodyPiece != savedBodyPiece && savedBodyPiece != null) {
+						selectedBodyPiece = null;
+					}
+					//find the closest new lock position
+					newLock (selectedBodyPiece);
 
 
-				// check if the selectedBodyPiece != savedBodyPiece, if so, send message to Thalamus
-				// about the new selected piece
-				if (selectedBodyPiece != savedBodyPiece && selectedBodyPiece != null)
-				{			
-					// ETHAN
-					// send the timer value to Thalamus
-					// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
+					// check if the selectedBodyPiece != savedBodyPiece, if so, send message to Thalamus
+					// about the new selected piece
+					if (selectedBodyPiece != savedBodyPiece && selectedBodyPiece != null) {			
+						// ETHAN
+						// send the timer value to Thalamus
+						// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
 
-					// Debug.Log("pieceSelected*" + selectedBodyPiece.name);
-				}
+						// Debug.Log("pieceSelected*" + selectedBodyPiece.name);
+					}
 
-				//save it globally so we can operate on it in the next step if we want
-				savedBodyPiece = selectedBodyPiece;
-				//only select outline under certain conditions
-				GameObject selectedOutlinePiece;
-				if (selectedBodyPiece == null && switching == false && switchDelay == 0) {
-					selectedOutlinePiece = MouseOverPiece (Input.mousePosition, outlinePiece);
-				} else {
-					selectedOutlinePiece = null;
-				}
+					//save it globally so we can operate on it in the next step if we want
+					savedBodyPiece = selectedBodyPiece;
+					//only select outline under certain conditions
+					GameObject selectedOutlinePiece;
+					if (selectedBodyPiece == null && switching == false && switchDelay == 0) {
+						selectedOutlinePiece = MouseOverPiece (Input.mousePosition, outlinePiece);
+					} else {
+						selectedOutlinePiece = null;
+					}
 				
-				if (selectedBodyPiece != null) {
-					Vector3 mousePos = Input.mousePosition;
+					if (selectedBodyPiece != null) {
+						Vector3 mousePos = Input.mousePosition;
 					
-					if (selectedBodyPiece.GetComponent<ObjectInfo> ().firstTouch == false) {
-						selectedBodyPiece.GetComponent<ObjectInfo> ().firstTouch = true;
-					}
+						if (selectedBodyPiece.GetComponent<ObjectInfo> ().firstTouch == false) {
+							selectedBodyPiece.GetComponent<ObjectInfo> ().firstTouch = true;
+						}
 					
-					Vector3 piecePosition = new Vector3 ((mousePos.x * cameraWidth / Screen.width) - (cameraWidth / 2), 
+						Vector3 piecePosition = new Vector3 ((mousePos.x * cameraWidth / Screen.width) - (cameraWidth / 2), 
 					                                    (mousePos.y * cameraHeight / Screen.height) - (cameraHeight / 2), 
 					                                    0);
 					
-					selectedBodyPiece.transform.position = piecePosition;
+						selectedBodyPiece.transform.position = piecePosition;
 					
-				} else if (selectedOutlinePiece != null) {
-					string pieceName = selectedOutlinePiece.name;
-					nextState = -1;
-					if (pieceName.Contains ("top")) {
-						nextState = coneSelected;
-					} else if (pieceName.Contains ("right") || pieceName.Contains ("left")) {
-						nextState = finSelected;
-					} else if (pieceName.Contains ("body")) {
-						nextState = bodySelected;
-					} else if (pieceName.Contains ("engine")) {
-						nextState = boosterSelected;
-					}
-					lockAll ();
-					// set the next state if not the current state
-					if (nextState >= 0 && nextState != currentState) {
-						switching = true;
-						if (firstStateChangeOccured == true) {
-							// play the animations to hide the sidebars
-							leftPanelAnimator.SetTrigger ("stateChangeTriggerLeft");
-							rightPanelAnimator.SetTrigger ("stateChangeTriggerRight");
-						} else {
-							leftPanelAnimator.SetBool ("firstStateSelectedLeft", true);
-							rightPanelAnimator.SetBool ("firstStateSelectedRight", true);
+					} else if (selectedOutlinePiece != null) {
+						string pieceName = selectedOutlinePiece.name;
+						nextState = -1;
+						if (pieceName.Contains ("top")) {
+							nextState = coneSelected;
+						} else if (pieceName.Contains ("right") || pieceName.Contains ("left")) {
+							nextState = finSelected;
+						} else if (pieceName.Contains ("body")) {
+							nextState = bodySelected;
+						} else if (pieceName.Contains ("engine")) {
+							nextState = boosterSelected;
+						}
+						lockAll ();
+						// set the next state if not the current state
+						if (nextState >= 0 && nextState != currentState) {
+							switching = true;
+							if (firstStateChangeOccured == true) {
+								// play the animations to hide the sidebars
+								leftPanelAnimator.SetTrigger ("stateChangeTriggerLeft");
+								rightPanelAnimator.SetTrigger ("stateChangeTriggerRight");
+							} else {
+								leftPanelAnimator.SetBool ("firstStateSelectedLeft", true);
+								rightPanelAnimator.SetBool ("firstStateSelectedRight", true);
+							}
 						}
 					}
-				}
 				
-			} else {
-				if (!switching) {
-					lockAll ();
-					//the step after we stop selecting a piece, add that piece to the rocketPieces list
-					addToRocketPieces (savedBodyPiece);
-					checkTrash (savedBodyPiece);
-					savedBodyPiece = null;
+				} else {
+					if (!switching) {
+						lockAll ();
+						//the step after we stop selecting a piece, add that piece to the rocketPieces list
+						addToRocketPieces (savedBodyPiece);
+						checkTrash (savedBodyPiece);
+						savedBodyPiece = null;
+					}
 				}
 			}
-		}
 
 		// for use of touch input only
 		else if (usingTouch) {
-			// if the left mouse button is clicking on our object
-			if (Input.touchCount > 0) {
-				//if you click on the results object, reload the level
-				if (ending) { 
-					if (GameObject.Find ("GameManager").GetComponent<GameManager> ().canRestart) {
-						Application.LoadLevel (Application.loadedLevel);
+				// if the left mouse button is clicking on our object
+				if (Input.touchCount > 0) {
+					//if you click on the results object, reload the level
+					if (ending) { 
+						if (GameObject.Find ("GameManager").GetComponent<GameManager> ().canRestart) {
+							Application.LoadLevel (Application.loadedLevel);
+						}
+				
 					}
+					//get our touch positions
+					Vector3[] touchPosition;
+					touchPosition = new Vector3[Input.touchCount];
 				
-				}
-				//get our touch positions
-				Vector3[] touchPosition;
-				touchPosition = new Vector3[Input.touchCount];
-				
-				int i = 0;
-				foreach (Touch touch in Input.touches) {
-					touchPosition [i] = new Vector3 (0, 0, 0);
-					touchPosition [i] = touch.position;
-					i++;
-				}
-				
-				GameObject[] selectedPiece;
-				selectedPiece = new GameObject[Input.touchCount];
-				
-				if (switching == false) {
-					i = 0;
-					foreach (Vector3 touch in touchPosition) {
-						selectedPiece [i] = MouseOverPiece (touch, rocketPiece);
-						//find the closest new lock position
-						newLock (selectedPiece [i]);
-
+					int i = 0;
+					foreach (Touch touch in Input.touches) {
+						touchPosition [i] = new Vector3 (0, 0, 0);
+						touchPosition [i] = touch.position;
 						i++;
 					}
-				} else {
-					for (i = 0; i<Input.touchCount; i++) {
-						selectedPiece [i] = null; //if we are switching then we should be able to select pieces
+				
+					GameObject[] selectedPiece;
+					selectedPiece = new GameObject[Input.touchCount];
+				
+					if (switching == false) {
+						i = 0;
+						foreach (Vector3 touch in touchPosition) {
+							selectedPiece [i] = MouseOverPiece (touch, rocketPiece);
+							//find the closest new lock position
+							newLock (selectedPiece [i]);
 
+							i++;
+						}
+					} else {
+						for (i = 0; i<Input.touchCount; i++) {
+							selectedPiece [i] = null; //if we are switching then we should be able to select pieces
+
+						}
 					}
-				}
 				
 				
 				
-				//only select outline under certain conditions
-				GameObject selectedOutlinePiece;
-				if (selectedPiece [0] == null && switching == false && switchDelay == 0) {
-					selectedOutlinePiece = MouseOverPiece (touchPosition [0], outlinePiece); //FIX THIS, IT ONLY RECORDS THE FIRST TOUCH
-				} else {
-					selectedOutlinePiece = null;
-				}
-				
-				bool allnull = true;
-				foreach (GameObject selected in selectedPiece) {
-					if (selected != null) {
-						allnull = false;
+					//only select outline under certain conditions
+					GameObject selectedOutlinePiece;
+					if (selectedPiece [0] == null && switching == false && switchDelay == 0) {
+						selectedOutlinePiece = MouseOverPiece (touchPosition [0], outlinePiece); //FIX THIS, IT ONLY RECORDS THE FIRST TOUCH
+					} else {
+						selectedOutlinePiece = null;
 					}
-				}
-				if (!allnull) { //if we have at least one selected piece
-					i = 0;
-					foreach (GameObject selected in selectedPiece) { //do the code from the mouse section for each piece.
+				
+					bool allnull = true;
+					foreach (GameObject selected in selectedPiece) {
 						if (selected != null) {
-							Vector3 mousePos = touchPosition [i];
+							allnull = false;
+						}
+					}
+					if (!allnull) { //if we have at least one selected piece
+						i = 0;
+						foreach (GameObject selected in selectedPiece) { //do the code from the mouse section for each piece.
+							if (selected != null) {
+								Vector3 mousePos = touchPosition [i];
 							
-							if (selected.GetComponent<ObjectInfo> ().firstTouch == false) {
-								selected.GetComponent<ObjectInfo> ().firstTouch = true;
-							}
+								if (selected.GetComponent<ObjectInfo> ().firstTouch == false) {
+									selected.GetComponent<ObjectInfo> ().firstTouch = true;
+								}
 							
-							Vector3 piecePosition = new Vector3 ((mousePos.x * cameraWidth / Screen.width) - (cameraWidth / 2), 
+								Vector3 piecePosition = new Vector3 ((mousePos.x * cameraWidth / Screen.width) - (cameraWidth / 2), 
 							                                    (mousePos.y * cameraHeight / Screen.height) - (cameraHeight / 2), 
 							                                    0);
 							
-							selected.transform.position = piecePosition;
+								selected.transform.position = piecePosition;
+							}
+							i++;
 						}
-						i++;
-					}
 					
-				} else if (selectedOutlinePiece != null) { 
-					string pieceName = selectedOutlinePiece.name;
-					nextState = -1;
-					if (pieceName.Contains ("top")) {
-						nextState = coneSelected;
-					} else if (pieceName.Contains ("right") || pieceName.Contains ("left")) {
-						nextState = finSelected;
-					} else if (pieceName.Contains ("body")) {
-						nextState = bodySelected;
-					} else if (pieceName.Contains ("engine")) {
-						nextState = boosterSelected;
-					}
-					lockAll ();
-					// set the next state if not the current state
-					if (nextState >= 0 && nextState != currentState) {
-						switching = true;
-						if (firstStateChangeOccured == true) {
-							// play the animations to hide the sidebars
-							leftPanelAnimator.SetTrigger ("stateChangeTriggerLeft");
-							rightPanelAnimator.SetTrigger ("stateChangeTriggerRight");
-						} else {
-							leftPanelAnimator.SetBool ("firstStateSelectedLeft", true);
-							rightPanelAnimator.SetBool ("firstStateSelectedRight", true);
+					} else if (selectedOutlinePiece != null) { 
+						string pieceName = selectedOutlinePiece.name;
+						nextState = -1;
+						if (pieceName.Contains ("top")) {
+							nextState = coneSelected;
+						} else if (pieceName.Contains ("right") || pieceName.Contains ("left")) {
+							nextState = finSelected;
+						} else if (pieceName.Contains ("body")) {
+							nextState = bodySelected;
+						} else if (pieceName.Contains ("engine")) {
+							nextState = boosterSelected;
 						}
-					}
-				}
-				int k = 0;
-				for (k = 0; k<10; k++) {
-					bool isselected = false;
-					foreach (GameObject selected in selectedPiece) { //we want to trash all the saved pieces that are not currently selected 
-						if (selected == savedPiece [k]) { // (the saved piece array is larger than the number of touches)
-							isselected = true;
-						}
-					}
-					if (!isselected) {
-						checkTrash (savedPiece [k]); //check trash deletes pieces if they are close to the trash
-					}
-				}
-				if (!switching) {
-					
-					int q;
-					for (q = 0; q<10; q++) {
-						bool savednotselected = true;
-						foreach (GameObject selected in selectedPiece) {
-							if (savedPiece [q] == selected) {
-								savednotselected = false;
+						lockAll ();
+						// set the next state if not the current state
+						if (nextState >= 0 && nextState != currentState) {
+							switching = true;
+							if (firstStateChangeOccured == true) {
+								// play the animations to hide the sidebars
+								leftPanelAnimator.SetTrigger ("stateChangeTriggerLeft");
+								rightPanelAnimator.SetTrigger ("stateChangeTriggerRight");
+							} else {
+								leftPanelAnimator.SetBool ("firstStateSelectedLeft", true);
+								rightPanelAnimator.SetBool ("firstStateSelectedRight", true);
 							}
 						}
-						if (savednotselected) {
-							addToRocketPieces (savedPiece [q]); //we add pieces that were selected the step before but are no longer selected, ie they have been locked in
-							//the function itself makes sure that they are actually locked into a rocket piece slot and not the initial location or a trashcan
-						}
-						//savedPiece[q] = null;
-					
-						int m;
-						for (m = 0; m<Input.touchCount; m++) {
-							//save it globally so we can operate on it in the next step if we want. We need to have access to pieces that stop being selected
-							if (savedPiece [m] != selectedPiece [m]) {
-								//addToRocketPieces(savedPiece[m]);
+					}
+					int k = 0;
+					for (k = 0; k<10; k++) {
+						bool isselected = false;
+						foreach (GameObject selected in selectedPiece) { //we want to trash all the saved pieces that are not currently selected 
+							if (selected == savedPiece [k]) { // (the saved piece array is larger than the number of touches)
+								isselected = true;
 							}
-							savedPiece [m] = selectedPiece [m];
 						}
-						lockListExceptionArray (selectedPiece, conePieceList); //this could be simpler, so fix if we have lag
-						lockListExceptionArray (selectedPiece, boosterPieceList); 
-						lockListExceptionArray (selectedPiece, bodyPieceList);
-						lockListExceptionArray (selectedPiece, finPieceList);
+						if (!isselected) {
+							checkTrash (savedPiece [k]); //check trash deletes pieces if they are close to the trash
+						}
+					}
+					if (!switching) {
 					
+						int q;
+						for (q = 0; q<10; q++) {
+							bool savednotselected = true;
+							foreach (GameObject selected in selectedPiece) {
+								if (savedPiece [q] == selected) {
+									savednotselected = false;
+								}
+							}
+							if (savednotselected) {
+								addToRocketPieces (savedPiece [q]); //we add pieces that were selected the step before but are no longer selected, ie they have been locked in
+								//the function itself makes sure that they are actually locked into a rocket piece slot and not the initial location or a trashcan
+							}
+							//savedPiece[q] = null;
+					
+							int m;
+							for (m = 0; m<Input.touchCount; m++) {
+								//save it globally so we can operate on it in the next step if we want. We need to have access to pieces that stop being selected
+								if (savedPiece [m] != selectedPiece [m]) {
+									//addToRocketPieces(savedPiece[m]);
+								}
+								savedPiece [m] = selectedPiece [m];
+							}
+							lockListExceptionArray (selectedPiece, conePieceList); //this could be simpler, so fix if we have lag
+							lockListExceptionArray (selectedPiece, boosterPieceList); 
+							lockListExceptionArray (selectedPiece, bodyPieceList);
+							lockListExceptionArray (selectedPiece, finPieceList);
+					
+						}
 					}
-				}
 				
 				
-			} else {
-				if (!switching) {
-					lockAll ();
-					//the step after we stop selecting a piece, add that piece to the rocketPieces list
-					int i = 0;
-					for (i = 0; i<10; i++) {
-						addToRocketPieces (savedPiece [i]); //once we add, we can check the trash and then clear the array because its sole purpose is to be used in addToRocketPieces
-						checkTrash (savedPiece [i]);
-						savedPiece [i] = null;
+				} else {
+					if (!switching) {
+						lockAll ();
+						//the step after we stop selecting a piece, add that piece to the rocketPieces list
+						int i = 0;
+						for (i = 0; i<10; i++) {
+							addToRocketPieces (savedPiece [i]); //once we add, we can check the trash and then clear the array because its sole purpose is to be used in addToRocketPieces
+							checkTrash (savedPiece [i]);
+							savedPiece [i] = null;
+						}
 					}
 				}
-			}
 
-		}
-		//get the current state
-		AnimatorStateInfo currentRightPanelBaseState = rightPanelAnimator.GetCurrentAnimatorStateInfo (0);
-		AnimatorStateInfo currentLeftPanelBaseState = leftPanelAnimator.GetCurrentAnimatorStateInfo (0);
+			}
+			//get the current state
+			AnimatorStateInfo currentRightPanelBaseState = rightPanelAnimator.GetCurrentAnimatorStateInfo (0);
+			AnimatorStateInfo currentLeftPanelBaseState = leftPanelAnimator.GetCurrentAnimatorStateInfo (0);
 		
-		if (switching && currentRightPanelBaseState.IsName ("Base Layer.RightPanelIn") && currentLeftPanelBaseState.IsName ("Base Layer.LeftPanelIn")) {
-			if (firstStateChangeOccured == true) {
-				// hide the old pieces + the old selected outline
-				if (currentState == coneSelected) {
-					hideOutlinePieces (coneOutlinePiece, true);
-					showOutlinePieces (coneOutlinePiece, false);
-					hidePieceList (conePieceList);
-				} else if (currentState == finSelected) {
-					hideOutlinePieces (finOutlinePiece, true);
-					showOutlinePieces (finOutlinePiece, false);
-					hidePieceList (finPieceList);
-				} else if (currentState == bodySelected) {
-					hideOutlinePieces (bodyOutlinePiece, true);
-					showOutlinePieces (bodyOutlinePiece, false);
-					hidePieceList (bodyPieceList);
-				} else if (currentState == boosterSelected) {
-					hideOutlinePieces (boosterOutlinePiece, true);
-					showOutlinePieces (boosterOutlinePiece, false);
-					hidePieceList (boosterPieceList);
+			if (switching && currentRightPanelBaseState.IsName ("Base Layer.RightPanelIn") && currentLeftPanelBaseState.IsName ("Base Layer.LeftPanelIn")) {
+				if (firstStateChangeOccured == true) {
+					// hide the old pieces + the old selected outline
+					if (currentState == coneSelected) {
+						hideOutlinePieces (coneOutlinePiece, true);
+						showOutlinePieces (coneOutlinePiece, false);
+						hidePieceList (conePieceList);
+					} else if (currentState == finSelected) {
+						hideOutlinePieces (finOutlinePiece, true);
+						showOutlinePieces (finOutlinePiece, false);
+						hidePieceList (finPieceList);
+					} else if (currentState == bodySelected) {
+						hideOutlinePieces (bodyOutlinePiece, true);
+						showOutlinePieces (bodyOutlinePiece, false);
+						hidePieceList (bodyPieceList);
+					} else if (currentState == boosterSelected) {
+						hideOutlinePieces (boosterOutlinePiece, true);
+						showOutlinePieces (boosterOutlinePiece, false);
+						hidePieceList (boosterPieceList);
+					}
+				} else {
+					firstStateChangeOccured = true;
 				}
-			} else {
-				firstStateChangeOccured = true;
+			
+				// show the new pieces
+				if (nextState == coneSelected) {
+					hideOutlinePieces (coneOutlinePiece, false);
+					showOutlinePieces (coneOutlinePiece, true);
+					showPieceList (conePieceList);
+				} else if (nextState == finSelected) {
+					hideOutlinePieces (finOutlinePiece, false);
+					showOutlinePieces (finOutlinePiece, true);
+					showPieceList (finPieceList);
+				} else if (nextState == bodySelected) {
+					hideOutlinePieces (bodyOutlinePiece, false);
+					showOutlinePieces (bodyOutlinePiece, true);
+					showPieceList (bodyPieceList);
+				} else if (nextState == boosterSelected) {
+					hideOutlinePieces (boosterOutlinePiece, false);
+					showOutlinePieces (boosterOutlinePiece, true);
+					showPieceList (boosterPieceList);
+				}
+			
+				// set the global variable to indicate the currentState
+				currentState = nextState;
+				switching = false;
+				//I fixed a bunch of bugs with this... its hacky but it works
+				switchDelay = 60; //should be 62
+				firstTouchReset ();
 			}
-			
-			// show the new pieces
-			if (nextState == coneSelected) {
-				hideOutlinePieces (coneOutlinePiece, false);
-				showOutlinePieces (coneOutlinePiece, true);
-				showPieceList (conePieceList);
-			} else if (nextState == finSelected) {
-				hideOutlinePieces (finOutlinePiece, false);
-				showOutlinePieces (finOutlinePiece, true);
-				showPieceList (finPieceList);
-			} else if (nextState == bodySelected) {
-				hideOutlinePieces (bodyOutlinePiece, false);
-				showOutlinePieces (bodyOutlinePiece, true);
-				showPieceList (bodyPieceList);
-			} else if (nextState == boosterSelected) {
-				hideOutlinePieces (boosterOutlinePiece, false);
-				showOutlinePieces (boosterOutlinePiece, true);
-				showPieceList (boosterPieceList);
+
+			// reset all values to 0 (and then compute them based on the pieces on the rocket)
+			resistance = 0;
+			power = 0;
+			fuel = 0;
+			weight = 0;
+
+			//update all of the values of the rocket
+			foreach (GameObject piece in rocketPieces) {
+				weight += piece.GetComponent<ObjectInfo> ().weight;
+				resistance += piece.GetComponent<ObjectInfo> ().airResistance;
+				fuel += piece.GetComponent<ObjectInfo> ().fuel;
+				power += piece.GetComponent<ObjectInfo> ().power;
 			}
+
+			// only if there was a change in the stats, do we update the diplay 
+			if (weight != weight_old || resistance != resistance_old || fuel != fuel_old || power != power_old) {
+
+				// update the display
+				GameObject controller = GameObject.Find ("GameManager");
+				var controlScript = controller.GetComponent<GameManager> ();
+				controlScript.weight.text = weight.ToString ();
+				controlScript.airResistance.text = resistance.ToString ();
+				controlScript.fuel.text = fuel.ToString ();
+				controlScript.power.text = power.ToString ();
+
+				// update the 'old' values
+				weight_old = weight;
+				resistance_old = resistance;
+				fuel_old = fuel;
+				power_old = power;
 			
-			// set the global variable to indicate the currentState
-			currentState = nextState;
-			switching = false;
-			//I fixed a bunch of bugs with this... its hacky but it works
-			switchDelay = 60; //should be 62
-			firstTouchReset ();
-		}
-
-		// reset all values to 0 (and then compute them based on the pieces on the rocket)
-		resistance = 0;
-		power = 0;
-		fuel = 0;
-		weight = 0;
-
-		//update all of the values of the rocket
-		foreach (GameObject piece in rocketPieces) {
-			weight += piece.GetComponent<ObjectInfo> ().weight;
-			resistance += piece.GetComponent<ObjectInfo> ().airResistance;
-			fuel += piece.GetComponent<ObjectInfo> ().fuel;
-			power += piece.GetComponent<ObjectInfo> ().power;
-		}
-
-		// only if there was a change in the stats, do we update the diplay 
-		if (weight != weight_old || resistance != resistance_old || fuel != fuel_old || power != power_old) {
-
-			// update the display
-			GameObject controller = GameObject.Find ("GameManager");
-			var controlScript = controller.GetComponent<GameManager> ();
-			controlScript.weight.text = weight.ToString ();
-			controlScript.airResistance.text = resistance.ToString();
-			controlScript.fuel.text = fuel.ToString();
-			controlScript.power.text = power.ToString();
-
-			// update the 'old' values
-			weight_old = weight;
-			resistance_old = resistance;
-			fuel_old = fuel;
-			power_old = power;
+				// ETHAN
+				// send the timer value to Thalamus
+				// thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString + "*" + power.ToString);
 			
-			// ETHAN
-			// send the timer value to Thalamus
-			// thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString + "*" + power.ToString);
-			
-			// Debug.Log ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
-		}
+				// Debug.Log ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
+			}
 
+		}
 	}
-
 	void hideOutlinePieces (int pieceType, bool isHighlightedOutline) {
 		
 		GameObject[] pieces;
@@ -943,7 +944,7 @@ public class TouchInputHandler : MonoBehaviour {
 	}
 	
 	/* Returns true if the touchItem location is within the container, which must have a SpriteRenderer */
-	bool Contains (GameObject container, Vector3 touchItem) {
+	public bool Contains (GameObject container, Vector3 touchItem) {
 		// get the position, width, and height of the container GameObject
 		Vector3 containerPosition = container.transform.position;
 		float containerWidth = container.GetComponent<SpriteRenderer> ().bounds.size.x;
