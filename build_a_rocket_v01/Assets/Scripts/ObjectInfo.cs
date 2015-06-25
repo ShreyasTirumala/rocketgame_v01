@@ -7,6 +7,14 @@ public class ObjectInfo : MonoBehaviour {
 	public bool firstTouch = false;
 	private float jumpSize;
 
+
+	//changing the sprite
+	private Sprite sideSprite;
+	public Sprite rocketSprite;
+	public Sprite finSpriteRight;
+
+	public int pos;
+
 	//characteristic values
 	public int weight = 10;
 	public int fuel = 10;
@@ -32,6 +40,8 @@ public class ObjectInfo : MonoBehaviour {
 				lockPosition.x = piecePosition.x - jumpSize;
 			}
 		}
+
+		sideSprite = gameObject.GetComponent<SpriteRenderer> ().sprite;
 	}
 
 	public void Update() {
@@ -42,6 +52,27 @@ public class ObjectInfo : MonoBehaviour {
 			if (outline.transform.position == lockPosition) {
 				outline.GetComponent<OutlineInfo> ().objectLocked = true;
 			} 
+		}
+		if (rocketSprite != null) {
+			if (gameObject.transform.position != initialLockPosition && gameObject.transform.position == lockPosition && 
+			    lockPosition.x != 86 && lockPosition.x != -86) {
+				if (finSpriteRight != null ) {
+					if (lockPosition.x <0) {
+						if (gameObject.GetComponent<SpriteRenderer>().sprite != rocketSprite) {
+							gameObject.GetComponent<SpriteRenderer>().sprite = rocketSprite;
+						}
+					} else {
+						if (gameObject.GetComponent<SpriteRenderer>().sprite != finSpriteRight) {
+							gameObject.GetComponent<SpriteRenderer>().sprite = finSpriteRight;
+						}
+					}
+				} else if (gameObject.GetComponent<SpriteRenderer> ().sprite != rocketSprite) {
+						gameObject.GetComponent<SpriteRenderer> ().sprite = rocketSprite;
+				}
+			} else if (gameObject.GetComponent<SpriteRenderer> ().sprite != sideSprite) {
+				gameObject.GetComponent<SpriteRenderer> ().sprite = sideSprite;
+			}
+
 		}
 	}
 

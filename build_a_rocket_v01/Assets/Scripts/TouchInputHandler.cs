@@ -127,7 +127,7 @@ public class TouchInputHandler : MonoBehaviour {
 		thalamusUnity = new ThalamusUnity();
 
 		//creates the cloned pieces on the boards
-		setPieces ();
+		//setPieces ();
 
 	}
 	
@@ -710,49 +710,55 @@ public class TouchInputHandler : MonoBehaviour {
 					//lockP.x -=20;
 					lockP.x= 86;
 				}
+				int pos = selectedBodyPiece.GetComponent<ObjectInfo>().pos;
 
-				GameObject prefabToInstantiate = null;
+
 				GameObject newObject = null;
 
+
 				if (currentState == coneSelected) {
-					prefabToInstantiate = findPrefabFromName(conePieces, selectedBodyPiece.name);
-					if (prefabToInstantiate != null) {
-						newObject = GameObjectUtil.Instantiate(prefabToInstantiate, lockP);
+				
+					//prefabToInstantiate = Resources.Load("Prefabs/sidebar_pieces/cone-pieces/" + selectedBodyPiece.name.ToString());
+					//if (prefabToInstantiate != null) {
+						newObject = GameObjectUtil.Instantiate(conePieces[pos], lockP);
 						conePieceList.Add (newObject);
-					}
+					newObject.GetComponent<SpriteRenderer>().sprite = selectedBodyPiece.GetComponent<SpriteRenderer>().sprite;
+					//}
 //					newObject = GameObjectUtil.Instantiate(conePieces[10], lockP);
 //					finPieceList.Add (newObject);
 				} else
 				if (currentState == finSelected) {
-					prefabToInstantiate = findPrefabFromName(finPieces, selectedBodyPiece.name);
-					if (prefabToInstantiate != null) {
-						newObject = GameObjectUtil.Instantiate(prefabToInstantiate, lockP);
+					//prefabToInstantiate = Resources.Load("Prefabs/sidebar_pieces/fin-pieces/" + selectedBodyPiece.name.ToString());
+					//if (prefabToInstantiate != null) {
+						newObject = GameObjectUtil.Instantiate(finPieces[pos], lockP);
 						finPieceList.Add (newObject);
-					}
+					newObject.GetComponent<SpriteRenderer>().sprite = selectedBodyPiece.GetComponent<SpriteRenderer>().sprite;
+					//}
 //					newObject = GameObjectUtil.Instantiate(finPieces[10], lockP);
 //					finPieceList.Add (newObject);
 				} else 
 				if (currentState == bodySelected) {
-					prefabToInstantiate = findPrefabFromName(bodyPieces, selectedBodyPiece.name);
-					if (prefabToInstantiate != null) {
-						newObject = GameObjectUtil.Instantiate(prefabToInstantiate, lockP);
+					//prefabToInstantiate = Resources.Load("Prefabs/sidebar_pieces/body-pieces/" + selectedBodyPiece.name.ToString());
+					//if (prefabToInstantiate != null) {
+						newObject = GameObjectUtil.Instantiate(bodyPieces[pos], lockP);
 
 						bodyPieceList.Add (newObject);
 						Debug.Log(bodyPieceList);
-					}
+					//}
 //					newObject = GameObjectUtil.Instantiate(bodyPieces[10], lockP);
 //					finPieceList.Add (newObject);
 				} else
 				if (currentState == boosterSelected) {
-					prefabToInstantiate = findPrefabFromName(boosterPieces, selectedBodyPiece.name);
-					if (prefabToInstantiate != null) {
-						newObject = GameObjectUtil.Instantiate(prefabToInstantiate, lockP);
+					//prefabToInstantiate = Resources.Load("Prefabs/sidebar_pieces/engine-pieces/" + selectedBodyPiece.name.ToString());
+					//if (prefabToInstantiate != null) {
+						newObject = GameObjectUtil.Instantiate(boosterPieces[pos], lockP);
 						boosterPieceList.Add (newObject);
-					}
+					//}
 //					newObject = GameObjectUtil.Instantiate(boosterPieces[10], lockP);
 //					finPieceList.Add (newObject);
 				} 
 				if (newObject != null) {
+						Debug.Log ("well it isnt null");
 					/*if (lockP.x <0) {
 						newObject.transform.parent = GameObject.Find("LeftPiecePanel").transform;
 					} else {
@@ -768,19 +774,19 @@ public class TouchInputHandler : MonoBehaviour {
 		}
 	}
 
-	GameObject findPrefabFromName(GameObject[] prefabs, string name)
+	/*UnityEngine.Object findPrefabFromName(GameObject[] prefabs, string name)
 	{
 		GameObject returnGameObject = new GameObject ();
 		foreach (GameObject prefab in prefabs) {
 			//Debug.Log("Comparing: " + prefab.name + " and " + name);
 			if (prefab.name == name || prefab.name == name + "(Clone)")
 			{
-				returnGameObject = prefab;
+				returnGameObject = Resources.Load(prefab.name.ToString());
 				break;
 			}
 		}
-		return returnGameObject;
-	}
+		return Resources.Load(returnGameObject.name.ToString());
+	}*/
 
 	void searchToAdd() { //in theory this should add pieces which are locked onto the rocket but have somehow not been added.
 		//it currently isnt being used
@@ -995,10 +1001,11 @@ public class TouchInputHandler : MonoBehaviour {
 
 	public void setPieces() { //commenting this out because it is buggy
 		/*GameObject newobject; 
-		foreach (GameObject piece in bodyPieces) {
+		foreach (GameObject piece in bodyPieceList) {
 			Debug.Log ("Setting Pieces");
-			piece.transform.position = piece.transform.position + new Vector3 (1000, 0, 0);
-			newobject = GameObjectUtil.Instantiate(piece, piece.GetComponent<ObjectInfo>().initialLockPosition);
+			piece.transform.position = piece.transform.position + new Vector3 (10000, 0, 0);
+			piece.GetComponent<ObjectInfo>().newLock (piece.transform.position);
+			newobject = GameObjectUtil.Instantiate(bodyPieces[piece.GetComponent<ObjectInfo>().pos], piece.GetComponent<ObjectInfo>().initialLockPosition);
 			bodyPieceList.Add (newobject);
 			newobject.transform.parent = GameObject.Find ("LeftPiecePanel").transform;
 		}*/
