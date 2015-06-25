@@ -54,6 +54,12 @@ public class TouchInputHandler : MonoBehaviour {
 	private const int selectedOutlinePiece = 2;
 	private const int trashcan = 3;
 
+	// values storing the old values of the 4 quantities
+	private int resistance_old = 0;
+	private int power_old = 0;
+	private int fuel_old = 0;
+	private int weight_old = 0;
+
 	// variables indicating outline peiece identity
 	private const int coneOutlinePiece = 0;
 	private const int finOutlinePiece = 1;
@@ -71,7 +77,7 @@ public class TouchInputHandler : MonoBehaviour {
 
 	private bool ending = false;
 
-	// the object used to send all the messages to Unity
+	// the object used to send all the messages to Thalamus
 	private ThalamusUnity thalamusUnity;
 	
 	// Use this for initialization
@@ -392,20 +398,20 @@ public class TouchInputHandler : MonoBehaviour {
 			if (firstStateChangeOccured == true) {
 				// hide the old pieces + the old selected outline
 				if (currentState == coneSelected) {
-					hideOutlinePieces(coneOutlinePiece, true);
-					showOutlinePieces(coneOutlinePiece, false);
+					hideOutlinePieces (coneOutlinePiece, true);
+					showOutlinePieces (coneOutlinePiece, false);
 					hidePieceList (conePieceList);
 				} else if (currentState == finSelected) {
-					hideOutlinePieces(finOutlinePiece, true);
-					showOutlinePieces(finOutlinePiece, false);
+					hideOutlinePieces (finOutlinePiece, true);
+					showOutlinePieces (finOutlinePiece, false);
 					hidePieceList (finPieceList);
 				} else if (currentState == bodySelected) {
-					hideOutlinePieces(bodyOutlinePiece, true);
-					showOutlinePieces(bodyOutlinePiece, false);
+					hideOutlinePieces (bodyOutlinePiece, true);
+					showOutlinePieces (bodyOutlinePiece, false);
 					hidePieceList (bodyPieceList);
 				} else if (currentState == boosterSelected) {
-					hideOutlinePieces(boosterOutlinePiece, true);
-					showOutlinePieces(boosterOutlinePiece, false);
+					hideOutlinePieces (boosterOutlinePiece, true);
+					showOutlinePieces (boosterOutlinePiece, false);
 					hidePieceList (boosterPieceList);
 				}
 			} else {
@@ -414,20 +420,20 @@ public class TouchInputHandler : MonoBehaviour {
 			
 			// show the new pieces
 			if (nextState == coneSelected) {
-				hideOutlinePieces(coneOutlinePiece, false);
-				showOutlinePieces(coneOutlinePiece, true);
+				hideOutlinePieces (coneOutlinePiece, false);
+				showOutlinePieces (coneOutlinePiece, true);
 				showPieceList (conePieceList);
 			} else if (nextState == finSelected) {
-				hideOutlinePieces(finOutlinePiece, false);
-				showOutlinePieces(finOutlinePiece, true);
+				hideOutlinePieces (finOutlinePiece, false);
+				showOutlinePieces (finOutlinePiece, true);
 				showPieceList (finPieceList);
 			} else if (nextState == bodySelected) {
-				hideOutlinePieces(bodyOutlinePiece, false);
-				showOutlinePieces(bodyOutlinePiece, true);
+				hideOutlinePieces (bodyOutlinePiece, false);
+				showOutlinePieces (bodyOutlinePiece, true);
 				showPieceList (bodyPieceList);
 			} else if (nextState == boosterSelected) {
-				hideOutlinePieces(boosterOutlinePiece, false);
-				showOutlinePieces(boosterOutlinePiece, true);
+				hideOutlinePieces (boosterOutlinePiece, false);
+				showOutlinePieces (boosterOutlinePiece, true);
 				showPieceList (boosterPieceList);
 			}
 			
@@ -436,14 +442,15 @@ public class TouchInputHandler : MonoBehaviour {
 			switching = false;
 			//I fixed a bunch of bugs with this... its hacky but it works
 			switchDelay = 60; //should be 62
-			firstTouchReset();
+			firstTouchReset ();
 		}
 
-		//calculation of values
+		// reset all values to 0 (and then compute them based on the pieces on the rocket)
 		resistance = 0;
 		power = 0;
 		fuel = 0;
 		weight = 0;
+
 		//update all of the values of the rocket
 		foreach (GameObject piece in rocketPieces) {
 			weight += piece.GetComponent<ObjectInfo> ().weight;
@@ -451,12 +458,30 @@ public class TouchInputHandler : MonoBehaviour {
 			fuel += piece.GetComponent<ObjectInfo> ().fuel;
 			power += piece.GetComponent<ObjectInfo> ().power;
 		}
-		GameObject controller = GameObject.Find ("GameManager");
-		var controlScript = controller.GetComponent<GameManager> ();
-		controlScript.weight.text = weight.ToString ();
-		controlScript.airResistance.text = resistance.ToString();
-		controlScript.fuel.text = fuel.ToString();
-		controlScript.power.text = power.ToString();
+
+		// only if there was a change in the stats, do we update the diplay 
+		if (weight != weight_old || resistance != resistance_old || fuel != fuel_old || power != power_old) {
+
+			// update the display
+			GameObject controller = GameObject.Find ("GameManager");
+			var controlScript = controller.GetComponent<GameManager> ();
+			controlScript.weight.text = weight.ToString ();
+			controlScript.airResistance.text = resistance.ToString();
+			controlScript.fuel.text = fuel.ToString();
+			controlScript.power.text = power.ToString();
+
+			// update the 'old' values
+			weight_old = weight;
+			resistance_old = resistance;
+			fuel_old = fuel;
+			power_old = power;
+			
+			// ETHAN
+			// send the timer value to Thalamus
+			// thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString + "*" + power.ToString);
+			
+			Debug.Log ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
+		}
 
 	}
 
@@ -747,7 +772,7 @@ public class TouchInputHandler : MonoBehaviour {
 	{
 		GameObject returnGameObject = new GameObject ();
 		foreach (GameObject prefab in prefabs) {
-			Debug.Log("Comparing: " + prefab.name + " and " + name);
+			//Debug.Log("Comparing: " + prefab.name + " and " + name);
 			if (prefab.name == name || prefab.name == name + "(Clone)")
 			{
 				returnGameObject = prefab;

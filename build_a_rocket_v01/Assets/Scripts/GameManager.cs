@@ -26,7 +26,9 @@ public class GameManager : MonoBehaviour {
 	private float timeElapsed = 0f;
 	private float timeElapsed2 = 0f;
 	private float remainingTime = 0f;
+	private int remainingTimeSec = 0;
 	private float remainingTime2 = 0f;
+	private int remainingTimeSec2 = 0;
 	private TimeSpan t_timer_start;
 
 	private bool launched = false;
@@ -48,6 +50,10 @@ public class GameManager : MonoBehaviour {
 	private bool doOnce;
 
 	private Vector3 timerSavePosition;
+
+	// the object used to send all the messages to Thalamus
+	private ThalamusUnity thalamusUnity;
+
 	void Awake () {
 		var saved = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
 		d1 = saved.d1;
@@ -72,6 +78,9 @@ public class GameManager : MonoBehaviour {
 
 		fov =  Camera.main.orthographicSize;
 		doOnce = false;
+		
+		// initialize the thalamusUnity object
+		thalamusUnity = new ThalamusUnity();
 
 	}
 	
@@ -80,9 +89,12 @@ public class GameManager : MonoBehaviour {
 		// update the timer
 		remainingTime = initialTimerValue - timeElapsed;
 		if (remainingTime > 0.0) {
-			countdownTimer.text = FormatTime (remainingTime);
+			if (GetSeconds(remainingTime) != remainingTimeSec)
+			{
+				remainingTimeSec = GetSeconds(remainingTime);
+				SetCountdownTimerText(FormatTime2 (remainingTimeSec));
+			}
 		} else {
-			countdownTimer.text = "00:00";
 			// we can trigger the launch here
 
 
@@ -130,6 +142,7 @@ public class GameManager : MonoBehaviour {
 				black.transform.position = pos;
 
 			}
+
 			var a =	black.GetComponent<SpriteRenderer>().color;
 			a = new Color(1f, 1f, 1f, alphaSet);
 			black.GetComponent<SpriteRenderer>().color = a;
@@ -146,7 +159,13 @@ public class GameManager : MonoBehaviour {
 					alphaSet += .0005f;
 					
 				}
-			}else {
+
+				if (GetSeconds(remainingTime2) != remainingTimeSec2)
+				{
+					remainingTimeSec2 = GetSeconds(remainingTime2);
+					SetCountdownTimerText("00:00");
+				}
+			} else {
 				distance = maxDistance;
 				if (doOnce == false) {
 				if (d1 == -1) {
@@ -195,9 +214,17 @@ public class GameManager : MonoBehaviour {
 				timer.transform.position = timerSavePosition;
 				remainingTime2 = secondInitialValue - timeElapsed2;
 				if (remainingTime2 > 0.0) {
-					countdownTimer.text = FormatTime (remainingTime2);
+					if (GetSeconds(remainingTime2) != remainingTimeSec2)
+					{
+						remainingTimeSec2 = GetSeconds(remainingTime2);
+						SetCountdownTimerText(FormatTime2 (remainingTimeSec2));
+					}
 				} else {
-					countdownTimer.text = "00:00";
+					if (GetSeconds(remainingTime2) != remainingTimeSec2)
+					{
+						remainingTimeSec2 = GetSeconds(remainingTime2);
+						SetCountdownTimerText("00:00");
+					}
 					canRestart = true;
 					GameObject.Find("Canvas/RestartMessage").transform.position = new Vector3 (0, -45, 0);
 				}
@@ -221,15 +248,39 @@ public class GameManager : MonoBehaviour {
 
 	}
 
+	void SetCountdownTimerText(string timerText)
+	{
+		countdownTimer.text = timerText;
+
+		// ETHAN
+		// send the timer value to Thalamus
+		// thalamusUnity.Publisher.SentFromUnityToThalamus ("timer*" + timerText);
+
+		Debug.Log ("timer*" + timerText);
+	}
+
 	// restarts the game for each trial
 	void RestartGame() {
 		// reset the timer
 		timeElapsed = 0;
 	}
 
+	int GetSeconds(float value) {
+		TimeSpan t = TimeSpan.FromSeconds (value);
+		return (t.Minutes * 60 + t.Seconds);
+	}
+
 	string FormatTime(float value) {
 		TimeSpan t = TimeSpan.FromSeconds (value);
 		return string.Format("{0:D2}:{1:D2}", t.Minutes, t.Seconds);
+	}
+
+	string FormatTime2(int value) 
+	{
+		int min, sec;
+		min = value / 60;
+		sec = value % 60;
+		return string.Format("{0:D2}:{1:D2}", min, sec);
 	}
 }
 
