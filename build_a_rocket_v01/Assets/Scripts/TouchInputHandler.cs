@@ -406,7 +406,8 @@ public class TouchInputHandler : MonoBehaviour {
 			//get the current state
 			AnimatorStateInfo currentRightPanelBaseState = rightPanelAnimator.GetCurrentAnimatorStateInfo (0);
 			AnimatorStateInfo currentLeftPanelBaseState = leftPanelAnimator.GetCurrentAnimatorStateInfo (0);
-		
+
+
 			if (switching && currentRightPanelBaseState.IsName ("Base Layer.RightPanelIn") && currentLeftPanelBaseState.IsName ("Base Layer.LeftPanelIn")) {
 				if (firstStateChangeOccured == true) {
 					// hide the old pieces + the old selected outline
@@ -466,10 +467,13 @@ public class TouchInputHandler : MonoBehaviour {
 
 			//update all of the values of the rocket
 			foreach (GameObject piece in rocketPieces) {
-				weight += piece.GetComponent<ObjectInfo> ().weight;
-				resistance += piece.GetComponent<ObjectInfo> ().airResistance;
+				weight += (piece.GetComponent<ObjectInfo> ().weight);
+				resistance += (piece.GetComponent<ObjectInfo> ().airResistance -2);
 				fuel += piece.GetComponent<ObjectInfo> ().fuel;
 				power += piece.GetComponent<ObjectInfo> ().power;
+			}
+			if (resistance <0) {
+				resistance = 0;
 			}
 
 			// only if there was a change in the stats, do we update the diplay 
@@ -495,6 +499,9 @@ public class TouchInputHandler : MonoBehaviour {
 			
 				 //Debug.Log ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
 			}
+
+
+
 
 		}
 	}
@@ -1002,6 +1009,13 @@ public class TouchInputHandler : MonoBehaviour {
 		showOutlinePieces (finOutlinePiece, false);
 		showOutlinePieces (bodyOutlinePiece, false);
 		showOutlinePieces (boosterOutlinePiece, false);
+		foreach (GameObject piece in rocketPieces) {
+			foreach (GameObject outline in outlinePieces) {
+				if (outline.transform.position == piece.transform.position) {
+					outline.GetComponent<SpriteRenderer> ().enabled = false;
+				}
+			}
+		}
 		leftPanelAnimator.SetTrigger ("stateChangeTriggerLeft");
 		leftPanelAnimator.SetTrigger ("stateChangeTriggerTakeoff");
 		rightPanelAnimator.SetTrigger ("stateChangeTriggerRight");
@@ -1013,7 +1027,7 @@ public class TouchInputHandler : MonoBehaviour {
 	//calculates how far the rocket should go
 	public int calculateDistance() {
 		if ((power - resistance) > 0) {
-			return (fuel * (power - resistance) / 5) - weight;
+			return ((fuel * (power - resistance))*2 - weight)*2;
 		} else {
 			return 0;
 		}

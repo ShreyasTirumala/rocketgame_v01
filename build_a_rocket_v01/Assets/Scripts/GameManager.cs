@@ -95,104 +95,103 @@ public class GameManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		// update the timer
-		remainingTime = initialTimerValue - timeElapsed;
-		if (remainingTime > 0.0) {
-			if (GetSeconds(remainingTime) != remainingTimeSec)
-			{
-				remainingTimeSec = GetSeconds(remainingTime);
-				SetCountdownTimerText(FormatTime2 (remainingTimeSec));
-			}
-		} else {
-			// we can trigger the launch here
-
-
-			GameObject foreground = GameObject.Find ("Foreground");
-			foreground.transform.Translate (Vector3.down);
-			GameObject bottomPanel = GameObject.Find ("BottomPanel");
-			bottomPanel.transform.Translate (Vector3.down);
-			GameObject leftPanel = GameObject.Find ("LeftPiecePanel");
-			leftPanel.transform.Translate (Vector3.down);
-			GameObject rightPanel = GameObject.Find ("RightPiecePanel");
-			rightPanel.transform.Translate (Vector3.down);
-			var script = gameObject.GetComponent<TouchInputHandler>();
-
-			script.endSequence();
-
-			GameObject black = GameObject.Find ("black");
-
-			if (launched == false) {
-				launched = true;
-
-				GameObject timer = GameObject.Find("Canvas/Timer");
-				timerSavePosition = timer.transform.position;
-				timer.transform.position = new Vector3(-1000, -1000, 0);
-				GameObject w = GameObject.Find("Canvas/Weight");
-				w.transform.position = new Vector3(-1000, -1000, 0);
-				GameObject ar = GameObject.Find("Canvas/Resistance");
-				ar.transform.position = new Vector3(-1000, -1000, 0);
-				GameObject f = GameObject.Find("Canvas/Fuel");
-				f.transform.position = new Vector3(-1000, -1000, 0);
-				GameObject p = GameObject.Find("Canvas/Power");
-				p.transform.position = new Vector3(-1000, -1000, 0);
-
-
-				GameObject jet = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
-				jet.GetComponent<ParticleSystem> ().enableEmission = true;
-				GameObject jet1 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 2/Jet 1");
-				jet1.GetComponent<ParticleSystem> ().enableEmission = true;
-				GameObject jet2 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 3/Jet 2");
-				jet2.GetComponent<ParticleSystem> ().enableEmission = true;
-				GameObject jet3 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
-				jet3.GetComponent<ParticleSystem> ().enableEmission = true;
-
-				var pos = black.transform.position;
-				pos = new Vector3(0, 0, 0);
-				black.transform.position = pos;
-
-			}
-
-			var a =	black.GetComponent<SpriteRenderer>().color;
-			a = new Color(1f, 1f, 1f, alphaSet);
-			black.GetComponent<SpriteRenderer>().color = a;
-			
-			//important!! change the position of the distance object here
-			GameObject d = GameObject.Find("Canvas/Distance");
-			//d.transform.position = new Vector3(621, 334, 0);
-			d.GetComponent<Text>().text = distance.ToString();
-
-			maxDistance = script.calculateDistance();
-			if (distance < maxDistance) {
-				distance +=5;
-				if (launched == true) {
-					alphaSet += .0005f;
-					
-				}
-
-				if (GetSeconds(remainingTime2) != remainingTimeSec2)
-				{
-					remainingTimeSec2 = GetSeconds(remainingTime2);
-					SetCountdownTimerText("00:00");
+		if (!gameObject.GetComponent<TouchInputHandler> ().paused) {
+			// update the timer
+			remainingTime = initialTimerValue - timeElapsed;
+			if (remainingTime > 0.0) {
+				if (GetSeconds (remainingTime) != remainingTimeSec) {
+					remainingTimeSec = GetSeconds (remainingTime);
+					SetCountdownTimerText (FormatTime2 (remainingTimeSec));
 				}
 			} else {
-				distance = maxDistance;
-				if (doOnce == false) {
-					if (d1 == -1) {
-						d1 = maxDistance;
-					} else if (d2 == -1) {
-						d2 = maxDistance;
-					} else if (d3 == -1) {
-						d3 = maxDistance;
-					} else if (d4 == -1) {
-						d4 = maxDistance;
-					} else {
-						d5 = maxDistance;
-					}
-					doOnce = true;
+				// we can trigger the launch here
+
+
+				GameObject foreground = GameObject.Find ("Foreground");
+				foreground.transform.Translate (Vector3.down);
+				GameObject bottomPanel = GameObject.Find ("BottomPanel");
+				bottomPanel.transform.Translate (Vector3.down);
+				GameObject leftPanel = GameObject.Find ("LeftPiecePanel");
+				leftPanel.transform.Translate (Vector3.down);
+				GameObject rightPanel = GameObject.Find ("RightPiecePanel");
+				rightPanel.transform.Translate (Vector3.down);
+				var script = gameObject.GetComponent<TouchInputHandler> ();
+
+				script.endSequence ();
+
+				GameObject black = GameObject.Find ("black");
+
+				if (launched == false) {
+					launched = true;
+
+					GameObject timer = GameObject.Find ("Canvas/Timer");
+					timerSavePosition = timer.transform.position;
+					timer.transform.position = new Vector3 (-1000, -1000, 0);
+					GameObject w = GameObject.Find ("Canvas/Weight");
+					w.transform.position = new Vector3 (-1000, -1000, 0);
+					GameObject ar = GameObject.Find ("Canvas/Resistance");
+					ar.transform.position = new Vector3 (-1000, -1000, 0);
+					GameObject f = GameObject.Find ("Canvas/Fuel");
+					f.transform.position = new Vector3 (-1000, -1000, 0);
+					GameObject p = GameObject.Find ("Canvas/Power");
+					p.transform.position = new Vector3 (-1000, -1000, 0);
+
+
+					GameObject jet = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
+					jet.GetComponent<ParticleSystem> ().enableEmission = true;
+					GameObject jet1 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 2/Jet 1");
+					jet1.GetComponent<ParticleSystem> ().enableEmission = true;
+					GameObject jet2 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 3/Jet 2");
+					jet2.GetComponent<ParticleSystem> ().enableEmission = true;
+					GameObject jet3 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
+					jet3.GetComponent<ParticleSystem> ().enableEmission = true;
+
+					var pos = black.transform.position;
+					pos = new Vector3 (0, 0, 0);
+					black.transform.position = pos;
+
 				}
 
-				var results = GameObject.Find ("Results");
-				results.GetComponent<Animator>().SetTrigger ("go");
+				var a = black.GetComponent<SpriteRenderer> ().color;
+				a = new Color (1f, 1f, 1f, alphaSet);
+				black.GetComponent<SpriteRenderer> ().color = a;
+			
+				//important!! change the position of the distance object here
+				GameObject d = GameObject.Find ("Canvas/Distance");
+				//d.transform.position = new Vector3(621, 334, 0);
+				d.GetComponent<Text> ().text = distance.ToString ();
+
+				maxDistance = script.calculateDistance ();
+				if (distance < maxDistance) {
+					distance += 1;
+					if (launched == true) {
+						alphaSet += .0005f;
+					
+					}
+
+					if (GetSeconds (remainingTime2) != remainingTimeSec2) {
+						remainingTimeSec2 = GetSeconds (remainingTime2);
+						SetCountdownTimerText ("00:00");
+					}
+				} else {
+					distance = maxDistance;
+					if (doOnce == false) {
+						if (d1 == -1) {
+							d1 = maxDistance;
+						} else if (d2 == -1) {
+							d2 = maxDistance;
+						} else if (d3 == -1) {
+							d3 = maxDistance;
+						} else if (d4 == -1) {
+							d4 = maxDistance;
+						} else {
+							d5 = maxDistance;
+						}
+						doOnce = true;
+					}
+
+					var results = GameObject.Find ("Results");
+					results.GetComponent<Animator> ().SetTrigger ("go");
 
 					GameObject jet4 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
 					jet4.GetComponent<ParticleSystem> ().enableEmission = false;
@@ -203,91 +202,89 @@ public class GameManager : MonoBehaviour {
 					GameObject jet7 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
 					jet7.GetComponent<ParticleSystem> ().enableEmission = false;
 
-				if (d1 != -1) 
-					GameObject.Find("Canvas/Trial1").transform.position = results.transform.position - new Vector3 (-37, -16, 0);
-				if (d2 != -1) 
-					GameObject.Find("Canvas/Trial2").transform.position = results.transform.position - new Vector3 (-37, -7, 0);
-				if (d3 != -1) 
-					GameObject.Find("Canvas/Trial3").transform.position = results.transform.position - new Vector3 (-37, 2, 0);
-				if (d4 != -1) 
-					GameObject.Find("Canvas/Trial4").transform.position = results.transform.position - new Vector3 (-37, 11, 0);
-				if (d5 != -1) 
-					GameObject.Find("Canvas/Trial5").transform.position = results.transform.position - new Vector3 (-37, 20, 0);
+					if (d1 != -1) 
+						GameObject.Find ("Canvas/Trial1").transform.position = results.transform.position - new Vector3 (-37, -16, 0);
+					if (d2 != -1) 
+						GameObject.Find ("Canvas/Trial2").transform.position = results.transform.position - new Vector3 (-37, -7, 0);
+					if (d3 != -1) 
+						GameObject.Find ("Canvas/Trial3").transform.position = results.transform.position - new Vector3 (-37, 2, 0);
+					if (d4 != -1) 
+						GameObject.Find ("Canvas/Trial4").transform.position = results.transform.position - new Vector3 (-37, 11, 0);
+					if (d5 != -1) 
+						GameObject.Find ("Canvas/Trial5").transform.position = results.transform.position - new Vector3 (-37, 20, 0);
 
-				// Only update the text displays and saved variables (and send a Thalamus message) when the results values change
-				if (d1 != d1_old || d2 != d2_old || d3 != d3_old || d4 != d4_old || d5 != d5_old)
-				{
-					if (d1 != d1_old)
-					{
-						t1.text = "Trial 1: " + d1.ToString();
-						GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d1 = d1;
-						d1_old = d1;
-					}
-					if (d2 != d2_old)
-					{
-						t2.text = "Trial 2: " + d2.ToString();
-						GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d2 = d2;
-						d2_old = d2;
-					}
-					if (d3 != d3_old)
-					{
-						t3.text = "Trial 3: " + d3.ToString();
-						GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d3 = d3;
-						d3_old = d3;
-					}
-					if (d4 != d4_old)
-					{
-						t4.text = "Trial 4: " + d4.ToString();
-						GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d4 = d4;
-						d4_old = d4;
-					}
-					if (d5 != d5_old)
-					{
-						t5.text = "Trial 5: " + d5.ToString();
-						GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d5 = d5;
-						d5_old = d5;
-					}
+					// Only update the text displays and saved variables (and send a Thalamus message) when the results values change
+					if (d1 != d1_old || d2 != d2_old || d3 != d3_old || d4 != d4_old || d5 != d5_old) {
+						if (d1 != d1_old) {
+							t1.text = "Trial 1: " + d1.ToString ();
+							GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d1 = d1;
+							d1_old = d1;
+						}
+						if (d2 != d2_old) {
+							t2.text = "Trial 2: " + d2.ToString ();
+							GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d2 = d2;
+							d2_old = d2;
+						}
+						if (d3 != d3_old) {
+							t3.text = "Trial 3: " + d3.ToString ();
+							GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d3 = d3;
+							d3_old = d3;
+						}
+						if (d4 != d4_old) {
+							t4.text = "Trial 4: " + d4.ToString ();
+							GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d4 = d4;
+							d4_old = d4;
+						}
+						if (d5 != d5_old) {
+							t5.text = "Trial 5: " + d5.ToString ();
+							GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d5 = d5;
+							d5_old = d5;
+						}
+
 
 					// ETHAN
 					// send the results to Thalamus
 					//thalamusUnity.Publisher.SentFromUnityToThalamus ("results*" + d1.ToString() + "*" + d2.ToString() + "*" + d3.ToString() + "*" + d4.ToString() + "*" + d5.ToString());
 
 					//Debug.Log("results*" + d1.ToString() + "*" + d2.ToString() + "*" + d3.ToString() + "*" + d4.ToString() + "*" + d5.ToString());
+				
+
+
+
+					GameObject timer = GameObject.Find ("Canvas/Timer");
+					timer.transform.position = timerSavePosition;
+					remainingTime2 = secondInitialValue - timeElapsed2;
+					if (remainingTime2 > 0.0) {
+						if (GetSeconds (remainingTime2) != remainingTimeSec2) {
+							remainingTimeSec2 = GetSeconds (remainingTime2);
+							SetCountdownTimerText (FormatTime2 (remainingTimeSec2));
+						}
+					} else {
+						if (GetSeconds (remainingTime2) != remainingTimeSec2) {
+							remainingTimeSec2 = GetSeconds (remainingTime2);
+							SetCountdownTimerText ("00:00");
+						}
+						canRestart = true;
+						GameObject.Find ("Canvas/RestartMessage").transform.position = new Vector3 (0, -45, 0);
+					}
+					timeElapsed2 += Time.deltaTime;
+
 				}
 
 
-				GameObject timer = GameObject.Find("Canvas/Timer");
-				timer.transform.position = timerSavePosition;
-				remainingTime2 = secondInitialValue - timeElapsed2;
-				if (remainingTime2 > 0.0) {
-					if (GetSeconds(remainingTime2) != remainingTimeSec2)
-					{
-						remainingTimeSec2 = GetSeconds(remainingTime2);
-						SetCountdownTimerText(FormatTime2 (remainingTimeSec2));
-					}
-				} else {
-					if (GetSeconds(remainingTime2) != remainingTimeSec2)
-					{
-						remainingTimeSec2 = GetSeconds(remainingTime2);
-						SetCountdownTimerText("00:00");
-					}
-					canRestart = true;
-					GameObject.Find("Canvas/RestartMessage").transform.position = new Vector3 (0, -45, 0);
-				}
-				timeElapsed2+=Time.deltaTime;
+				Camera.main.orthographicSize = fov;
+				//fov += .05f;
 
 			}
-
-
-			Camera.main.orthographicSize = fov;
-			//fov += .05f;
-
+			GameObject.Find ("Canvas/PausedMessage").transform.position = new Vector3 (1000, 1000, 1000);
+			// increment the time elapsed
+			timeElapsed += Time.deltaTime;
+		} else {
+			GameObject.Find ("Canvas/PausedMessage").transform.position = new Vector3 (0, 0, 0);
 		}
-
-		// increment the time elapsed
-		timeElapsed += Time.deltaTime;
-
 	}
+	}
+
 
 	void SetCountdownTimerText(string timerText)
 	{
@@ -323,6 +320,6 @@ public class GameManager : MonoBehaviour {
 		sec = value % 60;
 		return string.Format("{0:D2}:{1:D2}", min, sec);
 	}
-}
+
 
 // testing merging code
