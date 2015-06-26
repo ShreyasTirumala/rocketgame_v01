@@ -5,6 +5,8 @@ using System.Collections.Generic;
 
 public class TouchInputHandler : MonoBehaviour {
 
+	private int containPos = 0;
+
 	public bool paused = false;
 	// all of the prefabs that we can touch/drag
 	public GameObject[] conePieces;
@@ -266,12 +268,14 @@ public class TouchInputHandler : MonoBehaviour {
 					if (switching == false) {
 						i = 0;
 						foreach (Vector3 touch in touchPosition) {
+							containPos = i;
 							selectedPiece [i] = MouseOverPiece (touch, rocketPiece);
 							//find the closest new lock position
 							newLock (selectedPiece [i]);
 
 							i++;
 						}
+						containPos = 0;
 					} else {
 						for (i = 0; i<Input.touchCount; i++) {
 							selectedPiece [i] = null; //if we are switching then we should be able to select pieces
@@ -826,7 +830,7 @@ public class TouchInputHandler : MonoBehaviour {
 		// if so return it
 		if (usingMouse) {
 			if (savedBodyPiece != null) {
-				if (Contains (savedBodyPiece, mousePos)) {
+				if (Contains (savedBodyPiece, mousePos) || savedBodyPiece.transform.position != savedBodyPiece.GetComponent<ObjectInfo>().lockPosition) {
 					output = savedBodyPiece;
 					return output;
 				}
@@ -834,7 +838,9 @@ public class TouchInputHandler : MonoBehaviour {
 		} else if (usingTouch) { //if we are still over a saved piece, that piece should have priority
 			foreach (GameObject saved in savedPiece) {
 				if (saved != null) {
-					if (Contains (saved, mousePos)) {
+					if (Contains (saved, mousePos) || ((saved.transform.position 
+					                                    != saved.GetComponent<ObjectInfo>().lockPosition) 
+					                                   && saved == savedPiece[containPos]))  {
 						output = saved;
 						return output;
 					}
@@ -978,7 +984,7 @@ public class TouchInputHandler : MonoBehaviour {
 
 	//calculates how far the rocket should go
 	public int calculateDistance() {
-		if ((power - resistance) > 0) {
+		if (((fuel * (power - resistance))*2 - weight)*2 > 0) {
 			return ((fuel * (power - resistance))*2 - weight)*2;
 		} else {
 			return 0;

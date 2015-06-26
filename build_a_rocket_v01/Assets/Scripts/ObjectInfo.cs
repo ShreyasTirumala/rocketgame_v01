@@ -49,7 +49,8 @@ public class ObjectInfo : MonoBehaviour {
 	public void Update() {
 		if (gameObject.transform.position == lockPosition && lockPosition != initialLockPosition) {
 			GameObject.Find ("GameManager").GetComponent<TouchInputHandler> ().addToRocketPieces (gameObject);
-		}
+		} 
+
 		foreach (GameObject outline in GameObject.Find("GameManager").GetComponent<TouchInputHandler>().selectedOutlinePieces) {
 			if (outline.transform.position == lockPosition) {
 				outline.GetComponent<OutlineInfo> ().objectLocked = true;
