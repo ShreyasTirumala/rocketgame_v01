@@ -134,7 +134,15 @@ public class TouchInputHandler : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+
+
+
 		if (!paused) {
+			if (ending) {  
+				if (GameObject.Find ("GameManager").GetComponent<GameManager> ().canRestart) {
+					Application.LoadLevel (Application.loadedLevel);
+				}
+			}
 
 			GameObject selectedBodyPiece = null;
 			//count down the delay

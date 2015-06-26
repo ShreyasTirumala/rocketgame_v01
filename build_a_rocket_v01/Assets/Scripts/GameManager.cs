@@ -240,7 +240,7 @@ public class GameManager : MonoBehaviour {
 							GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d5 = d5;
 							d5_old = d5;
 						}
-
+					}
 
 					// ETHAN
 					// send the results to Thalamus
@@ -265,7 +265,10 @@ public class GameManager : MonoBehaviour {
 							SetCountdownTimerText ("00:00");
 						}
 						canRestart = true;
-						GameObject.Find ("Canvas/RestartMessage").transform.position = new Vector3 (0, -45, 0);
+						//GameObject.Find ("Canvas/RestartMessage").transform.position = new Vector3 (0, -45, 0);
+						if (d5 != -1) {
+							gameObject.GetComponent<TouchInputHandler>().paused = true;
+						}
 					}
 					timeElapsed2 += Time.deltaTime;
 
@@ -283,7 +286,7 @@ public class GameManager : MonoBehaviour {
 			GameObject.Find ("Canvas/PausedMessage").transform.position = new Vector3 (0, 0, 0);
 		}
 	}
-	}
+
 
 
 	void SetCountdownTimerText(string timerText)
@@ -321,5 +324,4 @@ public class GameManager : MonoBehaviour {
 		return string.Format("{0:D2}:{1:D2}", min, sec);
 	}
 
-
-// testing merging code
+}
