@@ -13,6 +13,8 @@ public class ObjectInfo : MonoBehaviour {
 	public Sprite rocketSprite;
 	public Sprite finSpriteRight;
 
+	// indicates the location in the [Cone]PiecesArray in the TouchInputHandler, so the
+	// correct piece will be cloned to replace it
 	public int pos;
 
 	//characteristic values

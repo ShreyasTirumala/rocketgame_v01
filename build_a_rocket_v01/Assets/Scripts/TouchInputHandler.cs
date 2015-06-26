@@ -134,10 +134,9 @@ public class TouchInputHandler : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-
-
-
+		// if the game is not at the end
 		if (!paused) {
+			// ending happens once the gameplay pause timer runs out 
 			if (ending) {  
 				if (GameObject.Find ("GameManager").GetComponent<GameManager> ().canRestart) {
 					Application.LoadLevel (Application.loadedLevel);
@@ -146,6 +145,7 @@ public class TouchInputHandler : MonoBehaviour {
 
 			GameObject selectedBodyPiece = null;
 			//count down the delay
+			// can't re-select another outline piece until the timer has elapsed
 			if (switchDelay > 0) {
 				switchDelay -= 1;
 			} else {
@@ -156,22 +156,14 @@ public class TouchInputHandler : MonoBehaviour {
 				// if the left mouse button is clicking on our object
 				if (Input.GetMouseButton (0)) {
 					//if you click on the results object, reload the level
-					if (ending) {  
-						if (GameObject.Find ("GameManager").GetComponent<GameManager> ().canRestart) {
-							Application.LoadLevel (Application.loadedLevel);
-						}
-					}
 
-
+					// switching = panels going in
 					if (switching == false) {
 						selectedBodyPiece = MouseOverPiece (Input.mousePosition, rocketPiece);
-						//lockListException(conePieceList, selectedBodyPiece);
-						//lockListException(finPieceList, selectedBodyPiece);
-						//lockListException(boosterPieceList, selectedBodyPiece);
-						//lockListException(bodyPieceList, selectedBodyPiece);
 					} else {
 						selectedBodyPiece = null;
 					}
+					//fixes bug where pieces jump around when you drag a piece over them
 					if (selectedBodyPiece != savedBodyPiece && savedBodyPiece != null) {
 						selectedBodyPiece = null;
 					}
@@ -224,7 +216,10 @@ public class TouchInputHandler : MonoBehaviour {
 						} else if (pieceName.Contains ("engine")) {
 							nextState = boosterSelected;
 						}
+
+						// locks after the state has changed 
 						lockAll ();
+
 						// set the next state if not the current state
 						if (nextState >= 0 && nextState != currentState) {
 							switching = true;
@@ -239,7 +234,7 @@ public class TouchInputHandler : MonoBehaviour {
 						}
 					}
 				
-				} else {
+				} else {//mouse isnt clicking
 					if (!switching) {
 						lockAll ();
 						//the step after we stop selecting a piece, add that piece to the rocketPieces list
@@ -254,13 +249,6 @@ public class TouchInputHandler : MonoBehaviour {
 		else if (usingTouch) {
 				// if the left mouse button is clicking on our object
 				if (Input.touchCount > 0) {
-					//if you click on the results object, reload the level
-					if (ending) { 
-						if (GameObject.Find ("GameManager").GetComponent<GameManager> ().canRestart) {
-							Application.LoadLevel (Application.loadedLevel);
-						}
-				
-					}
 					//get our touch positions
 					Vector3[] touchPosition;
 					touchPosition = new Vector3[Input.touchCount];
@@ -301,7 +289,9 @@ public class TouchInputHandler : MonoBehaviour {
 						selectedOutlinePiece = null;
 					}
 				
+					// allnull is true when all the selected pieces are null
 					bool allnull = true;
+
 					foreach (GameObject selected in selectedPiece) {
 						if (selected != null) {
 							allnull = false;
@@ -464,6 +454,10 @@ public class TouchInputHandler : MonoBehaviour {
 				switching = false;
 				//I fixed a bunch of bugs with this... its hacky but it works
 				switchDelay = 60; //should be 62
+
+				// when we know we're going to switch, reset all the 'first touch' values so that
+				// they won't be locked to a particular position and will be moved with the panels
+				// for the animation
 				firstTouchReset ();
 			}
 
@@ -667,6 +661,7 @@ public class TouchInputHandler : MonoBehaviour {
 			}
 		
 			foreach (GameObject outline in selectedOutlinePieces) {
+				// checks for the yellow outlines
 				if (outline.GetComponent<SpriteRenderer> ().enabled == true   ) {
 					// Debug.Log (outline.GetComponent<OutlineInfo>().objectLocked);
 					if (outline.GetComponent<OutlineInfo>().objectLocked == false) 
@@ -710,24 +705,13 @@ public class TouchInputHandler : MonoBehaviour {
 
 			var script = selectedBodyPiece.GetComponent<ObjectInfo> ();
 
+			// script.added indicates whether it's already been added to the rocketPieces list
 			if (script.seeMe == true && selectedBodyPiece.transform.position == script.lockPosition &&
 				script.lockPosition != script.initialLockPosition && script.added == false) {
-				Debug.Log ("calling add to rocket");
-				int count = 0;
-				//trashcan code is out
 
-				//first check if the piece is on a trashcan
-				/*foreach (GameObject trashcan in trashcans) {
-					if (Vector3.Distance(selectedBodyPiece.transform.position, trashcan.transform.position) < 10) {
-						//it will be destroyed, dont add it, but do create a new object in its old spot
-						count++;
-					}
-				}*/
-
-				if (count == 0) {
-					rocketPieces.Add (selectedBodyPiece);
-					script.added = true;
-				}
+				rocketPieces.Add (selectedBodyPiece);
+				script.added = true;
+				
 
 				Vector3 lockP = script.initialLockPosition; //we fix the lock position because the movement of the panels makes things screwy.
 				//furthermore they jump to the left/right when initialized
@@ -745,60 +729,33 @@ public class TouchInputHandler : MonoBehaviour {
 
 
 				if (currentState == coneSelected) {
-				
-					//prefabToInstantiate = Resources.Load("Prefabs/sidebar_pieces/cone-pieces/" + selectedBodyPiece.name.ToString());
-					//if (prefabToInstantiate != null) {
-						newObject = GameObjectUtil.Instantiate(conePieces[pos], lockP);
-						conePieceList.Add (newObject);
+					newObject = GameObjectUtil.Instantiate(conePieces[pos], lockP);
+					conePieceList.Add (newObject);
 					newObject.GetComponent<SpriteRenderer>().sprite = selectedBodyPiece.GetComponent<SpriteRenderer>().sprite;
-					//}
-//					newObject = GameObjectUtil.Instantiate(conePieces[10], lockP);
-//					finPieceList.Add (newObject);
 				} else
 				if (currentState == finSelected) {
-					//prefabToInstantiate = Resources.Load("Prefabs/sidebar_pieces/fin-pieces/" + selectedBodyPiece.name.ToString());
-					//if (prefabToInstantiate != null) {
-						newObject = GameObjectUtil.Instantiate(finPieces[pos], lockP);
-						finPieceList.Add (newObject);
+					newObject = GameObjectUtil.Instantiate(finPieces[pos], lockP);
+					finPieceList.Add (newObject);
 					newObject.GetComponent<SpriteRenderer>().sprite = selectedBodyPiece.GetComponent<SpriteRenderer>().sprite;
-					//}
-//					newObject = GameObjectUtil.Instantiate(finPieces[10], lockP);
-//					finPieceList.Add (newObject);
 				} else 
 				if (currentState == bodySelected) {
-					//prefabToInstantiate = Resources.Load("Prefabs/sidebar_pieces/body-pieces/" + selectedBodyPiece.name.ToString());
-					//if (prefabToInstantiate != null) {
-						newObject = GameObjectUtil.Instantiate(bodyPieces[pos], lockP);
-
-						bodyPieceList.Add (newObject);
-						Debug.Log(bodyPieceList);
-					//}
-//					newObject = GameObjectUtil.Instantiate(bodyPieces[10], lockP);
-//					finPieceList.Add (newObject);
+					newObject = GameObjectUtil.Instantiate(bodyPieces[pos], lockP);
+					bodyPieceList.Add (newObject);
+					newObject.GetComponent<SpriteRenderer>().sprite = selectedBodyPiece.GetComponent<SpriteRenderer>().sprite;
 				} else
 				if (currentState == boosterSelected) {
-					//prefabToInstantiate = Resources.Load("Prefabs/sidebar_pieces/engine-pieces/" + selectedBodyPiece.name.ToString());
-					//if (prefabToInstantiate != null) {
-						newObject = GameObjectUtil.Instantiate(boosterPieces[pos], lockP);
-						boosterPieceList.Add (newObject);
-					//}
-//					newObject = GameObjectUtil.Instantiate(boosterPieces[10], lockP);
-//					finPieceList.Add (newObject);
+					newObject = GameObjectUtil.Instantiate(boosterPieces[pos], lockP);
+					boosterPieceList.Add (newObject);
+					newObject.GetComponent<SpriteRenderer>().sprite = selectedBodyPiece.GetComponent<SpriteRenderer>().sprite;
 				} 
-				if (newObject != null) {
-						Debug.Log ("well it isnt null");
-					/*if (lockP.x <0) {
-						newObject.transform.parent = GameObject.Find("LeftPiecePanel").transform;
-					} else {
-						newObject.transform.parent = GameObject.Find("RightPiecePanel").transform;
-					}*/
-				}
+
+				// object info of the object we just created
 				var newscript = newObject.GetComponent<ObjectInfo>();
 				newscript.seeMe = false;
 				newscript.initialLockPosition = newObject.transform.position = lockP; //also questionable line of code
 				newscript.jump = false;
-				//lockAll ();
 
+				// sets the parent
 				if (newObject.transform.position.x <0) {
 					newObject.transform.parent = GameObject.Find("LeftPiecePanel").transform;
 				} else {
@@ -808,20 +765,6 @@ public class TouchInputHandler : MonoBehaviour {
 			}
 		}
 	}
-
-	/*UnityEngine.Object findPrefabFromName(GameObject[] prefabs, string name)
-	{
-		GameObject returnGameObject = new GameObject ();
-		foreach (GameObject prefab in prefabs) {
-			//Debug.Log("Comparing: " + prefab.name + " and " + name);
-			if (prefab.name == name || prefab.name == name + "(Clone)")
-			{
-				returnGameObject = Resources.Load(prefab.name.ToString());
-				break;
-			}
-		}
-		return Resources.Load(returnGameObject.name.ToString());
-	}*/
 
 	void searchToAdd() { //in theory this should add pieces which are locked onto the rocket but have somehow not been added.
 		//it currently isnt being used
@@ -843,6 +786,7 @@ public class TouchInputHandler : MonoBehaviour {
 		foreach (GameObject selectedBodyPiece in rocketPieces) {
 			if (selectedBodyPiece != null) {
 				foreach (GameObject trashcan in trashcans) {
+					// Abs value stuff is about being too far away from the center line - trashing it
 					if (Vector3.Distance (selectedBodyPiece.transform.position, trashcan.transform.position) < 10 ||
 					    (Mathf.Abs(selectedBodyPiece.transform.position.x) > 70 && selectedBodyPiece.GetComponent<ObjectInfo>().lockPosition !=
 					 selectedBodyPiece.GetComponent<ObjectInfo>().initialLockPosition) ) {
