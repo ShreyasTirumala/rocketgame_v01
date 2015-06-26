@@ -240,14 +240,14 @@ public class GameManager : MonoBehaviour {
 							GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d5 = d5;
 							d5_old = d5;
 						}
+					
+
+						// ETHAN
+						// send the results to Thalamus
+						//thalamusUnity.Publisher.SentFromUnityToThalamus ("results*" + d1.ToString() + "*" + d2.ToString() + "*" + d3.ToString() + "*" + d4.ToString() + "*" + d5.ToString());
+
+						//Debug.Log("results*" + d1.ToString() + "*" + d2.ToString() + "*" + d3.ToString() + "*" + d4.ToString() + "*" + d5.ToString());
 					}
-
-					// ETHAN
-					// send the results to Thalamus
-					//thalamusUnity.Publisher.SentFromUnityToThalamus ("results*" + d1.ToString() + "*" + d2.ToString() + "*" + d3.ToString() + "*" + d4.ToString() + "*" + d5.ToString());
-
-					//Debug.Log("results*" + d1.ToString() + "*" + d2.ToString() + "*" + d3.ToString() + "*" + d4.ToString() + "*" + d5.ToString());
-				
 
 
 
