@@ -175,10 +175,10 @@ public class TouchInputHandler : MonoBehaviour {
 					// about the new selected piece
 					if (selectedBodyPiece != savedBodyPiece && selectedBodyPiece != null) {			
 						// ETHAN
-						// send the timer value to Thalamus
-						// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
+						// send the selected pieces to Thalamus
+						 //thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
 
-						// Debug.Log("pieceSelected*" + selectedBodyPiece.name);
+						 //Debug.Log("pieceSelected*" + selectedBodyPiece.name);
 					}
 
 					//save it globally so we can operate on it in the next step if we want
@@ -490,10 +490,10 @@ public class TouchInputHandler : MonoBehaviour {
 				power_old = power;
 			
 				// ETHAN
-				// send the timer value to Thalamus
-				// thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString + "*" + power.ToString);
+				// send the stats to Thalamus
+				 //thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
 			
-				// Debug.Log ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
+				 //Debug.Log ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
 			}
 
 		}

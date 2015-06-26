@@ -249,10 +249,10 @@ public class GameManager : MonoBehaviour {
 					}
 
 					// ETHAN
-					// send the timer value to Thalamus
-					// thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString + "*" + power.ToString);
+					// send the results to Thalamus
+					//thalamusUnity.Publisher.SentFromUnityToThalamus ("results*" + d1.ToString() + "*" + d2.ToString() + "*" + d3.ToString() + "*" + d4.ToString() + "*" + d5.ToString());
 
-					// Debug.Log("results*" + d1.ToString() + "*" + d2.ToString() + "*" + d3.ToString() + "*" + d4.ToString() + "*" + d5.ToString());
+					//Debug.Log("results*" + d1.ToString() + "*" + d2.ToString() + "*" + d3.ToString() + "*" + d4.ToString() + "*" + d5.ToString());
 				}
 
 
@@ -295,9 +295,9 @@ public class GameManager : MonoBehaviour {
 
 		// ETHAN
 		// send the timer value to Thalamus
-		// thalamusUnity.Publisher.SentFromUnityToThalamus ("timer*" + timerText);
+		 //thalamusUnity.Publisher.SentFromUnityToThalamus ("timer*" + timerText);
 
-		// Debug.Log ("timer*" + timerText);
+		 //Debug.Log ("timer*" + timerText);
 	}
 
 	// restarts the game for each trial
