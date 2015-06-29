@@ -306,7 +306,7 @@ public class GameManager : MonoBehaviour {
 						SetCountdownTimerText("00:00");
 					}
 					canRestart = true;
-					GameObject.Find("Canvas/RestartMessage").transform.position = new Vector3 (0, -45, 0);
+					//GameObject.Find("Canvas/RestartMessage").transform.position = new Vector3 (0, -45, 0);
 				}
 				timeElapsed2+=Time.deltaTime;
 

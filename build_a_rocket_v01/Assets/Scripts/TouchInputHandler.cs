@@ -129,9 +129,15 @@ public class TouchInputHandler : MonoBehaviour {
 		// initialize the thalamusUnity object
 		thalamusUnity = new ThalamusUnity();
 
-		//creates the cloned pieces on the boards
-		//setPieces ();
+		// sets up the pieces that were there before 
+		// HERE
+		var savedVariablesScript = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
+		if (savedVariablesScript.previousTrialRocketPieceNames.Count > 0) {
 
+			foreach(string pieceName in savedVariablesScript.previousTrialRocketPieceNames){
+				Debug.Log("Saved piece: " + pieceName);
+			}
+		}
 	}
 	
 	// Update is called once per frame
@@ -980,6 +986,14 @@ public class TouchInputHandler : MonoBehaviour {
 		rightPanelAnimator.SetTrigger ("stateChangeTriggerTakeoff");
 		ending = true;
 
+		// save the pieces and their positions that were in the rocket during this trial
+		var savedVariablesScript = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
+		savedVariablesScript.previousTrialRocketPieceNames.Clear ();
+		savedVariablesScript.previousTrialRocektPiecePositions.Clear ();
+		foreach (GameObject piece in rocketPieces) {
+			savedVariablesScript.previousTrialRocketPieceNames.Add (piece.name);
+			savedVariablesScript.previousTrialRocektPiecePositions.Add (piece.transform.position);
+		}
 	}
 
 	//calculates how far the rocket should go
