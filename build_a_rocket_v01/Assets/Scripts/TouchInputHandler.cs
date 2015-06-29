@@ -132,10 +132,10 @@ public class TouchInputHandler : MonoBehaviour {
 		// sets up the pieces that were there before 
 		// HERE
 		var savedVariablesScript = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
-		int numSavedPieces = savedVariablesScript.previousTrialRocketPieceNames.Count;
-		for (int i = 0; i < numSavedPieces; i++) {
-			Debug.Log(savedVariablesScript.previousTrialRocketPieceNames[i]);
-			Debug.Log(savedVariablesScript.previousTrialRocektPiecePositions[i]);
+		foreach (SavedPieceInfo savedPiece in savedVariablesScript.previousTrialRocketPieces) {
+			Debug.Log(savedPiece.pieceType);
+			Debug.Log(savedPiece.pos);
+			Debug.Log(savedPiece.vectorPos);
 		}
 	}
 	
@@ -791,6 +791,20 @@ public class TouchInputHandler : MonoBehaviour {
 		}
 	}
 
+	int determinePieceType(string pieceName) {
+		// 0 - cone, 1 - body, 2 - booster, 3 - fin
+		if (pieceName.Contains ("body_")) {
+			return 1;
+		} else if (pieceName.Contains ("cone_")) {
+			return 0;
+		} else if (pieceName.Contains ("engine_")) {
+			return 2;
+		} else if (pieceName.Contains ("fin_")) {
+			return 3;
+		}
+		return -1;
+	}
+
 	void checkTrash(GameObject selected) { //this is called to destroy objects which are close to the trashcans or far from the ship
 		foreach (GameObject selectedBodyPiece in rocketPieces) {
 			if (selectedBodyPiece != null) {
@@ -987,11 +1001,10 @@ public class TouchInputHandler : MonoBehaviour {
 
 		// save the pieces and their positions that were in the rocket during this trial
 		var savedVariablesScript = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
-		savedVariablesScript.previousTrialRocketPieceNames.Clear ();
-		savedVariablesScript.previousTrialRocektPiecePositions.Clear ();
+		savedVariablesScript.previousTrialRocketPieces.Clear ();
 		foreach (GameObject piece in rocketPieces) {
-			savedVariablesScript.previousTrialRocketPieceNames.Add (piece.name);
-			savedVariablesScript.previousTrialRocektPiecePositions.Add (piece.transform.position);
+			SavedPieceInfo newSavedPiece = new SavedPieceInfo(determinePieceType(piece.name), piece.GetComponent<ObjectInfo>().pos, piece.transform.position);
+			savedVariablesScript.previousTrialRocketPieces.Add (newSavedPiece);
 		}
 	}
 
