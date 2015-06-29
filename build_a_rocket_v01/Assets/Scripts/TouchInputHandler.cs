@@ -478,8 +478,8 @@ public class TouchInputHandler : MonoBehaviour {
 
 			//update all of the values of the rocket
 			foreach (GameObject piece in rocketPieces) {
-				weight += (piece.GetComponent<ObjectInfo> ().weight);
-				resistance += (piece.GetComponent<ObjectInfo> ().airResistance -2);
+				weight += piece.GetComponent<ObjectInfo> ().weight;
+				resistance += piece.GetComponent<ObjectInfo> ().airResistance;
 				fuel += piece.GetComponent<ObjectInfo> ().fuel;
 				power += piece.GetComponent<ObjectInfo> ().power;
 			}
