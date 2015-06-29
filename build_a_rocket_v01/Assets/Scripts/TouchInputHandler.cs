@@ -132,11 +132,10 @@ public class TouchInputHandler : MonoBehaviour {
 		// sets up the pieces that were there before 
 		// HERE
 		var savedVariablesScript = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
-		if (savedVariablesScript.previousTrialRocketPieceNames.Count > 0) {
-
-			foreach(string pieceName in savedVariablesScript.previousTrialRocketPieceNames){
-				Debug.Log("Saved piece: " + pieceName);
-			}
+		int numSavedPieces = savedVariablesScript.previousTrialRocketPieceNames.Count;
+		for (int i = 0; i < numSavedPieces; i++) {
+			Debug.Log(savedVariablesScript.previousTrialRocketPieceNames[i]);
+			Debug.Log(savedVariablesScript.previousTrialRocektPiecePositions[i]);
 		}
 	}
 	
