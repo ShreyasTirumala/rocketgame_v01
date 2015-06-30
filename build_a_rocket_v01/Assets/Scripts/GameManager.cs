@@ -87,9 +87,19 @@ public class GameManager : MonoBehaviour {
 		jet2.GetComponent<ParticleSystem>().enableEmission = false;
 		GameObject jet3 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
 		jet3.GetComponent<ParticleSystem>().enableEmission = false;
+		GameObject jetLeft = GameObject.Find("RocketSprites/SelectedOutlines/FinSelectedOutlines/left_fin_selected_outline/Jet");
+		jetLeft.GetComponent<ParticleSystem>().enableEmission = false;
+		GameObject jetRight = GameObject.Find("RocketSprites/SelectedOutlines/FinSelectedOutlines/right_fin_selected_outline/Jet");
+		jetRight.GetComponent<ParticleSystem>().enableEmission = false;
 
-		//GameObject d = GameObject.Find("Canvas/Distance");
-		//d.transform.position = new Vector3(-1000, -1000, 0);
+
+		// show the distance stats
+		GameObject distanceDisplay = GameObject.Find("Canvas/Distance");
+		distanceDisplay.GetComponent<Text> ().enabled = false;
+
+		GameObject miles = GameObject.Find ("Canvas/Meters");
+		miles.GetComponent<Text> ().enabled = false;
+
 
 		//GameObject.Find ("Results").SetActive (false);
 
@@ -147,9 +157,19 @@ public class GameManager : MonoBehaviour {
 			if (launched == false) {
 				launched = true;
 
+				// show the distance stats
+				GameObject distanceDisplay = GameObject.Find("Canvas/Distance");
+				distanceDisplay.GetComponent<Text> ().enabled = true;
+				
+				GameObject miles = GameObject.Find ("Canvas/Meters");
+				miles.GetComponent<Text> ().enabled = true;
+
 				GameObject timer = GameObject.Find("Canvas/Timer");
 				timerSavePosition = timer.transform.position;
-				timer.transform.position = new Vector3(-1000, -1000, 0);
+				timer.GetComponent<Text>().enabled = false;
+				//timer.transform.position = new Vector3(-1000, -1000, 0);
+
+
 				GameObject w = GameObject.Find("Canvas/Weight");
 				w.transform.position = new Vector3(-1000, -1000, 0);
 				GameObject ar = GameObject.Find("Canvas/Resistance");
@@ -158,6 +178,22 @@ public class GameManager : MonoBehaviour {
 				f.transform.position = new Vector3(-1000, -1000, 0);
 				GameObject p = GameObject.Find("Canvas/Power");
 				p.transform.position = new Vector3(-1000, -1000, 0);
+
+
+				foreach(GameObject piece in GameObject.Find("GameManager").GetComponent<TouchInputHandler>().rocketPieces) {
+					if (piece.name.Contains("fin_Engine") || piece.name.Contains("fin_Propeller")) {
+						// if it's on the left side
+						if (piece.transform.position.x < 0) {
+							GameObject jetLeft = GameObject.Find("RocketSprites/SelectedOutlines/FinSelectedOutlines/left_fin_selected_outline/Jet");
+							jetLeft.GetComponent<ParticleSystem>().enableEmission = true;
+						} 
+						// or if it's on the right side 
+						else {
+							GameObject jetRight = GameObject.Find("RocketSprites/SelectedOutlines/FinSelectedOutlines/right_fin_selected_outline/Jet");
+							jetRight.GetComponent<ParticleSystem>().enableEmission = true;
+						}
+					}
+				}
 
 
 				GameObject jet = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
@@ -192,9 +228,9 @@ public class GameManager : MonoBehaviour {
 
 			maxDistance = script.calculateDistance();
 			if (distance < maxDistance) {
-				distance +=5;
+				distance += 1;
 				if (launched == true) {
-					alphaSet += .0005f;
+					alphaSet += .001f;
 					
 				}
 
@@ -228,14 +264,18 @@ public class GameManager : MonoBehaviour {
 				var results = GameObject.Find ("Results");
 				results.GetComponent<Animator>().SetTrigger ("go");
 
-					GameObject jet4 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
-					jet4.GetComponent<ParticleSystem> ().enableEmission = false;
-					GameObject jet5 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 2/Jet 1");
-					jet5.GetComponent<ParticleSystem> ().enableEmission = false;
-					GameObject jet6 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 3/Jet 2");
-					jet6.GetComponent<ParticleSystem> ().enableEmission = false;
-					GameObject jet7 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
-					jet7.GetComponent<ParticleSystem> ().enableEmission = false;
+				GameObject jet4 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
+				jet4.GetComponent<ParticleSystem> ().enableEmission = false;
+				GameObject jet5 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 2/Jet 1");
+				jet5.GetComponent<ParticleSystem> ().enableEmission = false;
+				GameObject jet6 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 3/Jet 2");
+				jet6.GetComponent<ParticleSystem> ().enableEmission = false;
+				GameObject jet7 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
+				jet7.GetComponent<ParticleSystem> ().enableEmission = false;
+				GameObject jet8 = GameObject.Find ("RocketSprites/SelectedOutlines/FinSelectedOutlines/left_fin_selected_outline/Jet");
+				jet8.GetComponent<ParticleSystem> ().enableEmission = false;
+				GameObject jet9 = GameObject.Find ("RocketSprites/SelectedOutlines/FinSelectedOutlines/right_fin_selected_outline/Jet");
+				jet9.GetComponent<ParticleSystem> ().enableEmission = false;
 
 				if (d1 != -1) 
 					GameObject.Find("Canvas/Trial1").transform.position = results.transform.position - new Vector3 (-37, -16, 0);
@@ -304,6 +344,13 @@ public class GameManager : MonoBehaviour {
 					{
 						remainingTimeSec2 = GetSeconds(remainingTime2);
 						SetCountdownTimerText("00:00");
+
+						// hide the distance stats
+						GameObject distanceDisplay = GameObject.Find("Canvas/Distance");
+						distanceDisplay.GetComponent<Text> ().enabled = false;
+						
+						GameObject miles = GameObject.Find ("Canvas/Meters");
+						miles.GetComponent<Text> ().enabled = false;
 					}
 					canRestart = true;
 					//GameObject.Find("Canvas/RestartMessage").transform.position = new Vector3 (0, -45, 0);

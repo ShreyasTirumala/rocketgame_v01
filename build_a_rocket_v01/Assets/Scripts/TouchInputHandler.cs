@@ -1051,7 +1051,7 @@ public class TouchInputHandler : MonoBehaviour {
 		if (((fuel * (power - resistance))*2 - weight)*2 > 0) {
 			return ((fuel * (power - resistance))*2 - weight)*2;
 		} else {
-			return 0;
+			return 100;
 		}
 	}
 
