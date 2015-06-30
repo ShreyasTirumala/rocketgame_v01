@@ -1058,10 +1058,11 @@ public class TouchInputHandler : MonoBehaviour {
 
 	//calculates how far the rocket should go
 	public int calculateDistance() {
-		if (((fuel * (power - resistance))*2 - weight)*2 > 0) {
-			return ((fuel * (power - resistance))*2 - weight)*2;
+		float distanceTemp = (float)(-1.0 * ((float)resistance + 1.5 * (float)weight) + (float)fuel + ((float)fuel * (float)power) * 0.002 + 250.0);
+		if (distanceTemp < 0 || fuel == 0) {
+			return 0;
 		} else {
-			return 100;
+			return (int)distanceTemp;
 		}
 	}
 
