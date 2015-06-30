@@ -25,6 +25,8 @@ public class SavedVariables : MonoBehaviour {
 	public int d4 = -1;
 	public int d5 = -1;
 
+	public bool gameStarted = false;
+
 	public List<SavedPieceInfo> previousTrialRocketPieces = new List<SavedPieceInfo> ();
 
 	void Awake() {

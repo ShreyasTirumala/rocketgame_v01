@@ -82,6 +82,9 @@ public class TouchInputHandler : MonoBehaviour {
 
 	// the object used to send all the messages to Thalamus
 	private ThalamusUnity thalamusUnity;
+
+	// indicate whether we've started the game
+	private bool startGame = false;
 	
 	// Use this for initialization
 	void Start () {
@@ -173,7 +176,7 @@ public class TouchInputHandler : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		// if the game is not at the end
-		if (!paused) {
+		if (!paused && startGame) {
 			// ending happens once the gameplay pause timer runs out 
 			if (ending) {  
 				if (GameObject.Find ("GameManager").GetComponent<GameManager> ().canRestart) {
@@ -214,9 +217,9 @@ public class TouchInputHandler : MonoBehaviour {
 					if (selectedBodyPiece != savedBodyPiece && selectedBodyPiece != null) {			
 						// ETHAN
 						// send the selected pieces to Thalamus
-						 //thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
+						//thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
 
-						 //Debug.Log("pieceSelected*" + selectedBodyPiece.name);
+						//Debug.Log("pieceSelected*" + selectedBodyPiece.name);
 					}
 
 					//save it globally so we can operate on it in the next step if we want
@@ -514,7 +517,7 @@ public class TouchInputHandler : MonoBehaviour {
 				fuel += piece.GetComponent<ObjectInfo> ().fuel;
 				power += piece.GetComponent<ObjectInfo> ().power;
 			}
-			if (resistance <0) {
+			if (resistance < 0) {
 				resistance = 0;
 			}
 
@@ -537,14 +540,14 @@ public class TouchInputHandler : MonoBehaviour {
 			
 				// ETHAN
 				// send the stats to Thalamus
-				 //thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
+				//thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
 			
-				 //Debug.Log ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
+				//Debug.Log ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
 			}
-
-
-
-
+		} else {
+			if (GameObject.Find ("GameManager").GetComponent<GameManager> ().gameStarted) {
+				startGame = true;
+			}
 		}
 	}
 	void hideOutlinePieces (int pieceType, bool isHighlightedOutline) {
