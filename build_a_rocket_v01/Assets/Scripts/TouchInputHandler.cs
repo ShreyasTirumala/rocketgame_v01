@@ -319,6 +319,24 @@ public class TouchInputHandler : MonoBehaviour {
 							//find the closest new lock position
 							newLock (selectedPiece [i]);
 
+							
+							bool isSaved = false;
+							foreach(GameObject piece in savedPiece)
+							{
+								if (piece == selectedPiece[i])
+								{
+									isSaved = true;
+								}
+							}
+							
+							if (selectedPiece[i] != null && isSaved == false) {
+								// ETHAN
+								// send the selected pieces to Thalamus
+								thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedPiece[i].name);
+								
+								Debug.Log("pieceSelected*" + selectedPiece[i].name);
+							}
+
 							i++;
 						}
 						containPos = 0;
