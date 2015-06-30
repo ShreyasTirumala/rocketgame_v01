@@ -7,6 +7,9 @@ public class ObjectInfo : MonoBehaviour {
 	public bool firstTouch = false;
 	private float jumpSize;
 
+	// indicating whether it is a leftover piece
+	public bool isLeftoverPiece = false;
+
 
 	//changing the sprite
 	private Sprite sideSprite;
@@ -57,8 +60,10 @@ public class ObjectInfo : MonoBehaviour {
 			} 
 		}
 		if (rocketSprite != null) {
-			if (gameObject.transform.position != initialLockPosition && gameObject.transform.position == lockPosition && 
-			    lockPosition.x != 86 && lockPosition.x != -86) {
+			if ((gameObject.transform.position != initialLockPosition || isLeftoverPiece) && 
+			    gameObject.transform.position == lockPosition && 
+			    lockPosition.x != 86 && 
+			    lockPosition.x != -86) {
 				if (finSpriteRight != null ) {
 					if (lockPosition.x <0) {
 						if (gameObject.GetComponent<SpriteRenderer>().sprite != rocketSprite) {

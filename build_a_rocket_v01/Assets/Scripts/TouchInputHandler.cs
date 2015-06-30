@@ -130,12 +130,43 @@ public class TouchInputHandler : MonoBehaviour {
 		thalamusUnity = new ThalamusUnity();
 
 		// sets up the pieces that were there before 
-		// HERE
 		var savedVariablesScript = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
 		foreach (SavedPieceInfo savedPiece in savedVariablesScript.previousTrialRocketPieces) {
-			Debug.Log(savedPiece.pieceType);
-			Debug.Log(savedPiece.pos);
-			Debug.Log(savedPiece.vectorPos);
+
+			GameObject newObject = null;
+			// 0 - cone, 1 - body, 2 - booster, 3 - fin
+			if (savedPiece.pieceType == 0) {
+				newObject = GameObjectUtil.Instantiate(conePieces[savedPiece.pos], savedPiece.vectorPos);
+				conePieceList.Add (newObject);
+				newObject.GetComponent<SpriteRenderer>().sprite = conePieces[savedPiece.pos].GetComponent<SpriteRenderer>().sprite;
+				newObject.GetComponent<SpriteRenderer>().enabled = true;
+			} else if (savedPiece.pieceType == 1) {
+				newObject = GameObjectUtil.Instantiate(bodyPieces[savedPiece.pos], savedPiece.vectorPos);
+				bodyPieceList.Add (newObject);
+				newObject.GetComponent<SpriteRenderer>().sprite = bodyPieces[savedPiece.pos].GetComponent<SpriteRenderer>().sprite;
+				newObject.GetComponent<SpriteRenderer>().enabled = true;
+			} else if (savedPiece.pieceType == 2) {
+				newObject = GameObjectUtil.Instantiate(boosterPieces[savedPiece.pos], savedPiece.vectorPos);
+				boosterPieceList.Add (newObject);
+				newObject.GetComponent<SpriteRenderer>().sprite = boosterPieces[savedPiece.pos].GetComponent<SpriteRenderer>().sprite;
+				newObject.GetComponent<SpriteRenderer>().enabled = true;
+			} else if (savedPiece.pieceType == 3) {
+				newObject = GameObjectUtil.Instantiate(finPieces[savedPiece.pos], savedPiece.vectorPos);
+				finPieceList.Add (newObject);
+				newObject.GetComponent<SpriteRenderer>().sprite = finPieces[savedPiece.pos].GetComponent<SpriteRenderer>().sprite;
+				newObject.GetComponent<SpriteRenderer>().enabled = true;
+			} 
+			// object info of the object we just created
+			var newscript = newObject.GetComponent<ObjectInfo>();
+			newscript.seeMe = true;
+			newscript.jump = false;
+			newscript.isLeftoverPiece = true;
+			
+			// sets the parent
+			newObject.transform.parent = GameObject.Find("LeftoverPieces").transform;
+
+			// add it to rocketPieces
+			rocketPieces.Add(newObject);
 		}
 	}
 	
@@ -724,11 +755,13 @@ public class TouchInputHandler : MonoBehaviour {
 
 				Vector3 lockP = script.initialLockPosition; //we fix the lock position because the movement of the panels makes things screwy.
 				//furthermore they jump to the left/right when initialized
-				if (lockP.x <= 0) {
-					//lockP.x +=20;
+				if (selectedBodyPiece.GetComponent<ObjectInfo>().isLeftoverPiece) {
+					lockP.x = 250;
+					lockP.y = 50;
+				} else if (lockP.x <= 0) {
 					lockP.x = -86;
 					}else {
-					//lockP.x -=20;
+					Debug.Log("Set to 86");
 					lockP.x= 86;
 				}
 				int pos = selectedBodyPiece.GetComponent<ObjectInfo>().pos;
@@ -806,7 +839,9 @@ public class TouchInputHandler : MonoBehaviour {
 	}
 
 	void checkTrash(GameObject selected) { //this is called to destroy objects which are close to the trashcans or far from the ship
-		foreach (GameObject selectedBodyPiece in rocketPieces) {
+		for(var i = rocketPieces.Count - 1; i > -1; i--) {
+		//foreach (GameObject selectedBodyPiece in rocketPieces) {
+			GameObject selectedBodyPiece = rocketPieces[i];
 			if (selectedBodyPiece != null) {
 				foreach (GameObject trashcan in trashcans) {
 					// Abs value stuff is about being too far away from the center line - trashing it
@@ -814,7 +849,7 @@ public class TouchInputHandler : MonoBehaviour {
 					    (Mathf.Abs(selectedBodyPiece.transform.position.x) > 70 && selectedBodyPiece.GetComponent<ObjectInfo>().lockPosition !=
 					 selectedBodyPiece.GetComponent<ObjectInfo>().initialLockPosition) ) {
 						removeFromRocketPieces (selectedBodyPiece);
-				
+						break;
 						//GameObject.Destroy (selectedBodyPiece);
 					}
 				}
@@ -1003,7 +1038,10 @@ public class TouchInputHandler : MonoBehaviour {
 		var savedVariablesScript = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
 		savedVariablesScript.previousTrialRocketPieces.Clear ();
 		foreach (GameObject piece in rocketPieces) {
-			SavedPieceInfo newSavedPiece = new SavedPieceInfo(determinePieceType(piece.name), piece.GetComponent<ObjectInfo>().pos, piece.transform.position);
+			SavedPieceInfo newSavedPiece = new SavedPieceInfo(piece.GetComponent<ObjectInfo>().initialLockPosition, 
+			                                                  determinePieceType(piece.name), 
+			                                                  piece.GetComponent<ObjectInfo>().pos, 
+			                                                  piece.transform.position);
 			savedVariablesScript.previousTrialRocketPieces.Add (newSavedPiece);
 		}
 	}
