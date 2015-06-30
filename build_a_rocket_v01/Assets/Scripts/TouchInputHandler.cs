@@ -91,6 +91,9 @@ public class TouchInputHandler : MonoBehaviour {
 		// set the state to nothingSelected
 		currentState = nothingSelected;
 
+		// increase the trail number
+		GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().trialNumber++;
+
 		// get the animators
 		GameObject leftPiecePanel = GameObject.Find ("LeftPiecePanel");
 		if (leftPiecePanel != null) {
@@ -175,12 +178,16 @@ public class TouchInputHandler : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-		// if the game is not at the end
+		// if the game is not at the end or paused
 		if (!paused && startGame) {
 			// ending happens once the gameplay pause timer runs out 
 			if (ending) {  
-				if (GameObject.Find ("GameManager").GetComponent<GameManager> ().canRestart) {
+				int trialNum = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().trialNumber;
+				if (GameObject.Find ("GameManager").GetComponent<GameManager> ().canRestart && trialNum <= 5) {
 					Application.LoadLevel (Application.loadedLevel);
+				} 
+				if (trialNum > 5) {
+					GameObject.Find ("GameManager").GetComponent<GameManager> ().gameOver = true;
 				}
 			}
 

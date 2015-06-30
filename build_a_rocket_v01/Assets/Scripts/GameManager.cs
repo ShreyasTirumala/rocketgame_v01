@@ -27,6 +27,8 @@ public class GameManager : MonoBehaviour {
 	public AudioClip countdownBeep;
 	public AudioClip liftoffSound;
 
+	public bool gameOver = false;
+
 	// if the game has started
 	public bool gameStarted = false;
 
@@ -83,6 +85,12 @@ public class GameManager : MonoBehaviour {
 		d5 = saved.d5;
 
 		gameStarted = saved.gameStarted;
+
+		if (saved.gameStarted) {
+			HideUIElements ();
+		} else {
+			GameObject.Find ("Canvas/GameOverText").GetComponent<Text> ().enabled = false;
+		}
 
 		GameObject jet = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
 		jet.GetComponent<ParticleSystem>().enableEmission = false;
@@ -349,7 +357,19 @@ public class GameManager : MonoBehaviour {
 							
 							GameObject miles = GameObject.Find ("Canvas/Meters");
 							miles.GetComponent<Text> ().enabled = false;
+
+							if (gameOver) {
+								GameObject.Find ("Results").GetComponent<MeshRenderer> ().enabled = false;
+								GameObject.Find ("Canvas/Trial1").GetComponent<Text> ().enabled = false;
+								GameObject.Find ("Canvas/Trial2").GetComponent<Text> ().enabled = false;
+								GameObject.Find ("Canvas/Trial3").GetComponent<Text> ().enabled = false;
+								GameObject.Find ("Canvas/Trial4").GetComponent<Text> ().enabled = false;
+								GameObject.Find ("Canvas/Trial5").GetComponent<Text> ().enabled = false;
+								GameObject.Find ("Canvas/Panel").GetComponent<Image> ().enabled = true;
+								GameObject.Find ("Canvas/GameOverText").GetComponent<Text> ().enabled = true;
+							}
 						}
+
 						canRestart = true;
 						//GameObject.Find("Canvas/RestartMessage").transform.position = new Vector3 (0, -45, 0);
 					}
@@ -371,6 +391,36 @@ public class GameManager : MonoBehaviour {
 
 	public void StartGame() {
 		gameStarted = true;
+
+		HideUIElements ();
+
+		// relational
+		if (GameObject.Find ("Canvas/Toggle").GetComponent<Toggle> ().isOn) {
+			// ETHAN
+			// send the timer value to Thalamus
+			//thalamusUnity.Publisher.SentFromUnityToThalamus ("relational");
+			
+			//Debug.Log ("relational");
+		} 
+		// test
+		else if (GameObject.Find ("Canvas/Toggle (1)").GetComponent<Toggle> ().isOn) {
+			// ETHAN
+			// send the timer value to Thalamus
+			//thalamusUnity.Publisher.SentFromUnityToThalamus ("task");
+			
+			//Debug.Log ("task");
+		} 
+		// control
+		else if (GameObject.Find ("Canvas/Toggle (2)").GetComponent<Toggle> ().isOn) {
+			// ETHAN
+			// send the timer value to Thalamus
+			//thalamusUnity.Publisher.SentFromUnityToThalamus ("control");
+			
+			//Debug.Log ("control");
+		}
+	}
+
+	void HideUIElements() {
 		GameObject.Find ("Canvas/Panel").GetComponent<Image> ().enabled = false;
 		GameObject.Find ("Canvas/Button").GetComponent<Image> ().enabled = false;
 		GameObject.Find ("Canvas/Button/Text").GetComponent<Text> ().enabled = false;
@@ -383,31 +433,7 @@ public class GameManager : MonoBehaviour {
 		GameObject.Find ("Canvas/Toggle (2)/Background").GetComponent<Image> ().enabled = false;
 		GameObject.Find ("Canvas/Toggle (2)/Background/Checkmark").GetComponent<Image> ().enabled = false;
 		GameObject.Find ("Canvas/Toggle (2)/Label").GetComponent<Text> ().enabled = false;
-
-		// relational
-		if (GameObject.Find ("Canvas/Toggle").GetComponent<Toggle> ().isOn) {
-			// ETHAN
-			// send the timer value to Thalamus
-			//thalamusUnity.Publisher.SentFromUnityToThalamus ("relational");
-			
-			Debug.Log ("relational");
-		} 
-		// test
-		else if (GameObject.Find ("Canvas/Toggle (1)").GetComponent<Toggle> ().isOn) {
-			// ETHAN
-			// send the timer value to Thalamus
-			//thalamusUnity.Publisher.SentFromUnityToThalamus ("task");
-			
-			Debug.Log ("task");
-		} 
-		// control
-		else if (GameObject.Find ("Canvas/Toggle (2)").GetComponent<Toggle> ().isOn) {
-			// ETHAN
-			// send the timer value to Thalamus
-			//thalamusUnity.Publisher.SentFromUnityToThalamus ("control");
-			
-			Debug.Log ("control");
-		}
+		GameObject.Find ("Canvas/GameOverText").GetComponent<Text> ().enabled = false;
 	}
 
 	void SetCountdownTimerText(string timerText)
