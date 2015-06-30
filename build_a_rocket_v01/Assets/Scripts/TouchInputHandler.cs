@@ -771,7 +771,6 @@ public class TouchInputHandler : MonoBehaviour {
 				} else if (lockP.x <= 0) {
 					lockP.x = -86;
 					}else {
-					Debug.Log("Set to 86");
 					lockP.x= 86;
 				}
 				int pos = selectedBodyPiece.GetComponent<ObjectInfo>().pos;
@@ -1058,7 +1057,10 @@ public class TouchInputHandler : MonoBehaviour {
 
 	//calculates how far the rocket should go
 	public int calculateDistance() {
-		float distanceTemp = (float)(-1.0 * ((float)resistance + 1.5 * (float)weight) + (float)fuel + ((float)fuel * (float)power) * 0.002 + 250.0);
+
+		int numRocketPieces = rocketPieces.Count;
+
+		float distanceTemp = (float)((-1.0 * ((float)resistance + 1.5 * (float)weight) + (float)fuel + ((float)fuel * (float)power) * 0.002 + 250.0) * ((float)numRocketPieces / (23.0 * 3.0)));
 		if (distanceTemp < 0 || fuel == 0) {
 			return 0;
 		} else {
