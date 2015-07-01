@@ -81,7 +81,8 @@ public class TouchInputHandler : MonoBehaviour {
 	private bool ending = false;
 
 	// the object used to send all the messages to Thalamus
-	private ThalamusUnity thalamusUnity;
+	// ETHAN
+	// private ThalamusUnity thalamusUnity;
 
 	// indicate whether we've started the game
 	private bool startGame = false;
@@ -90,9 +91,6 @@ public class TouchInputHandler : MonoBehaviour {
 	void Start () {
 		// set the state to nothingSelected
 		currentState = nothingSelected;
-
-		// increase the trail number
-		GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().trialNumber++;
 
 		// get the animators
 		GameObject leftPiecePanel = GameObject.Find ("LeftPiecePanel");
@@ -133,7 +131,8 @@ public class TouchInputHandler : MonoBehaviour {
 		hidePieces (selectedOutlinePieces);
 
 		// initialize the thalamusUnity object
-		thalamusUnity = new ThalamusUnity();
+		// ETHAN
+		// thalamusUnity = new ThalamusUnity();
 
 		// sets up the pieces that were there before 
 		var savedVariablesScript = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
@@ -186,9 +185,6 @@ public class TouchInputHandler : MonoBehaviour {
 				if (GameObject.Find ("GameManager").GetComponent<GameManager> ().canRestart && trialNum <= 5) {
 					Application.LoadLevel (Application.loadedLevel);
 				} 
-				if (trialNum > 5) {
-					GameObject.Find ("GameManager").GetComponent<GameManager> ().gameOver = true;
-				}
 			}
 
 			GameObject selectedBodyPiece = null;
@@ -332,9 +328,9 @@ public class TouchInputHandler : MonoBehaviour {
 							if (selectedPiece[i] != null && isSaved == false) {
 								// ETHAN
 								// send the selected pieces to Thalamus
-								thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedPiece[i].name);
+								// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedPiece[i].name);
 								
-								Debug.Log("pieceSelected*" + selectedPiece[i].name);
+								// Debug.Log("pieceSelected*" + selectedPiece[i].name);
 							}
 
 							i++;

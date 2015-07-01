@@ -25,7 +25,7 @@ public class SavedVariables : MonoBehaviour {
 	public int d4 = -1;
 	public int d5 = -1;
 
-	public int trialNumber = 0;
+	public int trialNumber = 1;
 
 	public bool gameStarted = false;
 

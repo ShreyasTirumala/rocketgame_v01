@@ -13,6 +13,8 @@ public class GameManager : MonoBehaviour {
 	public float initialTimerValue = 120f; // time in seconds
 	public float secondInitialValue = 30f;
 
+	public int totalTrialsNumber = 5;
+
 	public Text weight;
 	public Text airResistance;
 	public Text power;
@@ -26,8 +28,6 @@ public class GameManager : MonoBehaviour {
 	// sounds being used
 	public AudioClip countdownBeep;
 	public AudioClip liftoffSound;
-
-	public bool gameOver = false;
 
 	// if the game has started
 	public bool gameStarted = false;
@@ -70,11 +70,15 @@ public class GameManager : MonoBehaviour {
 	private AudioSource audioSource1;
 	private AudioSource audioSource2;
 
+	// animator for the results panel
+	private Animator resultsAnimator;
+
 	// value to indicate whether the updated results have been shown
 	private bool shownResults = true;
 
 	// the object used to send all the messages to Thalamus
-	private ThalamusUnity thalamusUnity;
+	// ETHAN
+	// private ThalamusUnity thalamusUnity;
 
 	void Awake () {
 		var saved = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
@@ -120,7 +124,8 @@ public class GameManager : MonoBehaviour {
 		doOnce = false;
 		
 		// initialize the thalamusUnity object
-		thalamusUnity = new ThalamusUnity();
+		// ETHAN
+		// thalamusUnity = new ThalamusUnity();
 
 		// initialize the audio sources
 		var audioSources = GetComponents<AudioSource> ();
@@ -128,7 +133,10 @@ public class GameManager : MonoBehaviour {
 		//audioSource2 = audioSources [1];
 	}
 	
-
+	void Start ()
+	{
+		resultsAnimator = GameObject.Find ("Results").GetComponent<Animator> ();
+	}
 	
 	// Update is called once per frame
 	void Update () {
@@ -338,6 +346,23 @@ public class GameManager : MonoBehaviour {
 					}
 
 
+					// Put the game over panel once the results panel has come out
+					AnimatorStateInfo currentResultsPanelState = resultsAnimator.GetCurrentAnimatorStateInfo (0);
+					int trialNum = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().trialNumber;
+
+					if (trialNum >= totalTrialsNumber &&
+					    currentResultsPanelState.IsName ("Base Layer.stay"))
+					{
+//						GameObject.Find ("Results").GetComponent<MeshRenderer> ().enabled = false;
+//						GameObject.Find ("Canvas/Trial1").GetComponent<Text> ().enabled = false;
+//						GameObject.Find ("Canvas/Trial2").GetComponent<Text> ().enabled = false;
+//						GameObject.Find ("Canvas/Trial3").GetComponent<Text> ().enabled = false;
+//						GameObject.Find ("Canvas/Trial4").GetComponent<Text> ().enabled = false;
+//						GameObject.Find ("Canvas/Trial5").GetComponent<Text> ().enabled = false;
+						GameObject.Find ("Canvas/Panel").GetComponent<Image> ().enabled = true;
+						GameObject.Find ("Canvas/GameOverText").GetComponent<Text> ().enabled = true;
+					}
+
 					GameObject timer = GameObject.Find ("Canvas/Timer");
 					timer.transform.position = timerSavePosition;
 					remainingTime2 = secondInitialValue - timeElapsed2;
@@ -357,21 +382,17 @@ public class GameManager : MonoBehaviour {
 							
 							GameObject miles = GameObject.Find ("Canvas/Meters");
 							miles.GetComponent<Text> ().enabled = false;
-
-							if (gameOver) {
-								GameObject.Find ("Results").GetComponent<MeshRenderer> ().enabled = false;
-								GameObject.Find ("Canvas/Trial1").GetComponent<Text> ().enabled = false;
-								GameObject.Find ("Canvas/Trial2").GetComponent<Text> ().enabled = false;
-								GameObject.Find ("Canvas/Trial3").GetComponent<Text> ().enabled = false;
-								GameObject.Find ("Canvas/Trial4").GetComponent<Text> ().enabled = false;
-								GameObject.Find ("Canvas/Trial5").GetComponent<Text> ().enabled = false;
-								GameObject.Find ("Canvas/Panel").GetComponent<Image> ().enabled = true;
-								GameObject.Find ("Canvas/GameOverText").GetComponent<Text> ().enabled = true;
-							}
 						}
 
-						canRestart = true;
-						//GameObject.Find("Canvas/RestartMessage").transform.position = new Vector3 (0, -45, 0);
+						// increase the trail number & enable/disable restart
+						if (trialNum < totalTrialsNumber)
+						{
+							GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().trialNumber++;
+							Debug.Log ("Trial number: " + GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().trialNumber.ToString ());
+
+							canRestart = true;
+						}
+					
 					}
 					timeElapsed2 += Time.deltaTime;
 
