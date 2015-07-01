@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using UnityEngine.UI;
 using System;
 
@@ -19,6 +20,9 @@ public class GameManager : MonoBehaviour {
 	public Text airResistance;
 	public Text power;
 	public Text fuel;
+
+	public List<Text> trialResultsTexts;
+
 	public Text t1;
 	public Text t2;
 	public Text t3;
@@ -50,17 +54,8 @@ public class GameManager : MonoBehaviour {
 
 	public bool canRestart = false;
 
-	private int d1;
-	private int d2;
-	private int d3;
-	private int d4;
-	private int d5;
-
-	private int d1_old = -1;
-	private int d2_old = -1;
-	private int d3_old = -1;
-	private int d4_old = -1;
-	private int d5_old = -1;
+	private List<int> distanceVals = new List<int> () {-1, -1, -1, -1, -1, -1, -1};
+	private List<int> oldDistanceVals = new List<int> () {-1, -1, -1, -1, -1, -1, -1};
 
 	private bool doOnce;
 
@@ -82,11 +77,10 @@ public class GameManager : MonoBehaviour {
 
 	void Awake () {
 		var saved = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
-		d1 = saved.d1;
-		d2 = saved.d2;
-		d3 = saved.d3;
-		d4 = saved.d4;
-		d5 = saved.d5;
+
+		for (int i = 0; i < oldDistanceVals.Count; i++) {
+			distanceVals[i] = saved.distanceVals[i];
+		}
 
 		gameStarted = saved.gameStarted;
 
@@ -267,16 +261,13 @@ public class GameManager : MonoBehaviour {
 
 					// set the distance value for this trial
 					if (doOnce == false) {
-						if (d1 == -1) {
-							d1 = maxDistance;
-						} else if (d2 == -1) {
-							d2 = maxDistance;
-						} else if (d3 == -1) {
-							d3 = maxDistance;
-						} else if (d4 == -1) {
-							d4 = maxDistance;
-						} else {
-							d5 = maxDistance;
+						for (int i = 0; i < distanceVals.Count; i++)
+						{
+							if (distanceVals[i] == -1)
+							{
+								distanceVals[i] = maxDistance;
+								break;
+							}
 						}
 						doOnce = true;
 					}
@@ -297,51 +288,39 @@ public class GameManager : MonoBehaviour {
 					GameObject jet9 = GameObject.Find ("RocketSprites/SelectedOutlines/FinSelectedOutlines/right_fin_selected_outline/Jet");
 					jet9.GetComponent<ParticleSystem> ().enableEmission = false;
 
-					if (d1 != -1) 
-						GameObject.Find ("Canvas/Trial1").transform.position = results.transform.position - new Vector3 (-37, -16, 0);
-					if (d2 != -1) 
-						GameObject.Find ("Canvas/Trial2").transform.position = results.transform.position - new Vector3 (-37, -7, 0);
-					if (d3 != -1) 
-						GameObject.Find ("Canvas/Trial3").transform.position = results.transform.position - new Vector3 (-37, 2, 0);
-					if (d4 != -1) 
-						GameObject.Find ("Canvas/Trial4").transform.position = results.transform.position - new Vector3 (-37, 11, 0);
-					if (d5 != -1) 
-						GameObject.Find ("Canvas/Trial5").transform.position = results.transform.position - new Vector3 (-37, 20, 0);
+					int y_val;
+					for (int i = 0; i < distanceVals.Count; i++)
+					{
+						if (distanceVals[i] != -1)
+						{
+							y_val = -16 + 9 * i;
+							GameObject.Find ("Canvas/Trial" + (i+1).ToString()).transform.position = results.transform.position - new Vector3 (-37, y_val, 0);
+						}
+					}
 
+
+					int trialChanged = -1; // note trials in this case will start at 0
+					for (int i = 0; i < distanceVals.Count; i++)
+					{
+						if (distanceVals[i] != oldDistanceVals[i])
+						{
+							trialChanged = i;
+							break;
+						}
+					}
+					
 					// Only update the text displays and saved variables (and send a Thalamus message) when the results values change
-					if (d1 != d1_old || d2 != d2_old || d3 != d3_old || d4 != d4_old || d5 != d5_old) {
-						if (d1 != d1_old) {
-							t1.text = "Trial 1: " + d1.ToString ();
-							GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d1 = d1;
-							d1_old = d1;
-						}
-						if (d2 != d2_old) {
-							t2.text = "Trial 2: " + d2.ToString ();
-							GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d2 = d2;
-							d2_old = d2;
-						}
-						if (d3 != d3_old) {
-							t3.text = "Trial 3: " + d3.ToString ();
-							GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d3 = d3;
-							d3_old = d3;
-						}
-						if (d4 != d4_old) {
-							t4.text = "Trial 4: " + d4.ToString ();
-							GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d4 = d4;
-							d4_old = d4;
-						}
-						if (d5 != d5_old) {
-							t5.text = "Trial 5: " + d5.ToString ();
-							GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().d5 = d5;
-							d5_old = d5;
-						}
-
+					if (trialChanged != -1)
+					{
+						trialResultsTexts[trialChanged].text = "Trial" + (trialChanged + 1).ToString() + ":  " + distanceVals[trialChanged].ToString();
+						GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().distanceVals[trialChanged] = distanceVals[trialChanged];
+						oldDistanceVals[trialChanged] = distanceVals[trialChanged];
 						GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().gameStarted = gameStarted;
-
+						
 						// ETHAN
 						// send the results to Thalamus
 						//thalamusUnity.Publisher.SentFromUnityToThalamus ("results*" + d1.ToString() + "*" + d2.ToString() + "*" + d3.ToString() + "*" + d4.ToString() + "*" + d5.ToString());
-
+						
 						//Debug.Log("results*" + d1.ToString() + "*" + d2.ToString() + "*" + d3.ToString() + "*" + d4.ToString() + "*" + d5.ToString());
 					}
 

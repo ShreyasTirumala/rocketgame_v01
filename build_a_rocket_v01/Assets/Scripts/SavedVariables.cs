@@ -19,11 +19,7 @@ public class SavedPieceInfo {
 
 public class SavedVariables : MonoBehaviour {
 
-	public int d1 = -1;
-	public int d2 = -1;
-	public int d3 = -1;
-	public int d4 = -1;
-	public int d5 = -1;
+	public List<int> distanceVals = new List<int> () {-1, -1, -1, -1, -1, -1, -1};
 
 	public int trialNumber = 1;
 
