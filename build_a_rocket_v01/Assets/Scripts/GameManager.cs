@@ -30,8 +30,9 @@ public class GameManager : MonoBehaviour {
 	public AudioClip countdownBeep;
 	public AudioClip liftoffSound;
 
-	// if the game has started
+	// if the game state bools
 	public bool gameStarted = false;
+	public bool paused = false;
 
 	private float timeElapsed = 0f;
 	private float timeElapsed2 = 0f;
@@ -323,19 +324,23 @@ public class GameManager : MonoBehaviour {
 					AnimatorStateInfo currentResultsPanelState = resultsAnimator.GetCurrentAnimatorStateInfo (0);
 					int trialNum = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().trialNumber;
 
-					if (trialNum >= totalTrialsNumber &&
-					    currentResultsPanelState.IsName ("Base Layer.stay"))
+					if (currentResultsPanelState.IsName ("Base Layer.stay"))
 					{
-//						GameObject.Find ("Results").GetComponent<MeshRenderer> ().enabled = false;
-//						GameObject.Find ("Canvas/Trial1").GetComponent<Text> ().enabled = false;
-//						GameObject.Find ("Canvas/Trial2").GetComponent<Text> ().enabled = false;
-//						GameObject.Find ("Canvas/Trial3").GetComponent<Text> ().enabled = false;
-//						GameObject.Find ("Canvas/Trial4").GetComponent<Text> ().enabled = false;
-//						GameObject.Find ("Canvas/Trial5").GetComponent<Text> ().enabled = false;
-//						GameObject.Find ("Canvas/Trial6").GetComponent<Text> ().enabled = false;
-//						GameObject.Find ("Canvas/Trial7").GetComponent<Text> ().enabled = false;
-						GameObject.Find ("Canvas/Panel").GetComponent<Image> ().enabled = true;
-						GameObject.Find ("Canvas/GameOverText").GetComponent<Text> ().enabled = true;
+						paused = true;
+
+						if (trialNum >= totalTrialsNumber)
+						{
+	//						GameObject.Find ("Results").GetComponent<MeshRenderer> ().enabled = false;
+	//						GameObject.Find ("Canvas/Trial1").GetComponent<Text> ().enabled = false;
+	//						GameObject.Find ("Canvas/Trial2").GetComponent<Text> ().enabled = false;
+	//						GameObject.Find ("Canvas/Trial3").GetComponent<Text> ().enabled = false;
+	//						GameObject.Find ("Canvas/Trial4").GetComponent<Text> ().enabled = false;
+	//						GameObject.Find ("Canvas/Trial5").GetComponent<Text> ().enabled = false;
+	//						GameObject.Find ("Canvas/Trial6").GetComponent<Text> ().enabled = false;
+	//						GameObject.Find ("Canvas/Trial7").GetComponent<Text> ().enabled = false;
+							GameObject.Find ("Canvas/Panel").GetComponent<Image> ().enabled = true;
+							GameObject.Find ("Canvas/GameOverText").GetComponent<Text> ().enabled = true;
+						}
 					}
 
 					GameObject timer = GameObject.Find ("Canvas/Timer");
@@ -366,6 +371,8 @@ public class GameManager : MonoBehaviour {
 							Debug.Log ("Trial number: " + GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().trialNumber.ToString ());
 
 							canRestart = true;
+
+							paused = false;
 						}
 					
 					}

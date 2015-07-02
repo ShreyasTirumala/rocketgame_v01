@@ -7,7 +7,6 @@ public class TouchInputHandler : MonoBehaviour {
 
 	private int containPos = 0;
 
-	public bool paused = false;
 	// all of the prefabs that we can touch/drag
 	public GameObject[] conePieces;
 	public GameObject[] finPieces;
@@ -178,13 +177,12 @@ public class TouchInputHandler : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		// if the game is not at the end or paused
-		if (!paused && startGame) {
+		if (!GameObject.Find ("GameManager").GetComponent<GameManager> ().paused && startGame) {
 			// ending happens once the gameplay pause timer runs out 
 			if (ending) {  
 				int trialNum = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().trialNumber;
 				if (GameObject.Find ("GameManager").GetComponent<GameManager> ().canRestart && 
-				    trialNum <= GameObject.Find ("GameManager").GetComponent<GameManager> ().totalTrialsNumber) 
-				{
+					trialNum <= GameObject.Find ("GameManager").GetComponent<GameManager> ().totalTrialsNumber) {
 					Application.LoadLevel (Application.loadedLevel);
 				} 
 			}
@@ -291,8 +289,8 @@ public class TouchInputHandler : MonoBehaviour {
 				}
 			}
 
-		// for use of touch input only
-		else if (usingTouch) {
+			// for use of touch input only
+			else if (usingTouch) {
 				// if the left mouse button is clicking on our object
 				if (Input.touchCount > 0) {
 					//get our touch positions
@@ -319,15 +317,13 @@ public class TouchInputHandler : MonoBehaviour {
 
 							
 							bool isSaved = false;
-							foreach(GameObject piece in savedPiece)
-							{
-								if (piece == selectedPiece[i])
-								{
+							foreach (GameObject piece in savedPiece) {
+								if (piece == selectedPiece [i]) {
 									isSaved = true;
 								}
 							}
 							
-							if (selectedPiece[i] != null && isSaved == false) {
+							if (selectedPiece [i] != null && isSaved == false) {
 								// ETHAN
 								// send the selected pieces to Thalamus
 								// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedPiece[i].name);
@@ -567,6 +563,19 @@ public class TouchInputHandler : MonoBehaviour {
 			
 				//Debug.Log ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
 			}
+		} else if (GameObject.Find ("GameManager").GetComponent<GameManager> ().paused)
+		{
+			Debug.Log("During the pause");
+			hideOutlinePieces (coneOutlinePiece, false);
+			hideOutlinePieces (finOutlinePiece, false);
+			hideOutlinePieces (bodyOutlinePiece, false);
+			hideOutlinePieces (boosterOutlinePiece, false);
+
+			foreach (GameObject piece in rocketPieces)
+			{
+				piece.GetComponent<SpriteRenderer> ().enabled = false;
+			}
+
 		} else {
 			if (GameObject.Find ("GameManager").GetComponent<GameManager> ().gameStarted) {
 				startGame = true;
