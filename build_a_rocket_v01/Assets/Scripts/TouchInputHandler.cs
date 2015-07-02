@@ -34,7 +34,7 @@ public class TouchInputHandler : MonoBehaviour {
 	// flags to be able to use with either mouse or touch or both
 	public bool usingMouse = true;
 	public bool usingTouch = true;
-	
+
 	public int pixelsPerUnit = 10;
 	
 	public GameObject[] savedPiece = new GameObject[10];
@@ -79,9 +79,12 @@ public class TouchInputHandler : MonoBehaviour {
 
 	private bool ending = false;
 
+	// List containing the positions of all of the touches
+	private List<Vector3> touchPositions = new List<Vector3>();
+
 	// the object used to send all the messages to Thalamus
 	// ETHAN
-	// private ThalamusUnity thalamusUnity;
+	private ThalamusUnity thalamusUnity;
 
 	// indicate whether we've started the game
 	private bool startGame = false;
@@ -131,7 +134,7 @@ public class TouchInputHandler : MonoBehaviour {
 
 		// initialize the thalamusUnity object
 		// ETHAN
-		// thalamusUnity = new ThalamusUnity();
+		thalamusUnity = new ThalamusUnity();
 
 		// sets up the pieces that were there before 
 		var savedVariablesScript = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
@@ -227,7 +230,7 @@ public class TouchInputHandler : MonoBehaviour {
 					if (selectedBodyPiece != savedBodyPiece && selectedBodyPiece != null) {			
 						// ETHAN
 						// send the selected pieces to Thalamus
-						//thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
+						thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
 
 						//Debug.Log("pieceSelected*" + selectedBodyPiece.name);
 					}
@@ -305,13 +308,15 @@ public class TouchInputHandler : MonoBehaviour {
 				// if the left mouse button is clicking on our object
 				if (Input.touchCount > 0) {
 					//get our touch positions
-					Vector3[] touchPosition;
-					touchPosition = new Vector3[Input.touchCount];
+					//Vector3[] touchPosition;
+					//touchPosition = new Vector3[Input.touchCount];
+					touchPositions.Clear ();
 				
 					int i = 0;
 					foreach (Touch touch in Input.touches) {
-						touchPosition [i] = new Vector3 (0, 0, 0);
-						touchPosition [i] = touch.position;
+						//touchPosition [i] = new Vector3 (0, 0, 0);
+						//touchPosition [i] = touch.position;
+						touchPositions.Add(touch.position);
 						i++;
 					}
 				
@@ -320,7 +325,7 @@ public class TouchInputHandler : MonoBehaviour {
 				
 					if (switching == false) {
 						i = 0;
-						foreach (Vector3 touch in touchPosition) {
+						foreach (Vector3 touch in touchPositions) {
 							containPos = i;
 							selectedPiece [i] = MouseOverPiece (touch, rocketPiece);
 							//find the closest new lock position
@@ -341,7 +346,7 @@ public class TouchInputHandler : MonoBehaviour {
 							if (selectedPiece [i] != null && isSaved == false) {
 								// ETHAN
 								// send the selected pieces to Thalamus
-								// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedPiece[i].name);
+								thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedPiece[i].name);
 								
 								// Debug.Log("pieceSelected*" + selectedPiece[i].name);
 							}
@@ -349,7 +354,9 @@ public class TouchInputHandler : MonoBehaviour {
 							i++;
 						}
 						containPos = 0;
-					} else {
+					} 
+					// if we are switching
+					else {
 						for (i = 0; i<Input.touchCount; i++) {
 							selectedPiece [i] = null; //if we are switching then we should be able to select pieces
 
@@ -359,11 +366,14 @@ public class TouchInputHandler : MonoBehaviour {
 				
 				
 					//only select outline under certain conditions
-					GameObject selectedOutlinePiece;
-					if (selectedPiece [0] == null && switching == false && switchDelay == 0) {
-						selectedOutlinePiece = MouseOverPiece (touchPosition [0], outlinePiece); //FIX THIS, IT ONLY RECORDS THE FIRST TOUCH
-					} else {
-						selectedOutlinePiece = null;
+					GameObject selectedOutlinePiece = null;
+					if (touchPositions.Count > 0)
+					{
+						if (selectedPiece [0] == null && switching == false && switchDelay == 0) {
+							selectedOutlinePiece = MouseOverPiece (touchPositions [0], outlinePiece); //FIX THIS, IT ONLY RECORDS THE FIRST TOUCH
+						} else {
+							selectedOutlinePiece = null;
+						}
 					}
 				
 					// allnull is true when all the selected pieces are null
@@ -374,11 +384,13 @@ public class TouchInputHandler : MonoBehaviour {
 							allnull = false;
 						}
 					}
-					if (!allnull) { //if we have at least one selected piece
+
+					//if we have at least one selected rocket piece
+					if (!allnull) { 
 						i = 0;
 						foreach (GameObject selected in selectedPiece) { //do the code from the mouse section for each piece.
-							if (selected != null) {
-								Vector3 mousePos = touchPosition [i];
+							if (selected != null && i < touchPositions.Count) {
+								Vector3 mousePos = touchPositions [i];
 							
 								if (selected.GetComponent<ObjectInfo> ().firstTouch == false) {
 									selected.GetComponent<ObjectInfo> ().firstTouch = true;
@@ -393,7 +405,9 @@ public class TouchInputHandler : MonoBehaviour {
 							i++;
 						}
 					
-					} else if (selectedOutlinePiece != null) { 
+					}
+					// if we have 1 touch and it's an outline piece
+					else if (selectedOutlinePiece != null) { 
 						string pieceName = selectedOutlinePiece.name;
 						nextState = -1;
 						if (pieceName.Contains ("top")) {
@@ -419,10 +433,12 @@ public class TouchInputHandler : MonoBehaviour {
 							}
 						}
 					}
+
+					// we want to trash all the saved pieces that are not currently selected 
 					int k = 0;
 					for (k = 0; k<10; k++) {
 						bool isselected = false;
-						foreach (GameObject selected in selectedPiece) { //we want to trash all the saved pieces that are not currently selected 
+						foreach (GameObject selected in selectedPiece) { 
 							if (selected == savedPiece [k]) { // (the saved piece array is larger than the number of touches)
 								isselected = true;
 							}
@@ -431,34 +447,32 @@ public class TouchInputHandler : MonoBehaviour {
 							checkTrash (savedPiece [k]); //check trash deletes pieces if they are close to the trash
 						}
 					}
+
 					if (!switching) {
 					
-						int q;
-						for (q = 0; q<10; q++) {
+						for (int q = 0; q < 10; q++) {
 							bool savednotselected = true;
 							foreach (GameObject selected in selectedPiece) {
 								if (savedPiece [q] == selected) {
 									savednotselected = false;
 								}
 							}
-							if (savednotselected) {
-								addToRocketPieces (savedPiece [q]); //we add pieces that were selected the step before but are no longer selected, ie they have been locked in
+
+							// we add pieces that were selected the step before but are no longer selected, ie they have been locked in
+							if (savednotselected && savedPiece[q] != null) {
+								addToRocketPieces (savedPiece [q]); 
 								if (savedPiece[q] != null)
 								{
 									savedPiece[q].GetComponent<SpriteRenderer> ().sortingLayerName = "Unselected Piece";
 								}
 								//the function itself makes sure that they are actually locked into a rocket piece slot and not the initial location or a trashcan
 							}
-							//savedPiece[q] = null;
-					
-							int m;
-							for (m = 0; m<Input.touchCount; m++) {
-								//save it globally so we can operate on it in the next step if we want. We need to have access to pieces that stop being selected
-								if (savedPiece [m] != selectedPiece [m]) {
-									//addToRocketPieces(savedPiece[m]);
-								}
+							
+							//save it globally so we can operate on it in the next step if we want. We need to have access to pieces that stop being selected
+							for (int m = 0; m<Input.touchCount; m++) {
 								savedPiece [m] = selectedPiece [m];
 							}
+
 							lockListExceptionArray (selectedPiece, conePieceList); //this could be simpler, so fix if we have lag
 							lockListExceptionArray (selectedPiece, boosterPieceList); 
 							lockListExceptionArray (selectedPiece, bodyPieceList);
@@ -468,7 +482,9 @@ public class TouchInputHandler : MonoBehaviour {
 					}
 				
 				
-				} else {
+				}
+				// If there are no touches
+				else {
 					if (!switching) {
 						lockAll ();
 						//the step after we stop selecting a piece, add that piece to the rocketPieces list
@@ -582,7 +598,7 @@ public class TouchInputHandler : MonoBehaviour {
 			
 				// ETHAN
 				// send the stats to Thalamus
-				//thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
+				thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
 			
 				//Debug.Log ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
 			}
@@ -894,9 +910,9 @@ public class TouchInputHandler : MonoBehaviour {
 		return -1;
 	}
 
-	void checkTrash(GameObject selected) { //this is called to destroy objects which are close to the trashcans or far from the ship
+	//this is called to destroy objects which are close to the trashcans or far from the ship
+	void checkTrash(GameObject selected) { 
 		for(var i = rocketPieces.Count - 1; i > -1; i--) {
-		//foreach (GameObject selectedBodyPiece in rocketPieces) {
 			GameObject selectedBodyPiece = rocketPieces[i];
 			if (selectedBodyPiece != null) {
 				foreach (GameObject trashcan in trashcans) {
@@ -906,12 +922,12 @@ public class TouchInputHandler : MonoBehaviour {
 					 selectedBodyPiece.GetComponent<ObjectInfo>().initialLockPosition) ) {
 						removeFromRocketPieces (selectedBodyPiece);
 						break;
-						//GameObject.Destroy (selectedBodyPiece);
 					}
 				}
 			}
 		}
 	}
+
 	void removeFromRocketPieces(GameObject selectedBodyPiece) {
 		if (currentState == coneSelected) {
 			conePieceList.Remove (selectedBodyPiece);
