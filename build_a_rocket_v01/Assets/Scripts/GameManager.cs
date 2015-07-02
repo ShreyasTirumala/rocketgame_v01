@@ -14,7 +14,10 @@ public class GameManager : MonoBehaviour {
 	public float initialTimerValue = 120f; // time in seconds
 	public float secondInitialValue = 30f;
 
-	public int totalTrialsNumber = 5;
+	// Values dependent on the number of trials
+	public int totalTrialsNumber = 7;
+	private List<int> distanceVals = new List<int> () {-1, -1, -1, -1, -1, -1, -1};
+	private List<int> oldDistanceVals = new List<int> () {-1, -1, -1, -1, -1, -1, -1};
 
 	public Text weight;
 	public Text airResistance;
@@ -22,12 +25,6 @@ public class GameManager : MonoBehaviour {
 	public Text fuel;
 
 	public List<Text> trialResultsTexts;
-
-	public Text t1;
-	public Text t2;
-	public Text t3;
-	public Text t4;
-	public Text t5;
 	
 	// sounds being used
 	public AudioClip countdownBeep;
@@ -53,9 +50,6 @@ public class GameManager : MonoBehaviour {
 	private float fov;
 
 	public bool canRestart = false;
-
-	private List<int> distanceVals = new List<int> () {-1, -1, -1, -1, -1, -1, -1};
-	private List<int> oldDistanceVals = new List<int> () {-1, -1, -1, -1, -1, -1, -1};
 
 	private bool doOnce;
 
@@ -293,8 +287,8 @@ public class GameManager : MonoBehaviour {
 					{
 						if (distanceVals[i] != -1)
 						{
-							y_val = -16 + 9 * i;
-							GameObject.Find ("Canvas/Trial" + (i+1).ToString()).transform.position = results.transform.position - new Vector3 (-37, y_val, 0);
+							y_val = -16 + 7 * i;
+							GameObject.Find ("Canvas/Trial" + (i+1).ToString()).transform.position = results.transform.position - new Vector3 (-36, y_val, 0);
 						}
 					}
 
@@ -312,7 +306,7 @@ public class GameManager : MonoBehaviour {
 					// Only update the text displays and saved variables (and send a Thalamus message) when the results values change
 					if (trialChanged != -1)
 					{
-						trialResultsTexts[trialChanged].text = "Trial" + (trialChanged + 1).ToString() + ":  " + distanceVals[trialChanged].ToString();
+						trialResultsTexts[trialChanged].text = "Trial " + (trialChanged + 1).ToString() + ":   " + distanceVals[trialChanged].ToString();
 						GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().distanceVals[trialChanged] = distanceVals[trialChanged];
 						oldDistanceVals[trialChanged] = distanceVals[trialChanged];
 						GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().gameStarted = gameStarted;
@@ -338,6 +332,8 @@ public class GameManager : MonoBehaviour {
 //						GameObject.Find ("Canvas/Trial3").GetComponent<Text> ().enabled = false;
 //						GameObject.Find ("Canvas/Trial4").GetComponent<Text> ().enabled = false;
 //						GameObject.Find ("Canvas/Trial5").GetComponent<Text> ().enabled = false;
+//						GameObject.Find ("Canvas/Trial6").GetComponent<Text> ().enabled = false;
+//						GameObject.Find ("Canvas/Trial7").GetComponent<Text> ().enabled = false;
 						GameObject.Find ("Canvas/Panel").GetComponent<Image> ().enabled = true;
 						GameObject.Find ("Canvas/GameOverText").GetComponent<Text> ().enabled = true;
 					}

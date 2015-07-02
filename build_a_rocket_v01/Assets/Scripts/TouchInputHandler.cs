@@ -182,7 +182,9 @@ public class TouchInputHandler : MonoBehaviour {
 			// ending happens once the gameplay pause timer runs out 
 			if (ending) {  
 				int trialNum = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().trialNumber;
-				if (GameObject.Find ("GameManager").GetComponent<GameManager> ().canRestart && trialNum <= 5) {
+				if (GameObject.Find ("GameManager").GetComponent<GameManager> ().canRestart && 
+				    trialNum <= GameObject.Find ("GameManager").GetComponent<GameManager> ().totalTrialsNumber) 
+				{
 					Application.LoadLevel (Application.loadedLevel);
 				} 
 			}
