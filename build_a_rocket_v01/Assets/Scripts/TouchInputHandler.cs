@@ -207,6 +207,13 @@ public class TouchInputHandler : MonoBehaviour {
 					} else {
 						selectedBodyPiece = null;
 					}
+
+					// set and unset the layering order
+					if (selectedBodyPiece != null)
+					{
+						selectedBodyPiece.GetComponent<SpriteRenderer> ().sortingLayerName = "Selected Piece";
+					}
+
 					//fixes bug where pieces jump around when you drag a piece over them
 					if (selectedBodyPiece != savedBodyPiece && savedBodyPiece != null) {
 						selectedBodyPiece = null;
@@ -281,6 +288,10 @@ public class TouchInputHandler : MonoBehaviour {
 				} else {//mouse isnt clicking
 					if (!switching) {
 						lockAll ();
+						if (savedBodyPiece!= null)
+						{
+							savedBodyPiece.GetComponent<SpriteRenderer> ().sortingLayerName = "Unselected Piece";
+						}
 						//the step after we stop selecting a piece, add that piece to the rocketPieces list
 						addToRocketPieces (savedBodyPiece);
 						checkTrash (savedBodyPiece);
@@ -565,7 +576,6 @@ public class TouchInputHandler : MonoBehaviour {
 			}
 		} else if (GameObject.Find ("GameManager").GetComponent<GameManager> ().paused)
 		{
-			Debug.Log("During the pause");
 			hideOutlinePieces (coneOutlinePiece, false);
 			hideOutlinePieces (finOutlinePiece, false);
 			hideOutlinePieces (bodyOutlinePiece, false);
