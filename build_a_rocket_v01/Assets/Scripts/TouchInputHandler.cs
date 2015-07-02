@@ -326,6 +326,10 @@ public class TouchInputHandler : MonoBehaviour {
 							//find the closest new lock position
 							newLock (selectedPiece [i]);
 
+							if (selectedPiece[i] != null)
+							{
+								selectedPiece[i].GetComponent<SpriteRenderer> ().sortingLayerName = "Selected Piece";
+							}
 							
 							bool isSaved = false;
 							foreach (GameObject piece in savedPiece) {
@@ -439,6 +443,10 @@ public class TouchInputHandler : MonoBehaviour {
 							}
 							if (savednotselected) {
 								addToRocketPieces (savedPiece [q]); //we add pieces that were selected the step before but are no longer selected, ie they have been locked in
+								if (savedPiece[q] != null)
+								{
+									savedPiece[q].GetComponent<SpriteRenderer> ().sortingLayerName = "Unselected Piece";
+								}
 								//the function itself makes sure that they are actually locked into a rocket piece slot and not the initial location or a trashcan
 							}
 							//savedPiece[q] = null;
@@ -466,6 +474,10 @@ public class TouchInputHandler : MonoBehaviour {
 						//the step after we stop selecting a piece, add that piece to the rocketPieces list
 						int i = 0;
 						for (i = 0; i<10; i++) {
+							if (savedPiece[i] != null)
+							{
+								savedPiece[i].GetComponent<SpriteRenderer> ().sortingLayerName = "Unselected Piece";
+							}
 							addToRocketPieces (savedPiece [i]); //once we add, we can check the trash and then clear the array because its sole purpose is to be used in addToRocketPieces
 							checkTrash (savedPiece [i]);
 							savedPiece [i] = null;
