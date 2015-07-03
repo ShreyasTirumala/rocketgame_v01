@@ -26,6 +26,11 @@ public class TouchInputHandler : MonoBehaviour {
 
 	public GameObject savedBodyPiece = null;
 
+	// keep track of the last piece that was over the question mark
+	private GameObject savedQuestionPiece = null;
+	// and the question mark game object itself
+	private GameObject questionMark = null;
+
 	public int resistance = 0;
 	public int power = 0;
 	public int fuel = 0;
@@ -135,6 +140,9 @@ public class TouchInputHandler : MonoBehaviour {
 		// initialize the thalamusUnity object
 		// ETHAN
 		// thalamusUnity = new ThalamusUnity();
+		
+		// set the question mark object
+		questionMark = GameObject.Find ("QuestionArea");
 
 		// sets up the pieces that were there before 
 		var savedVariablesScript = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
@@ -225,14 +233,28 @@ public class TouchInputHandler : MonoBehaviour {
 					newLock (selectedBodyPiece);
 
 
-					// check if the selectedBodyPiece != savedBodyPiece, if so, send message to Thalamus
-					// about the new selected piece
-					if (selectedBodyPiece != savedBodyPiece && selectedBodyPiece != null) {			
-						// ETHAN
-						// send the selected pieces to Thalamus
-						// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
+					if (selectedBodyPiece != null) {
+						// check if the selectedBodyPiece is over the question mark, if so, send message to Thalamus
+						if (Contains (questionMark, Input.mousePosition) && 
+						    selectedBodyPiece != savedQuestionPiece) {			
+							// ETHAN
+							// send the selected pieces to Thalamus
+							// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceQuestion*" + selectedBodyPiece.name);
+							
+							// Debug.Log("pieceQuestion*" + selectedBodyPiece.name);
 
-						//Debug.Log("pieceSelected*" + selectedBodyPiece.name);
+							// save the piece we just asked a question about, we can't ask a question about the same piece twice
+							savedQuestionPiece = selectedBodyPiece;
+						}
+						// check if the selectedBodyPiece != savedBodyPiece, if so, send message to Thalamus
+						// about the new selected piece
+						else if (selectedBodyPiece != savedBodyPiece) {			
+							// ETHAN
+							// send the selected pieces to Thalamus
+							// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
+
+							//Debug.Log("pieceSelected*" + selectedBodyPiece.name);
+						}
 					}
 
 					//save it globally so we can operate on it in the next step if we want
@@ -342,13 +364,25 @@ public class TouchInputHandler : MonoBehaviour {
 									isSaved = true;
 								}
 							}
-							
-							if (selectedPiece [i] != null && isSaved == false) {
-								// ETHAN
-								// send the selected pieces to Thalamus
-								// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedPiece[i].name);
-								
-								// Debug.Log("pieceSelected*" + selectedPiece[i].name);
+
+							if (selectedPiece[i] != null) {
+								if (Contains (questionMark, touch) && 
+								    selectedPiece[i] != savedQuestionPiece) {			
+									// ETHAN
+									// send the selected pieces to Thalamus
+									// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceQuestion*" + selectedPiece[i].name);
+									
+									// Debug.Log("pieceQuestion*" + selectedPiece[i].name);
+									
+									// save the piece we just asked a question about, we can't ask a question about the same piece twice
+									savedQuestionPiece = selectedPiece[i];
+								} else if (isSaved == false) {
+									// ETHAN
+									// send the selected pieces to Thalamus
+									// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedPiece[i].name);
+									
+									// Debug.Log("pieceSelected*" + selectedPiece[i].name);
+								}
 							}
 
 							i++;
@@ -971,7 +1005,6 @@ public class TouchInputHandler : MonoBehaviour {
 				}
 			}
 
-			bool stillDragging;
 			foreach (GameObject saved in savedPiece) {
 				// if our touch isn't directly over the object, we assume that it is still being touched if it's
 				// in the saved pieces, as long as the number of touches hasn't changed
@@ -1046,20 +1079,20 @@ public class TouchInputHandler : MonoBehaviour {
 		return output;
 	}
 	
-	/* Returns true if the touchItem location is within the container, which must have a SpriteRenderer */
+	/* Returns true if the touchItem location within the container, which must have a SpriteRenderer */
 	public bool Contains (GameObject container, Vector3 touchItem) {
 		// get the position, width, and height of the container GameObject
 		Vector3 containerPosition = container.transform.position;
 		float containerWidth = container.GetComponent<SpriteRenderer> ().bounds.size.x;
 		float containerHeight = container.GetComponent<SpriteRenderer> ().bounds.size.y;
-		
+	
 		// the mouse (0,0) is at the bottom left corner of the screen, not the middle like the container
 		// so we need to have a scaled mouse position
 		float touchItemScaledx = (touchItem.x * cameraWidth / Screen.width) - (cameraWidth / 2);
 		float touchItemScaledy = (touchItem.y * cameraHeight / Screen.height) - (cameraHeight / 2);
-		
+	
 		if (touchItemScaledx >= (containerPosition.x - containerWidth / 2) && touchItemScaledx <= (containerPosition.x + containerWidth / 2)
-		    && touchItemScaledy >= (containerPosition.y - containerHeight / 2) && touchItemScaledy <= (containerPosition.y + containerHeight / 2)) {
+			&& touchItemScaledy >= (containerPosition.y - containerHeight / 2) && touchItemScaledy <= (containerPosition.y + containerHeight / 2)) {
 			return true;
 		} else {
 			return false;
