@@ -84,7 +84,7 @@ public class TouchInputHandler : MonoBehaviour {
 
 	// the object used to send all the messages to Thalamus
 	// ETHAN
-	private ThalamusUnity thalamusUnity;
+	// private ThalamusUnity thalamusUnity;
 
 	// indicate whether we've started the game
 	private bool startGame = false;
@@ -134,7 +134,7 @@ public class TouchInputHandler : MonoBehaviour {
 
 		// initialize the thalamusUnity object
 		// ETHAN
-		thalamusUnity = new ThalamusUnity();
+		// thalamusUnity = new ThalamusUnity();
 
 		// sets up the pieces that were there before 
 		var savedVariablesScript = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
@@ -206,7 +206,7 @@ public class TouchInputHandler : MonoBehaviour {
 
 					// switching = panels going in
 					if (switching == false) {
-						selectedBodyPiece = MouseOverPiece (Input.mousePosition, rocketPiece);
+						selectedBodyPiece = MouseOverPiece (Input.mousePosition, rocketPiece, -1);
 					} else {
 						selectedBodyPiece = null;
 					}
@@ -230,7 +230,7 @@ public class TouchInputHandler : MonoBehaviour {
 					if (selectedBodyPiece != savedBodyPiece && selectedBodyPiece != null) {			
 						// ETHAN
 						// send the selected pieces to Thalamus
-						thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
+						// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
 
 						//Debug.Log("pieceSelected*" + selectedBodyPiece.name);
 					}
@@ -240,7 +240,7 @@ public class TouchInputHandler : MonoBehaviour {
 					//only select outline under certain conditions
 					GameObject selectedOutlinePiece;
 					if (selectedBodyPiece == null && switching == false && switchDelay == 0) {
-						selectedOutlinePiece = MouseOverPiece (Input.mousePosition, outlinePiece);
+						selectedOutlinePiece = MouseOverPiece (Input.mousePosition, outlinePiece, -1);
 					} else {
 						selectedOutlinePiece = null;
 					}
@@ -327,7 +327,7 @@ public class TouchInputHandler : MonoBehaviour {
 						i = 0;
 						foreach (Vector3 touch in touchPositions) {
 							containPos = i;
-							selectedPiece [i] = MouseOverPiece (touch, rocketPiece);
+							selectedPiece [i] = MouseOverPiece (touch, rocketPiece, Input.touchCount);
 							//find the closest new lock position
 							newLock (selectedPiece [i]);
 
@@ -346,7 +346,7 @@ public class TouchInputHandler : MonoBehaviour {
 							if (selectedPiece [i] != null && isSaved == false) {
 								// ETHAN
 								// send the selected pieces to Thalamus
-								thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedPiece[i].name);
+								// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedPiece[i].name);
 								
 								// Debug.Log("pieceSelected*" + selectedPiece[i].name);
 							}
@@ -370,7 +370,7 @@ public class TouchInputHandler : MonoBehaviour {
 					if (touchPositions.Count > 0)
 					{
 						if (selectedPiece [0] == null && switching == false && switchDelay == 0) {
-							selectedOutlinePiece = MouseOverPiece (touchPositions [0], outlinePiece); //FIX THIS, IT ONLY RECORDS THE FIRST TOUCH
+							selectedOutlinePiece = MouseOverPiece (touchPositions [0], outlinePiece, Input.touchCount); //FIX THIS, IT ONLY RECORDS THE FIRST TOUCH
 						} else {
 							selectedOutlinePiece = null;
 						}
@@ -598,7 +598,7 @@ public class TouchInputHandler : MonoBehaviour {
 			
 				// ETHAN
 				// send the stats to Thalamus
-				thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
+				// thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
 			
 				//Debug.Log ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
 			}
@@ -947,7 +947,7 @@ public class TouchInputHandler : MonoBehaviour {
 
 	
 	/* Returns the GameObject of the piece that the mouse is over or null if the mouse isn't over a piece */
-	GameObject MouseOverPiece(Vector3 mousePos, int pieceType) {
+	GameObject MouseOverPiece(Vector3 mousePos, int pieceType, int touchCount) {
 		// initialize outputs
 		GameObject output = null;
 
@@ -962,11 +962,23 @@ public class TouchInputHandler : MonoBehaviour {
 				}
 			}
 		} else if (usingTouch) { //if we are still over a saved piece, that piece should have priority
+			// getting the # of saved pieces
+			int numSavedPieces = 0;
+			foreach (GameObject s in savedPiece) {
+				if (s != null)
+				{
+					numSavedPieces++;
+				}
+			}
+
+			bool stillDragging;
 			foreach (GameObject saved in savedPiece) {
+				// if our touch isn't directly over the object, we assume that it is still being touched if it's
+				// in the saved pieces, as long as the number of touches hasn't changed
+
 				if (saved != null) {
-					if (Contains (saved, mousePos) || ((saved.transform.position 
-					                                    != saved.GetComponent<ObjectInfo>().lockPosition) 
-					                                   && saved == savedPiece[containPos]))  {
+					if (Contains (saved, mousePos) || ((saved.transform.position != saved.GetComponent<ObjectInfo>().lockPosition) 
+					                                   && saved == savedPiece[containPos]) && touchCount == numSavedPieces)  {
 						output = saved;
 						return output;
 					}
