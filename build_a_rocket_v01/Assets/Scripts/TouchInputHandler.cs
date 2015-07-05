@@ -249,9 +249,8 @@ public class TouchInputHandler : MonoBehaviour {
 						// check if the selectedBodyPiece != savedBodyPiece, if so, send message to Thalamus
 						// about the new selected piece
 						/*else if (selectedBodyPiece != savedBodyPiece) {			
-							// ETHAN
 							// send the selected pieces to Thalamus
-							thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
+							// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
 
 							//Debug.Log("pieceSelected*" + selectedBodyPiece.name);
 						}*/
@@ -377,9 +376,8 @@ public class TouchInputHandler : MonoBehaviour {
 									// save the piece we just asked a question about, we can't ask a question about the same piece twice
 									savedQuestionPiece = selectedPiece[i];
 								} /*else if (isSaved == false) {
-									// ETHAN
 									// send the selected pieces to Thalamus
-									thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedPiece[i].name);
+									// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedPiece[i].name);
 									
 									// Debug.Log("pieceSelected*" + selectedPiece[i].name);
 								}*/
@@ -1078,6 +1076,7 @@ public class TouchInputHandler : MonoBehaviour {
 
 		return output;
 	}
+
 	
 	/* Returns true if the touchItem location within the container, which must have a SpriteRenderer */
 	public bool Contains (GameObject container, Vector3 touchItem) {
@@ -1085,6 +1084,17 @@ public class TouchInputHandler : MonoBehaviour {
 		Vector3 containerPosition = container.transform.position;
 		float containerWidth = container.GetComponent<SpriteRenderer> ().bounds.size.x;
 		float containerHeight = container.GetComponent<SpriteRenderer> ().bounds.size.y;
+
+		// if it's one of the flatter pieces that we manually added a pivot to
+		if (container.name.Contains ("cone_Flat") || container.name.Contains ("cone_Equilateral")) {
+			string spriteName = container.GetComponent<SpriteRenderer> ().sprite.name;
+			// if they are on the rocket
+			if (spriteName.Contains("cone-5001r")) {
+				containerPosition.y = containerPosition.y - 5;
+			} else if (spriteName.Contains("cone-3003-shortr")) {
+				containerPosition.y = containerPosition.y - 5;
+			}
+		}
 	
 		// the mouse (0,0) is at the bottom left corner of the screen, not the middle like the container
 		// so we need to have a scaled mouse position
@@ -1167,13 +1177,44 @@ public class TouchInputHandler : MonoBehaviour {
 	public int calculateDistance() {
 
 		int numRocketPieces = rocketPieces.Count;
+		List<int> rocketPieceTypes = countNumBodyPieceTypes (rocketPieces);
+		int numConePieces = rocketPieceTypes [0];
+		int numBodyPieces = rocketPieceTypes [1];
+		int numBoosterPieces = rocketPieceTypes [2];
+		int numFinPieces = rocketPieceTypes [3];
 
-		float distanceTemp = (float)((-1.0 * ((float)resistance + 1.5 * (float)weight) + (float)fuel + ((float)fuel * (float)power) * 0.002 + 250.0) * ((float)numRocketPieces / (23.0 * 3.0)));
-		if (distanceTemp < 0 || fuel == 0) {
+		// when penalizing missing pieces, we'll penalize the cone and fin pieces 3 times as much
+		float penalty = (float)(numConePieces * 3 + numBodyPieces + numBoosterPieces + numFinPieces * 3) / (float)(1 * 3 + 16 + 4 + 2 * 3);
+
+		float distanceTemp = (float)((-1.0 * ((float)resistance + 1.5 * (float)weight) + (float)fuel + ((float)fuel * (float)power) * 0.002 + 250.0) * (penalty));
+
+		if (distanceTemp < 0 || fuel == 0 || numBoosterPieces == 0) {
 			return 0;
 		} else {
 			return (int)distanceTemp;
 		}
+	}
+
+	List<int> countNumBodyPieceTypes (List<GameObject> pieces)
+	{
+		// piece types
+		int conePieces = 0;
+		int bodyPieces = 0;
+		int boosterPieces = 0;
+		int finPieces = 0;
+
+		int pieceType; // 0 - cone, 1 - body, 2 - booster, 3 - fin
+		foreach (GameObject piece in pieces) {
+			pieceType = determinePieceType(piece.name);
+			if (pieceType == 0) conePieces++;
+			else if (pieceType == 1) bodyPieces++;
+			else if (pieceType == 2) boosterPieces++;
+			else if (pieceType == 3) finPieces++;
+		}
+
+		// add them to the output list
+		List<int> output = new List<int> () {conePieces, bodyPieces, boosterPieces, finPieces};
+		return output;
 	}
 
 	public void setPieces() { //commenting this out because it is buggy

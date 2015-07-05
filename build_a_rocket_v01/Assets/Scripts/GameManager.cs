@@ -85,6 +85,10 @@ public class GameManager : MonoBehaviour {
 			GameObject.Find ("Canvas/GameOverText").GetComponent<Text> ().enabled = false;
 		}
 
+		// show the question mark
+		GameObject questionMark = GameObject.Find("QuestionArea");
+		questionMark.GetComponent<SpriteRenderer> ().enabled = true;
+
 		GameObject jet = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
 		jet.GetComponent<ParticleSystem>().enableEmission = false;
 		GameObject jet1 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 2/Jet 1");
@@ -171,9 +175,15 @@ public class GameManager : MonoBehaviour {
 					GameObject distanceDisplay = GameObject.Find ("Canvas/Distance");
 					distanceDisplay.GetComponent<Text> ().enabled = true;
 					
+					// hide the question mark
+					GameObject questionMark = GameObject.Find ("QuestionArea");
+					questionMark.GetComponent<SpriteRenderer> ().enabled = false;
+
+					// show the miles
 					GameObject miles = GameObject.Find ("Canvas/Meters");
 					miles.GetComponent<Text> ().enabled = true;
 
+					// hide the timer
 					GameObject timer = GameObject.Find ("Canvas/Timer");
 					timerSavePosition = timer.transform.position;
 					timer.GetComponent<Text> ().enabled = false;
