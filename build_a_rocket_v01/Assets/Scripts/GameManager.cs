@@ -68,7 +68,7 @@ public class GameManager : MonoBehaviour {
 
 	// the object used to send all the messages to Thalamus
 	// ETHAN
-	// private ThalamusUnity thalamusUnity;
+	private ThalamusUnity thalamusUnity;
 
 	void Awake () {
 		var saved = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ();
@@ -114,7 +114,7 @@ public class GameManager : MonoBehaviour {
 		
 		// initialize the thalamusUnity object
 		// ETHAN
-		// thalamusUnity = new ThalamusUnity();
+		thalamusUnity = new ThalamusUnity();
 
 		// initialize the audio sources
 		var audioSources = GetComponents<AudioSource> ();
@@ -138,7 +138,7 @@ public class GameManager : MonoBehaviour {
 					// get remaining seconds
 					remainingTimeSec = GetSeconds (remainingTime);
 					// set the timer text
-					SetCountdownTimerText (FormatTime2 (remainingTimeSec));
+					SetCountdownTimerText (remainingTimeSec);
 					// play the beeping sound if it's 5,4,3,2,1 seconds left
 					if (remainingTimeSec == 1 || remainingTimeSec == 2 || remainingTimeSec == 3 || 
 						remainingTimeSec == 4 || remainingTimeSec == 5) {
@@ -246,7 +246,7 @@ public class GameManager : MonoBehaviour {
 
 					if (GetSeconds (remainingTime2) != remainingTimeSec2) {
 						remainingTimeSec2 = GetSeconds (remainingTime2);
-						SetCountdownTimerText ("00:00");
+						SetCountdownTimerText (0);
 					}
 				} else {
 					distance = maxDistance;
@@ -324,7 +324,7 @@ public class GameManager : MonoBehaviour {
 							}
 						}
 
-						// thalamusUnity.Publisher.SentFromUnityToThalamus (resultsString);
+						thalamusUnity.Publisher.SentFromUnityToThalamus (resultsString);
 
 						// Debug.Log (resultsString);
 					}
@@ -359,12 +359,12 @@ public class GameManager : MonoBehaviour {
 					if (remainingTime2 > 0.0) {
 						if (GetSeconds (remainingTime2) != remainingTimeSec2) {
 							remainingTimeSec2 = GetSeconds (remainingTime2);
-							SetCountdownTimerText (FormatTime2 (remainingTimeSec2));
+							SetCountdownTimerText (remainingTimeSec2);
 						}
 					} else {
 						if (GetSeconds (remainingTime2) != remainingTimeSec2) {
 							remainingTimeSec2 = GetSeconds (remainingTime2);
-							SetCountdownTimerText ("00:00");
+							SetCountdownTimerText (0);
 
 							// hide the distance stats
 							GameObject distanceDisplay = GameObject.Find ("Canvas/Distance");
@@ -411,7 +411,7 @@ public class GameManager : MonoBehaviour {
 		if (GameObject.Find ("Canvas/Toggle").GetComponent<Toggle> ().isOn) {
 			// ETHAN
 			// send the timer value to Thalamus
-			// thalamusUnity.Publisher.SentFromUnityToThalamus ("relational");
+			thalamusUnity.Publisher.SentFromUnityToThalamus ("relational");
 			
 			//Debug.Log ("relational");
 		} 
@@ -419,7 +419,7 @@ public class GameManager : MonoBehaviour {
 		else if (GameObject.Find ("Canvas/Toggle (1)").GetComponent<Toggle> ().isOn) {
 			// ETHAN
 			// send the timer value to Thalamus
-			// thalamusUnity.Publisher.SentFromUnityToThalamus ("task");
+			thalamusUnity.Publisher.SentFromUnityToThalamus ("task");
 			
 			//Debug.Log ("task");
 		} 
@@ -427,7 +427,7 @@ public class GameManager : MonoBehaviour {
 		else if (GameObject.Find ("Canvas/Toggle (2)").GetComponent<Toggle> ().isOn) {
 			// ETHAN
 			// send the timer value to Thalamus
-			// thalamusUnity.Publisher.SentFromUnityToThalamus ("control");
+			thalamusUnity.Publisher.SentFromUnityToThalamus ("control");
 			
 			//Debug.Log ("control");
 		}
@@ -449,15 +449,18 @@ public class GameManager : MonoBehaviour {
 		GameObject.Find ("Canvas/GameOverText").GetComponent<Text> ().enabled = false;
 	}
 
-	void SetCountdownTimerText(string timerText)
+	void SetCountdownTimerText(int timerSec)
 	{
+		string timerText = FormatTime2 (timerSec);
 		countdownTimer.text = timerText;
 
-		// ETHAN
-		// send the timer value to Thalamus
-		// thalamusUnity.Publisher.SentFromUnityToThalamus ("timer*" + timerText);
-
-		 //Debug.Log ("timer*" + timerText);
+		if (timerSec % 5 == 0) {
+			// ETHAN
+			// send the timer value to Thalamus
+			thalamusUnity.Publisher.SentFromUnityToThalamus ("timer*" + timerText);
+			
+			//Debug.Log ("timer*" + timerText);
+		}
 	}
 
 	// restarts the game for each trial

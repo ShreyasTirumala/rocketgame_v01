@@ -89,7 +89,7 @@ public class TouchInputHandler : MonoBehaviour {
 
 	// the object used to send all the messages to Thalamus
 	// ETHAN
-	// private ThalamusUnity thalamusUnity;
+	private ThalamusUnity thalamusUnity;
 
 	// indicate whether we've started the game
 	private bool startGame = false;
@@ -139,7 +139,7 @@ public class TouchInputHandler : MonoBehaviour {
 
 		// initialize the thalamusUnity object
 		// ETHAN
-		// thalamusUnity = new ThalamusUnity();
+		thalamusUnity = new ThalamusUnity();
 		
 		// set the question mark object
 		questionMark = GameObject.Find ("QuestionArea");
@@ -239,7 +239,7 @@ public class TouchInputHandler : MonoBehaviour {
 						    selectedBodyPiece != savedQuestionPiece) {			
 							// ETHAN
 							// send the selected pieces to Thalamus
-							// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceQuestion*" + selectedBodyPiece.name);
+							thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceQuestion*" + selectedBodyPiece.name);
 							
 							// Debug.Log("pieceQuestion*" + selectedBodyPiece.name);
 
@@ -248,13 +248,13 @@ public class TouchInputHandler : MonoBehaviour {
 						}
 						// check if the selectedBodyPiece != savedBodyPiece, if so, send message to Thalamus
 						// about the new selected piece
-						else if (selectedBodyPiece != savedBodyPiece) {			
+						/*else if (selectedBodyPiece != savedBodyPiece) {			
 							// ETHAN
 							// send the selected pieces to Thalamus
-							// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
+							thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedBodyPiece.name);
 
 							//Debug.Log("pieceSelected*" + selectedBodyPiece.name);
-						}
+						}*/
 					}
 
 					//save it globally so we can operate on it in the next step if we want
@@ -370,19 +370,19 @@ public class TouchInputHandler : MonoBehaviour {
 								    selectedPiece[i] != savedQuestionPiece) {			
 									// ETHAN
 									// send the selected pieces to Thalamus
-									// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceQuestion*" + selectedPiece[i].name);
+									thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceQuestion*" + selectedPiece[i].name);
 									
 									// Debug.Log("pieceQuestion*" + selectedPiece[i].name);
 									
 									// save the piece we just asked a question about, we can't ask a question about the same piece twice
 									savedQuestionPiece = selectedPiece[i];
-								} else if (isSaved == false) {
+								} /*else if (isSaved == false) {
 									// ETHAN
 									// send the selected pieces to Thalamus
-									// thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedPiece[i].name);
+									thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceSelected*" + selectedPiece[i].name);
 									
 									// Debug.Log("pieceSelected*" + selectedPiece[i].name);
-								}
+								}*/
 							}
 
 							i++;
@@ -632,7 +632,7 @@ public class TouchInputHandler : MonoBehaviour {
 			
 				// ETHAN
 				// send the stats to Thalamus
-				// thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
+				thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
 			
 				//Debug.Log ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
 			}
