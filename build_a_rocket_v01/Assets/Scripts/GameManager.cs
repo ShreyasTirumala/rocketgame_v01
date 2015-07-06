@@ -78,8 +78,9 @@ public class GameManager : MonoBehaviour {
 		}
 
 		gameStarted = saved.gameStarted;
+		// gameStarted = true; // DEMO CHANGE
 
-		if (saved.gameStarted) {
+		if (gameStarted) {
 			HideUIElements ();
 		} else {
 			GameObject.Find ("Canvas/GameOverText").GetComponent<Text> ().enabled = false;

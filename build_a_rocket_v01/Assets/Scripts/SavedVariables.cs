@@ -23,6 +23,7 @@ public class SavedVariables : MonoBehaviour {
 
 	public int trialNumber = 1;
 
+	// public bool gameStarted = true; // DEMO CHANGE
 	public bool gameStarted = false;
 
 	public List<SavedPieceInfo> previousTrialRocketPieces = new List<SavedPieceInfo> ();
