@@ -317,6 +317,7 @@ public class TouchInputHandler : MonoBehaviour {
 							savedBodyPiece.GetComponent<SpriteRenderer> ().sortingLayerName = "Unselected Piece";
 						}
 						//the step after we stop selecting a piece, add that piece to the rocketPieces list
+						Debug.Log("When the mouse isn't clicking and usingMouse is on, call addToRocketPieces()");
 						addToRocketPieces (savedBodyPiece);
 						checkTrash (savedBodyPiece);
 						savedBodyPiece = null;
@@ -492,6 +493,7 @@ public class TouchInputHandler : MonoBehaviour {
 
 							// we add pieces that were selected the step before but are no longer selected, ie they have been locked in
 							if (savednotselected && savedPiece[q] != null) {
+								Debug.Log("Savednotselected call to addToRocketPieces()");
 								addToRocketPieces (savedPiece [q]); 
 								if (savedPiece[q] != null)
 								{
@@ -526,6 +528,7 @@ public class TouchInputHandler : MonoBehaviour {
 							{
 								savedPiece[i].GetComponent<SpriteRenderer> ().sortingLayerName = "Unselected Piece";
 							}
+							Debug.Log("When there are no touches, calling addToRocketPieces()");
 							addToRocketPieces (savedPiece [i]); //once we add, we can check the trash and then clear the array because its sole purpose is to be used in addToRocketPieces
 							checkTrash (savedPiece [i]);
 							savedPiece [i] = null;
@@ -809,7 +812,7 @@ public class TouchInputHandler : MonoBehaviour {
 				// checks for the yellow outlines
 				if (outline.GetComponent<SpriteRenderer> ().enabled == true   ) {
 					// Debug.Log (outline.GetComponent<OutlineInfo>().objectLocked);
-					if (outline.GetComponent<OutlineInfo>().objectLocked == false) 
+					if (true)//outline.GetComponent<OutlineInfo>().objectLocked == false) 
 				{
 					distance = Vector3.Distance (outline.transform.position, piece.transform.position);
 					if (minDistance > distance && !collisionLoop (outline.transform.position)) {
@@ -850,9 +853,20 @@ public class TouchInputHandler : MonoBehaviour {
 
 			var script = selectedBodyPiece.GetComponent<ObjectInfo> ();
 
+
+
+			Debug.Log("Calling 'addToRocketPieces' on: " + selectedBodyPiece.name);
+			Debug.Log("See me: " + script.seeMe.ToString());
+			Debug.Log("Current position: " + selectedBodyPiece.transform.position.ToString());
+			Debug.Log("Lock position: " + script.lockPosition.ToString());
+			Debug.Log ("Initial Lock position: " + script.initialLockPosition.ToString());
+			Debug.Log("Script added: " + script.added.ToString());
+			
 			// script.added indicates whether it's already been added to the rocketPieces list
 			if (script.seeMe == true && selectedBodyPiece.transform.position == script.lockPosition &&
 				script.lockPosition != script.initialLockPosition && script.added == false) {
+
+				Debug.Log("Adding " + selectedBodyPiece.name + " to rocket pieces");
 
 				rocketPieces.Add (selectedBodyPiece);
 				script.added = true;
@@ -912,13 +926,14 @@ public class TouchInputHandler : MonoBehaviour {
 		}
 	}
 
-	void searchToAdd() { //in theory this should add pieces which are locked onto the rocket but have somehow not been added.
+	/*void searchToAdd() { //in theory this should add pieces which are locked onto the rocket but have somehow not been added.
 		//it currently isnt being used
 		search (conePieceList);
 		search (boosterPieceList);
 		search (bodyPieceList);
 		search (finPieceList);
 	}
+
 	void search (List<GameObject> list) {
 		foreach (GameObject piece in list) {
 			if (piece.GetComponent<ObjectInfo> ().lockPosition == piece.transform.position &&
@@ -926,7 +941,7 @@ public class TouchInputHandler : MonoBehaviour {
 				addToRocketPieces (piece);
 			}
 		}
-	}
+	}*/
 
 	int determinePieceType(string pieceName) {
 		// 0 - cone, 1 - body, 2 - booster, 3 - fin
