@@ -10,6 +10,8 @@ using System;
 
 public class GameManager : MonoBehaviour {
 
+	public bool sendThalamusMsgs = false;
+
 	public Text countdownTimer;
 	public float initialTimerValue = 120f; // time in seconds
 	public float secondInitialValue = 30f;
@@ -62,9 +64,6 @@ public class GameManager : MonoBehaviour {
 
 	// animator for the results panel
 	private Animator resultsAnimator;
-
-	// value to indicate whether the updated results have been shown
-	private bool shownResults = true;
 
 	// the object used to send all the messages to Thalamus
 	// ETHAN
@@ -119,7 +118,9 @@ public class GameManager : MonoBehaviour {
 		
 		// initialize the thalamusUnity object
 		// ETHAN
-		thalamusUnity = new ThalamusUnity();
+		if (sendThalamusMsgs) {
+			thalamusUnity = new ThalamusUnity ();
+		}
 
 		// initialize the audio sources
 		var audioSources = GetComponents<AudioSource> ();
@@ -335,7 +336,9 @@ public class GameManager : MonoBehaviour {
 							}
 						}
 
-						thalamusUnity.Publisher.SentFromUnityToThalamus (resultsString);
+						if (sendThalamusMsgs) {
+							thalamusUnity.Publisher.SentFromUnityToThalamus (resultsString);
+						}
 
 						// Debug.Log (resultsString);
 					}
@@ -422,7 +425,9 @@ public class GameManager : MonoBehaviour {
 		if (GameObject.Find ("Canvas/Toggle").GetComponent<Toggle> ().isOn) {
 			// ETHAN
 			// send the timer value to Thalamus
-			thalamusUnity.Publisher.SentFromUnityToThalamus ("relational");
+			if (sendThalamusMsgs) {
+				thalamusUnity.Publisher.SentFromUnityToThalamus ("relational");
+			}
 			
 			//Debug.Log ("relational");
 		} 
@@ -430,7 +435,9 @@ public class GameManager : MonoBehaviour {
 		else if (GameObject.Find ("Canvas/Toggle (1)").GetComponent<Toggle> ().isOn) {
 			// ETHAN
 			// send the timer value to Thalamus
-			thalamusUnity.Publisher.SentFromUnityToThalamus ("task");
+			if (sendThalamusMsgs) {
+				thalamusUnity.Publisher.SentFromUnityToThalamus ("task");
+			}
 			
 			//Debug.Log ("task");
 		} 
@@ -438,7 +445,9 @@ public class GameManager : MonoBehaviour {
 		else if (GameObject.Find ("Canvas/Toggle (2)").GetComponent<Toggle> ().isOn) {
 			// ETHAN
 			// send the timer value to Thalamus
-			thalamusUnity.Publisher.SentFromUnityToThalamus ("control");
+			if (sendThalamusMsgs) {
+				thalamusUnity.Publisher.SentFromUnityToThalamus ("control");
+			}
 			
 			//Debug.Log ("control");
 		}
@@ -468,7 +477,9 @@ public class GameManager : MonoBehaviour {
 		if (timerSec % 5 == 0) {
 			// ETHAN
 			// send the timer value to Thalamus
-			thalamusUnity.Publisher.SentFromUnityToThalamus ("timer*" + timerText);
+			if (sendThalamusMsgs) {
+				thalamusUnity.Publisher.SentFromUnityToThalamus ("timer*" + timerText);
+			}
 			
 			//Debug.Log ("timer*" + timerText);
 		}

@@ -22,6 +22,7 @@ build_a_rocket_v01/*_Data
 *.booproj
 
 # Unity3D generated meta files
+*.meta
 *.pidb.meta
 
 # Unity3D Generated File On Crash Reports

@@ -82,6 +82,9 @@ public class TouchInputHandler : MonoBehaviour {
 	private Animator rightPanelAnimator;
 	private bool firstStateChangeOccured = false;
 
+	// game manager script
+	private GameManager gameManagerScript;
+
 	private bool ending = false;
 
 	// List containing the positions of all of the touches
@@ -98,6 +101,9 @@ public class TouchInputHandler : MonoBehaviour {
 	void Start () {
 		// set the state to nothingSelected
 		currentState = nothingSelected;
+
+		// get the Game Manager script 
+		gameManagerScript = GameObject.Find ("GameManager").GetComponent<GameManager> ();
 
 		// get the animators
 		GameObject leftPiecePanel = GameObject.Find ("LeftPiecePanel");
@@ -139,7 +145,9 @@ public class TouchInputHandler : MonoBehaviour {
 
 		// initialize the thalamusUnity object
 		// ETHAN
-		thalamusUnity = new ThalamusUnity();
+		if (gameManagerScript.sendThalamusMsgs) {
+			thalamusUnity = new ThalamusUnity ();
+		}
 		
 		// set the question mark object
 		questionMark = GameObject.Find ("QuestionArea");
@@ -188,12 +196,12 @@ public class TouchInputHandler : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		// if the game is not at the end or paused
-		if (!GameObject.Find ("GameManager").GetComponent<GameManager> ().paused && startGame) {
+		if (!gameManagerScript.paused && startGame) {
 			// ending happens once the gameplay pause timer runs out 
 			if (ending) {  
 				int trialNum = GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().trialNumber;
-				if (GameObject.Find ("GameManager").GetComponent<GameManager> ().canRestart && 
-					trialNum <= GameObject.Find ("GameManager").GetComponent<GameManager> ().totalTrialsNumber) {
+				if (gameManagerScript.canRestart && 
+					trialNum <= gameManagerScript.totalTrialsNumber) {
 					Application.LoadLevel (Application.loadedLevel);
 				} 
 			}
@@ -239,7 +247,9 @@ public class TouchInputHandler : MonoBehaviour {
 						    selectedBodyPiece != savedQuestionPiece) {			
 							// ETHAN
 							// send the selected pieces to Thalamus
-							thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceQuestion*" + selectedBodyPiece.name);
+							if (gameManagerScript.sendThalamusMsgs) {
+								thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceQuestion*" + selectedBodyPiece.name);
+							}
 							
 							// Debug.Log("pieceQuestion*" + selectedBodyPiece.name);
 
@@ -317,7 +327,7 @@ public class TouchInputHandler : MonoBehaviour {
 							savedBodyPiece.GetComponent<SpriteRenderer> ().sortingLayerName = "Unselected Piece";
 						}
 						//the step after we stop selecting a piece, add that piece to the rocketPieces list
-						Debug.Log("When the mouse isn't clicking and usingMouse is on, call addToRocketPieces()");
+//						Debug.Log("When the mouse isn't clicking and usingMouse is on, call addToRocketPieces()");
 						addToRocketPieces (savedBodyPiece);
 						checkTrash (savedBodyPiece);
 						savedBodyPiece = null;
@@ -370,7 +380,9 @@ public class TouchInputHandler : MonoBehaviour {
 								    selectedPiece[i] != savedQuestionPiece) {			
 									// ETHAN
 									// send the selected pieces to Thalamus
-									thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceQuestion*" + selectedPiece[i].name);
+									if (gameManagerScript.sendThalamusMsgs) {
+										thalamusUnity.Publisher.SentFromUnityToThalamus ("pieceQuestion*" + selectedPiece [i].name);
+									}
 									
 									// Debug.Log("pieceQuestion*" + selectedPiece[i].name);
 									
@@ -528,7 +540,7 @@ public class TouchInputHandler : MonoBehaviour {
 							{
 								savedPiece[i].GetComponent<SpriteRenderer> ().sortingLayerName = "Unselected Piece";
 							}
-							Debug.Log("When there are no touches, calling addToRocketPieces()");
+//							Debug.Log("When there are no touches, calling addToRocketPieces()");
 							addToRocketPieces (savedPiece [i]); //once we add, we can check the trash and then clear the array because its sole purpose is to be used in addToRocketPieces
 							checkTrash (savedPiece [i]);
 							savedPiece [i] = null;
@@ -618,12 +630,10 @@ public class TouchInputHandler : MonoBehaviour {
 			if (weight != weight_old || resistance != resistance_old || fuel != fuel_old || power != power_old) {
 
 				// update the display
-				GameObject controller = GameObject.Find ("GameManager");
-				var controlScript = controller.GetComponent<GameManager> ();
-				controlScript.weight.text = weight.ToString ();
-				controlScript.airResistance.text = resistance.ToString ();
-				controlScript.fuel.text = fuel.ToString ();
-				controlScript.power.text = power.ToString ();
+				gameManagerScript.weight.text = weight.ToString ();
+				gameManagerScript.airResistance.text = resistance.ToString ();
+				gameManagerScript.fuel.text = fuel.ToString ();
+				gameManagerScript.power.text = power.ToString ();
 
 				// update the 'old' values
 				weight_old = weight;
@@ -633,11 +643,13 @@ public class TouchInputHandler : MonoBehaviour {
 			
 				// ETHAN
 				// send the stats to Thalamus
-				thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
-			
+				if (gameManagerScript.sendThalamusMsgs) {
+					thalamusUnity.Publisher.SentFromUnityToThalamus ("stats*" + weight.ToString () + "*" + fuel.ToString () + "*" + resistance.ToString () + "*" + power.ToString ());
+				}
+
 				//Debug.Log ("stats*" + weight.ToString() + "*" + fuel.ToString() + "*" + resistance.ToString() + "*" + power.ToString());
 			}
-		} else if (GameObject.Find ("GameManager").GetComponent<GameManager> ().paused)
+		} else if (gameManagerScript.paused)
 		{
 			hideOutlinePieces (coneOutlinePiece, false);
 			hideOutlinePieces (finOutlinePiece, false);
@@ -650,7 +662,7 @@ public class TouchInputHandler : MonoBehaviour {
 			}
 
 		} else {
-			if (GameObject.Find ("GameManager").GetComponent<GameManager> ().gameStarted) {
+			if (gameManagerScript.gameStarted) {
 				startGame = true;
 			}
 		}
@@ -855,18 +867,18 @@ public class TouchInputHandler : MonoBehaviour {
 
 
 
-			Debug.Log("Calling 'addToRocketPieces' on: " + selectedBodyPiece.name);
-			Debug.Log("See me: " + script.seeMe.ToString());
-			Debug.Log("Current position: " + selectedBodyPiece.transform.position.ToString());
-			Debug.Log("Lock position: " + script.lockPosition.ToString());
-			Debug.Log ("Initial Lock position: " + script.initialLockPosition.ToString());
-			Debug.Log("Script added: " + script.added.ToString());
+//			Debug.Log("Calling 'addToRocketPieces' on: " + selectedBodyPiece.name);
+//			Debug.Log("See me: " + script.seeMe.ToString());
+//			Debug.Log("Current position: " + selectedBodyPiece.transform.position.ToString());
+//			Debug.Log("Lock position: " + script.lockPosition.ToString());
+//			Debug.Log ("Initial Lock position: " + script.initialLockPosition.ToString());
+//			Debug.Log("Script added: " + script.added.ToString());
 			
 			// script.added indicates whether it's already been added to the rocketPieces list
 			if (script.seeMe == true && selectedBodyPiece.transform.position == script.lockPosition &&
 				script.lockPosition != script.initialLockPosition && script.added == false) {
 
-				Debug.Log("Adding " + selectedBodyPiece.name + " to rocket pieces");
+//				Debug.Log("Adding " + selectedBodyPiece.name + " to rocket pieces");
 
 				rocketPieces.Add (selectedBodyPiece);
 				script.added = true;
@@ -1191,7 +1203,6 @@ public class TouchInputHandler : MonoBehaviour {
 	//calculates how far the rocket should go
 	public int calculateDistance() {
 
-		int numRocketPieces = rocketPieces.Count;
 		List<int> rocketPieceTypes = countNumBodyPieceTypes (rocketPieces);
 		int numConePieces = rocketPieceTypes [0];
 		int numBodyPieces = rocketPieceTypes [1];
