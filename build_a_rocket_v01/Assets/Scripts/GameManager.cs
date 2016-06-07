@@ -5,9 +5,6 @@ using UnityEngine.UI;
 using System;
 
 
-//this is a test comment
-//this is also a test comment
-
 public class GameManager : MonoBehaviour {
 
 	public bool sendThalamusMsgs = false;
@@ -31,16 +28,33 @@ public class GameManager : MonoBehaviour {
 	[SerializeField] Text gameOverText;
 	[SerializeField] Image overlayPanel;
 	[SerializeField] GameObject resultsPanel;
-	[SerializeField] List<Text> trialResultsTexts;
+	[SerializeField] List<GameObject> trialResults;
 
 	[SerializeField] Text distanceText;
 	[SerializeField] Text milesText;
+	[SerializeField] GameObject timer;
 
 	[SerializeField] GameObject startButton;
 	[SerializeField] GameObject toggleR;
 	[SerializeField] GameObject toggleT;
 	[SerializeField] GameObject toggleC;
-	
+
+
+	// the jets
+	[SerializeField] ParticleSystem bottomJet1;
+	[SerializeField] ParticleSystem bottomJet2;
+	[SerializeField] ParticleSystem bottomJet3;
+	[SerializeField] ParticleSystem bottomJet4;
+	[SerializeField] ParticleSystem leftJet;
+	[SerializeField] ParticleSystem rightJet;
+
+	// corresponding emission modules
+	private ParticleSystem.EmissionModule bottomJetEmission1;
+	private ParticleSystem.EmissionModule bottomJetEmission2;
+	private ParticleSystem.EmissionModule bottomJetEmission3;
+	private ParticleSystem.EmissionModule bottomJetEmission4;
+	private ParticleSystem.EmissionModule leftJetEmission;
+	private ParticleSystem.EmissionModule rightJetEmission;
 
 	// sounds being used
 	public AudioClip countdownBeep;
@@ -102,19 +116,21 @@ public class GameManager : MonoBehaviour {
 		GameObject questionMark = GameObject.Find("QuestionArea");
 		questionMark.GetComponent<SpriteRenderer> ().enabled = true;
 
-		GameObject jet = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
-		jet.GetComponent<ParticleSystem>().enableEmission = false;
-		GameObject jet1 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 2/Jet 1");
-		jet1.GetComponent<ParticleSystem>().enableEmission = false;
-		GameObject jet2 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 3/Jet 2");
-		jet2.GetComponent<ParticleSystem>().enableEmission = false;
-		GameObject jet3 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
-		jet3.GetComponent<ParticleSystem>().enableEmission = false;
-		GameObject jetLeft = GameObject.Find("RocketSprites/SelectedOutlines/FinSelectedOutlines/left_fin_selected_outline/Jet");
-		jetLeft.GetComponent<ParticleSystem>().enableEmission = false;
-		GameObject jetRight = GameObject.Find("RocketSprites/SelectedOutlines/FinSelectedOutlines/right_fin_selected_outline/Jet");
-		jetRight.GetComponent<ParticleSystem>().enableEmission = false;
+		// initialize all of the emission modules
+		bottomJetEmission1 = bottomJet1.emission;
+		bottomJetEmission2 = bottomJet2.emission;
+		bottomJetEmission3 = bottomJet3.emission;
+		bottomJetEmission4 = bottomJet4.emission;
+		leftJetEmission = leftJet.emission;
+		rightJetEmission = rightJet.emission;
 
+		// disable all of the jets
+		bottomJetEmission1.enabled = false;
+		bottomJetEmission2.enabled = false;
+		bottomJetEmission3.enabled = false;
+		bottomJetEmission4.enabled = false;
+		rightJetEmission.enabled = false;
+		leftJetEmission.enabled = false;
 
 		// show the distance stats
 		distanceText.enabled = false;
@@ -191,7 +207,6 @@ public class GameManager : MonoBehaviour {
 					milesText.enabled = true;
 
 					// hide the timer
-					GameObject timer = GameObject.Find ("Canvas/Timer");
 					timerSavePosition = timer.transform.position;
 					timer.GetComponent<Text> ().enabled = false;
 					//timer.transform.position = new Vector3(-1000, -1000, 0);
@@ -202,31 +217,25 @@ public class GameManager : MonoBehaviour {
 					fuel.transform.position = new Vector3 (-1000, -1000, 0);
 					power.transform.position = new Vector3 (-1000, -1000, 0);
 
-
+					// enable the jet liftoff animation if we have the engine or propeller fins
 					foreach (GameObject piece in GameObject.Find("GameManager").GetComponent<TouchInputHandler>().rocketPieces) {
 						if (piece.name.Contains ("fin_Engine") || piece.name.Contains ("fin_Propeller")) {
 							// if it's on the left side
 							if (piece.transform.position.x < 0) {
-								GameObject jetLeft = GameObject.Find ("RocketSprites/SelectedOutlines/FinSelectedOutlines/left_fin_selected_outline/Jet");
-								jetLeft.GetComponent<ParticleSystem> ().enableEmission = true;
+								leftJetEmission.enabled = true;
 							} 
 							// or if it's on the right side 
 							else {
-								GameObject jetRight = GameObject.Find ("RocketSprites/SelectedOutlines/FinSelectedOutlines/right_fin_selected_outline/Jet");
-								jetRight.GetComponent<ParticleSystem> ().enableEmission = true;
+								rightJetEmission.enabled = true;
 							}
 						}
 					}
 
-
-					GameObject jet = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
-					jet.GetComponent<ParticleSystem> ().enableEmission = true;
-					GameObject jet1 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 2/Jet 1");
-					jet1.GetComponent<ParticleSystem> ().enableEmission = true;
-					GameObject jet2 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 3/Jet 2");
-					jet2.GetComponent<ParticleSystem> ().enableEmission = true;
-					GameObject jet3 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
-					jet3.GetComponent<ParticleSystem> ().enableEmission = true;
+					// enable the jet liftoff animation for the bottom jets
+					bottomJetEmission1.enabled = true;
+					bottomJetEmission2.enabled = true;
+					bottomJetEmission3.enabled = true;
+					bottomJetEmission4.enabled = true;
 
 					var pos = black.transform.position;
 					pos = new Vector3 (0, 0, 0);
@@ -280,18 +289,13 @@ public class GameManager : MonoBehaviour {
 				
 					resultsPanel.GetComponent<Animator> ().SetTrigger ("go");
 
-					GameObject jet4 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
-					jet4.GetComponent<ParticleSystem> ().enableEmission = false;
-					GameObject jet5 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 2/Jet 1");
-					jet5.GetComponent<ParticleSystem> ().enableEmission = false;
-					GameObject jet6 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 3/Jet 2");
-					jet6.GetComponent<ParticleSystem> ().enableEmission = false;
-					GameObject jet7 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 4/Jet 3");
-					jet7.GetComponent<ParticleSystem> ().enableEmission = false;
-					GameObject jet8 = GameObject.Find ("RocketSprites/SelectedOutlines/FinSelectedOutlines/left_fin_selected_outline/Jet");
-					jet8.GetComponent<ParticleSystem> ().enableEmission = false;
-					GameObject jet9 = GameObject.Find ("RocketSprites/SelectedOutlines/FinSelectedOutlines/right_fin_selected_outline/Jet");
-					jet9.GetComponent<ParticleSystem> ().enableEmission = false;
+					// hide all of the jet emissions
+					bottomJetEmission1.enabled = false;
+					bottomJetEmission2.enabled = false;
+					bottomJetEmission3.enabled = false;
+					bottomJetEmission4.enabled = false;
+					rightJetEmission.enabled = false;
+					leftJetEmission.enabled = false;
 
 					int y_val;
 					for (int i = 0; i < distanceVals.Count; i++)
@@ -299,7 +303,7 @@ public class GameManager : MonoBehaviour {
 						if (distanceVals[i] != -1)
 						{
 							y_val = -16 + 7 * i;
-							GameObject.Find ("Canvas/Trial" + (i+1).ToString()).transform.position = resultsPanel.transform.position - new Vector3 (-36, y_val, 0);
+							trialResults[i].transform.position = resultsPanel.transform.position - new Vector3 (-36, y_val, 0);
 						}
 					}
 
@@ -317,12 +321,11 @@ public class GameManager : MonoBehaviour {
 					// Only update the text displays and saved variables (and send a Thalamus message) when the results values change
 					if (trialChanged != -1)
 					{
-						trialResultsTexts[trialChanged].text = "Trial " + (trialChanged + 1).ToString() + ":   " + distanceVals[trialChanged].ToString();
+						trialResults[trialChanged].GetComponent<Text>().text = "Trial " + (trialChanged + 1).ToString() + ":   " + distanceVals[trialChanged].ToString();
 						GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().distanceVals[trialChanged] = distanceVals[trialChanged];
 						oldDistanceVals[trialChanged] = distanceVals[trialChanged];
 						GameObject.Find ("SavedVariables").GetComponent<SavedVariables> ().gameStarted = gameStarted;
-						
-						// ETHAN
+
 						// send the results to Thalamus
 						string resultsString = "results*";
 						for (int i = 0; i < distanceVals.Count; i++)
@@ -338,7 +341,6 @@ public class GameManager : MonoBehaviour {
 							thalamusUnity.Publisher.SentFromUnityToThalamus (resultsString);
 						}
 
-						// Debug.Log (resultsString);
 					}
 
 
@@ -352,20 +354,11 @@ public class GameManager : MonoBehaviour {
 
 						if (trialNum >= totalTrialsNumber)
 						{
-	//						GameObject.Find ("Results").GetComponent<MeshRenderer> ().enabled = false;
-	//						GameObject.Find ("Canvas/Trial1").GetComponent<Text> ().enabled = false;
-	//						GameObject.Find ("Canvas/Trial2").GetComponent<Text> ().enabled = false;
-	//						GameObject.Find ("Canvas/Trial3").GetComponent<Text> ().enabled = false;
-	//						GameObject.Find ("Canvas/Trial4").GetComponent<Text> ().enabled = false;
-	//						GameObject.Find ("Canvas/Trial5").GetComponent<Text> ().enabled = false;
-	//						GameObject.Find ("Canvas/Trial6").GetComponent<Text> ().enabled = false;
-	//						GameObject.Find ("Canvas/Trial7").GetComponent<Text> ().enabled = false;
 							overlayPanel.enabled = true;
 							gameOverText.enabled = true;
 						}
 					}
 
-					GameObject timer = GameObject.Find ("Canvas/Timer");
 					timer.transform.position = timerSavePosition;
 					remainingTime2 = secondInitialValue - timeElapsed2;
 					if (remainingTime2 > 0.0) {
@@ -416,23 +409,18 @@ public class GameManager : MonoBehaviour {
 
 		HideUIElements ();
 
-		// relational
+		// send the condition selected to Thalamus 
 		if (toggleR.GetComponent<Toggle> ().isOn) {
-			// send the timer value to Thalamus
 			if (sendThalamusMsgs) {
 				thalamusUnity.Publisher.SentFromUnityToThalamus ("relational");
 			}
 		} 
-		// task
 		else if (toggleT.GetComponent<Toggle> ().isOn) {
-			// send the timer value to Thalamus
 			if (sendThalamusMsgs) {
 				thalamusUnity.Publisher.SentFromUnityToThalamus ("task");
 			}
 		} 
-		// control
 		else if (toggleC.GetComponent<Toggle> ().isOn) {
-			// send the timer value to Thalamus
 			if (sendThalamusMsgs) {
 				thalamusUnity.Publisher.SentFromUnityToThalamus ("control");
 			}
@@ -454,13 +442,10 @@ public class GameManager : MonoBehaviour {
 		countdownTimer.text = timerText;
 
 		if (timerSec % 5 == 0) {
-			// ETHAN
 			// send the timer value to Thalamus
 			if (sendThalamusMsgs) {
 				thalamusUnity.Publisher.SentFromUnityToThalamus ("timer*" + timerText);
 			}
-			
-			//Debug.Log ("timer*" + timerText);
 		}
 	}
 
@@ -488,5 +473,3 @@ public class GameManager : MonoBehaviour {
 		return string.Format("{0:D2}:{1:D2}", min, sec);
 	}
 }
-
-// testing merging code
