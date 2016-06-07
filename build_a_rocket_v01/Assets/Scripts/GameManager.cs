@@ -21,13 +21,27 @@ public class GameManager : MonoBehaviour {
 	private List<int> distanceVals = new List<int> () {-1, -1, -1, -1, -1, -1, -1};
 	private List<int> oldDistanceVals = new List<int> () {-1, -1, -1, -1, -1, -1, -1};
 
-	public Text weight;
-	public Text airResistance;
-	public Text power;
-	public Text fuel;
 
-	public List<Text> trialResultsTexts;
+	// Everything on the canvas that we'll be manipulating (lots of things) 
+	public GameObject weight;
+	public GameObject airResistance;
+	public GameObject power;
+	public GameObject fuel;
+
+	[SerializeField] Text gameOverText;
+	[SerializeField] Image overlayPanel;
+	[SerializeField] GameObject resultsPanel;
+	[SerializeField] List<Text> trialResultsTexts;
+
+	[SerializeField] Text distanceText;
+	[SerializeField] Text milesText;
+
+	[SerializeField] GameObject startButton;
+	[SerializeField] GameObject toggleR;
+	[SerializeField] GameObject toggleT;
+	[SerializeField] GameObject toggleC;
 	
+
 	// sounds being used
 	public AudioClip countdownBeep;
 	public AudioClip liftoffSound;
@@ -66,7 +80,6 @@ public class GameManager : MonoBehaviour {
 	private Animator resultsAnimator;
 
 	// the object used to send all the messages to Thalamus
-	// ETHAN
 	private ThalamusUnity thalamusUnity;
 
 	void Awake () {
@@ -82,7 +95,7 @@ public class GameManager : MonoBehaviour {
 		if (gameStarted) {
 			HideUIElements ();
 		} else {
-			GameObject.Find ("Canvas/GameOverText").GetComponent<Text> ().enabled = false;
+			gameOverText.enabled = false;
 		}
 
 		// show the question mark
@@ -104,14 +117,8 @@ public class GameManager : MonoBehaviour {
 
 
 		// show the distance stats
-		GameObject distanceDisplay = GameObject.Find("Canvas/Distance");
-		distanceDisplay.GetComponent<Text> ().enabled = false;
-
-		GameObject miles = GameObject.Find ("Canvas/Meters");
-		miles.GetComponent<Text> ().enabled = false;
-
-
-		//GameObject.Find ("Results").SetActive (false);
+		distanceText.enabled = false;
+		milesText.enabled = false;
 
 		fov =  Camera.main.orthographicSize;
 		doOnce = false;
@@ -130,7 +137,7 @@ public class GameManager : MonoBehaviour {
 	
 	void Start ()
 	{
-		resultsAnimator = GameObject.Find ("Results").GetComponent<Animator> ();
+		resultsAnimator = resultsPanel.GetComponent<Animator> ();
 	}
 	
 	// Update is called once per frame
@@ -174,16 +181,14 @@ public class GameManager : MonoBehaviour {
 					launched = true;
 
 					// show the distance stats
-					GameObject distanceDisplay = GameObject.Find ("Canvas/Distance");
-					distanceDisplay.GetComponent<Text> ().enabled = true;
+					distanceText.enabled = true;
 					
 					// hide the question mark
 					GameObject questionMark = GameObject.Find ("QuestionArea");
 					questionMark.GetComponent<SpriteRenderer> ().enabled = false;
 
 					// show the miles
-					GameObject miles = GameObject.Find ("Canvas/Meters");
-					miles.GetComponent<Text> ().enabled = true;
+					milesText.enabled = true;
 
 					// hide the timer
 					GameObject timer = GameObject.Find ("Canvas/Timer");
@@ -192,14 +197,10 @@ public class GameManager : MonoBehaviour {
 					//timer.transform.position = new Vector3(-1000, -1000, 0);
 
 
-					GameObject w = GameObject.Find ("Canvas/Weight");
-					w.transform.position = new Vector3 (-1000, -1000, 0);
-					GameObject ar = GameObject.Find ("Canvas/Resistance");
-					ar.transform.position = new Vector3 (-1000, -1000, 0);
-					GameObject f = GameObject.Find ("Canvas/Fuel");
-					f.transform.position = new Vector3 (-1000, -1000, 0);
-					GameObject p = GameObject.Find ("Canvas/Power");
-					p.transform.position = new Vector3 (-1000, -1000, 0);
+					weight.transform.position = new Vector3 (-1000, -1000, 0);
+					airResistance.transform.position = new Vector3 (-1000, -1000, 0);
+					fuel.transform.position = new Vector3 (-1000, -1000, 0);
+					power.transform.position = new Vector3 (-1000, -1000, 0);
 
 
 					foreach (GameObject piece in GameObject.Find("GameManager").GetComponent<TouchInputHandler>().rocketPieces) {
@@ -242,11 +243,9 @@ public class GameManager : MonoBehaviour {
 				var a = black.GetComponent<SpriteRenderer> ().color;
 				a = new Color (1f, 1f, 1f, alphaSet);
 				black.GetComponent<SpriteRenderer> ().color = a;
-				
-				//important!! change the position of the distance object here
-				GameObject d = GameObject.Find ("Canvas/Distance");
-				//d.transform.position = new Vector3(621, 334, 0);
-				d.GetComponent<Text> ().text = distance.ToString ();
+
+				// update the distance text to show how far the rocket has gone
+				distanceText.text = distance.ToString ();
 
 				maxDistance = script.calculateDistance ();
 				if (distance < maxDistance) {
@@ -278,9 +277,8 @@ public class GameManager : MonoBehaviour {
 						}
 						doOnce = true;
 					}
-
-					var results = GameObject.Find ("Results");
-					results.GetComponent<Animator> ().SetTrigger ("go");
+				
+					resultsPanel.GetComponent<Animator> ().SetTrigger ("go");
 
 					GameObject jet4 = GameObject.Find ("RocketSprites/SelectedOutlines/BoosterSelectedOutlines/engine_selected_outline 1/Jet");
 					jet4.GetComponent<ParticleSystem> ().enableEmission = false;
@@ -301,7 +299,7 @@ public class GameManager : MonoBehaviour {
 						if (distanceVals[i] != -1)
 						{
 							y_val = -16 + 7 * i;
-							GameObject.Find ("Canvas/Trial" + (i+1).ToString()).transform.position = results.transform.position - new Vector3 (-36, y_val, 0);
+							GameObject.Find ("Canvas/Trial" + (i+1).ToString()).transform.position = resultsPanel.transform.position - new Vector3 (-36, y_val, 0);
 						}
 					}
 
@@ -362,8 +360,8 @@ public class GameManager : MonoBehaviour {
 	//						GameObject.Find ("Canvas/Trial5").GetComponent<Text> ().enabled = false;
 	//						GameObject.Find ("Canvas/Trial6").GetComponent<Text> ().enabled = false;
 	//						GameObject.Find ("Canvas/Trial7").GetComponent<Text> ().enabled = false;
-							GameObject.Find ("Canvas/Panel").GetComponent<Image> ().enabled = true;
-							GameObject.Find ("Canvas/GameOverText").GetComponent<Text> ().enabled = true;
+							overlayPanel.enabled = true;
+							gameOverText.enabled = true;
 						}
 					}
 
@@ -381,11 +379,8 @@ public class GameManager : MonoBehaviour {
 							SetCountdownTimerText (0);
 
 							// hide the distance stats
-							GameObject distanceDisplay = GameObject.Find ("Canvas/Distance");
-							distanceDisplay.GetComponent<Text> ().enabled = false;
-							
-							GameObject miles = GameObject.Find ("Canvas/Meters");
-							miles.GetComponent<Text> ().enabled = false;
+							distanceText.enabled = false;
+							milesText.enabled = false;
 						}
 
 						// increase the trail number & enable/disable restart
@@ -422,51 +417,35 @@ public class GameManager : MonoBehaviour {
 		HideUIElements ();
 
 		// relational
-		if (GameObject.Find ("Canvas/Toggle").GetComponent<Toggle> ().isOn) {
-			// ETHAN
+		if (toggleR.GetComponent<Toggle> ().isOn) {
 			// send the timer value to Thalamus
 			if (sendThalamusMsgs) {
 				thalamusUnity.Publisher.SentFromUnityToThalamus ("relational");
 			}
-			
-			//Debug.Log ("relational");
 		} 
-		// test
-		else if (GameObject.Find ("Canvas/Toggle (1)").GetComponent<Toggle> ().isOn) {
-			// ETHAN
+		// task
+		else if (toggleT.GetComponent<Toggle> ().isOn) {
 			// send the timer value to Thalamus
 			if (sendThalamusMsgs) {
 				thalamusUnity.Publisher.SentFromUnityToThalamus ("task");
 			}
-			
-			//Debug.Log ("task");
 		} 
 		// control
-		else if (GameObject.Find ("Canvas/Toggle (2)").GetComponent<Toggle> ().isOn) {
-			// ETHAN
+		else if (toggleC.GetComponent<Toggle> ().isOn) {
 			// send the timer value to Thalamus
 			if (sendThalamusMsgs) {
 				thalamusUnity.Publisher.SentFromUnityToThalamus ("control");
 			}
-			
-			//Debug.Log ("control");
 		}
 	}
 
 	void HideUIElements() {
-		GameObject.Find ("Canvas/Panel").GetComponent<Image> ().enabled = false;
-		GameObject.Find ("Canvas/Button").GetComponent<Image> ().enabled = false;
-		GameObject.Find ("Canvas/Button/Text").GetComponent<Text> ().enabled = false;
-		GameObject.Find ("Canvas/Toggle/Background").GetComponent<Image> ().enabled = false;
-		GameObject.Find ("Canvas/Toggle/Background/Checkmark").GetComponent<Image> ().enabled = false;
-		GameObject.Find ("Canvas/Toggle/Label").GetComponent<Text> ().enabled = false;
-		GameObject.Find ("Canvas/Toggle (1)/Background").GetComponent<Image> ().enabled = false;
-		GameObject.Find ("Canvas/Toggle (1)/Background/Checkmark").GetComponent<Image> ().enabled = false;
-		GameObject.Find ("Canvas/Toggle (1)/Label").GetComponent<Text> ().enabled = false;
-		GameObject.Find ("Canvas/Toggle (2)/Background").GetComponent<Image> ().enabled = false;
-		GameObject.Find ("Canvas/Toggle (2)/Background/Checkmark").GetComponent<Image> ().enabled = false;
-		GameObject.Find ("Canvas/Toggle (2)/Label").GetComponent<Text> ().enabled = false;
-		GameObject.Find ("Canvas/GameOverText").GetComponent<Text> ().enabled = false;
+		overlayPanel.enabled = false;
+		startButton.SetActive (false);
+		toggleR.SetActive (false);
+		toggleT.SetActive (false);
+		toggleC.SetActive (false);
+		gameOverText.enabled = false;
 	}
 
 	void SetCountdownTimerText(int timerSec)

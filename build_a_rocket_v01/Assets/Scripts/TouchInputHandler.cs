@@ -2,6 +2,7 @@
 using System.Collections;
 using System;
 using System.Collections.Generic;
+using UnityEngine.UI;
 
 public class TouchInputHandler : MonoBehaviour {
 
@@ -630,10 +631,10 @@ public class TouchInputHandler : MonoBehaviour {
 			if (weight != weight_old || resistance != resistance_old || fuel != fuel_old || power != power_old) {
 
 				// update the display
-				gameManagerScript.weight.text = weight.ToString ();
-				gameManagerScript.airResistance.text = resistance.ToString ();
-				gameManagerScript.fuel.text = fuel.ToString ();
-				gameManagerScript.power.text = power.ToString ();
+				gameManagerScript.weight.GetComponent<Text>().text = weight.ToString ();
+				gameManagerScript.airResistance.GetComponent<Text>().text = resistance.ToString ();
+				gameManagerScript.fuel.GetComponent<Text>().text = fuel.ToString ();
+				gameManagerScript.power.GetComponent<Text>().text = power.ToString ();
 
 				// update the 'old' values
 				weight_old = weight;
